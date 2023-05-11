@@ -8,4 +8,6 @@ export interface PersonalModel {
   location: string;
   foreword: string;
   dateOfBirth: string;
+  github: string;
+  githubDescription: string;
 }
