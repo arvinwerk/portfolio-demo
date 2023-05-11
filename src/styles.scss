@@ -1,0 +1,20 @@
+/* You can add global styles to this file, and also import other style files */
+
+html, body { height: 100%; }
+body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif;
+  line-height: 1.42857143; }
+
+@import '~@angular/material/prebuilt-themes/indigo-pink.css';
+
+/* theme from theforest */
+@import 'theme/theme-fixes';
+@import 'theme/sass/_abstracts/_variables';
+@import 'theme/sass/_base/_base';
+@import 'theme/sass/_base/_utility';
+@import 'theme/sass/_base/_toc';
+@import 'theme/sass/_components/_card';
+@import 'theme/sass/_sections/_skills';
+@import 'theme/sass/_sections/_timeline';
+@import 'theme/sass/_mixins/_mediamixins';
+@import 'theme/sass/_sections/_header';
+@import 'theme/sass/_base/_typography';

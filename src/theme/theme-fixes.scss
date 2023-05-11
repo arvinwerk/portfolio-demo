@@ -1,0 +1,19 @@
+// Added missing theme fixes because its based on bootstrap, but we dont use bootstrap
+
+h6 {
+  margin: 10px 0;
+}
+
+.card {
+  box-shadow: 0 15px 15px 0 #ccc;
+}
+
+.text-center {
+  text-align: center;
+}
+
+.clearfix::after {
+  content: "";
+  clear: both;
+  display: table;
+}

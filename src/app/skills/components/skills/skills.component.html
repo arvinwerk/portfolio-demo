@@ -1,0 +1,46 @@
+<section id="skills">
+  <div class="card" id="skills-card">
+    <div class="card-content">
+      <mat-grid-list cols="3" gutterSize="25">
+        <mat-grid-tile>
+          <div style="width: 100%">
+            <div class="skills-title">
+              <h6 class="text-center">Professional</h6>
+            </div>
+            <div class="skillbar" *ngFor="let skill of skillRows">
+              <div class="skillbar-title"><span>{{skill.name}}</span></div>
+              <div class="skillbar-bar" [ngStyle]="getStyle(skill)"></div>
+              <div class="skill-bar-percent">{{skill.percentage}}%</div>
+            </div>
+          </div>
+        </mat-grid-tile>
+
+        <mat-grid-tile>
+          <div style="width: 100%">
+            <div class="skills-title">
+              <h6 class="text-center">Frameworks</h6>
+            </div>
+            <div class="skillbar" *ngFor="let skill of frameworkRows">
+              <div class="skillbar-title"><span>{{skill.name}}</span></div>
+              <div class="skillbar-bar" [ngStyle]="getStyle(skill)"></div>
+              <div class="skill-bar-percent">{{skill.percentage}}%</div>
+            </div>
+          </div>
+        </mat-grid-tile>
+
+        <mat-grid-tile>
+          <div style="width: 100%">
+            <div class="skills-title">
+              <h6 class="text-center">Other</h6>
+            </div>
+            <div class="skillbar" *ngFor="let skill of otherRows">
+              <div class="skillbar-title"><span>{{skill.name}}</span></div>
+              <div class="skillbar-bar" [ngStyle]="getStyle(skill)"></div>
+              <div class="skill-bar-percent">{{skill.percentage}}%</div>
+            </div>
+          </div>
+        </mat-grid-tile>
+      </mat-grid-list>
+    </div>
+  </div>
+</section>

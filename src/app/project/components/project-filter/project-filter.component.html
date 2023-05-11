@@ -1,0 +1,6 @@
+<div>
+  <button mat-raised-button [class]="keyword.selected ? 'mat-primary' : ''" *ngFor="let keyword of keywordOptions"
+          (click)="toggleKeyword(keyword)">
+    {{keyword.key}}
+  </button>
+</div>

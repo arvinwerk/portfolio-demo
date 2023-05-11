@@ -1,0 +1,38 @@
+<div id="timeline-experience">
+  <div class="timeline-block" *ngFor="let project of projects">
+    <!-- DOT -->
+    <div class="timeline-dot"></div>
+    <!-- TIMELINE CONTENT -->
+    <div class="card timeline-content">
+      <div class="card-content">
+        <!-- TIMELINE TITLE -->
+        <h6 class="timeline-title">{{project.title}}</h6>
+        <!-- TIMELINE TITLE INFO -->
+        <div class="timeline-info">
+          <h6>
+            <small>{{project.company}}</small>
+          </h6>
+          <p [innerHTML]="project.shortDescription"></p>
+        </div>
+        <!-- TIMELINE PARAGRAPH -->
+        <div class="timeline-block__description" [innerHTML]="project.longDescription">
+        </div>
+
+        <div class="project-list__images clearfix">
+          <div *ngFor="let image of project.images" class="project-list__image">
+            <img [src]="getImageUrl(image)"/>
+          </div>
+        </div>
+
+        <mat-chip-list selectable multiple>
+          <mat-chip
+            (click)="toggleKeyword(keyword)"
+            [selected]="isSelected(keyword)" *ngFor="let keyword of project.keywords">
+            {{keyword}}
+          </mat-chip>
+        </mat-chip-list>
+      </div>
+    </div>
+  </div>
+
+</div>

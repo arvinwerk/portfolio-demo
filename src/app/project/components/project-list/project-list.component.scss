@@ -1,0 +1,20 @@
+.timeline-block {
+  .project-list__images {
+    padding: 10px 0;
+
+    .project-list__image {
+      float: left;
+      padding: 3px;
+
+      img {
+        height: 50px;
+        width: auto;
+        box-shadow: 0 5px 5px 0 #ccc;
+        filter: grayscale(80%);
+      }
+    }
+  }
+  .timeline-block__description {
+    padding: 15px 0;
+  }
+}

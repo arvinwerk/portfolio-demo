@@ -1,0 +1,48 @@
+<div id="v-card-holder" class="section" *ngIf="personal">
+  <div class="container">
+    <div class="row">
+      <div class="col-md-12 col-sm-12 col-xs-12">
+
+        <!-- V-CARD -->
+        <div id="v-card" class="card">
+
+          <!-- PROFILE PICTURE -->
+          <div id="profile" class="right">
+            <img alt="profile-image" class="img-responsive" src="assets/images/profile.png">
+            <div class="slant"></div>
+          </div>
+
+          <div class="card-content">
+
+            <!-- NAME & STATUS -->
+            <div class="info-headings">
+              <h4 class="text-uppercase left">{{personal.fullName}}</h4>
+              <h6 class="text-capitalize left">{{personal.function}}</h6>
+            </div>
+
+            <!-- CONTACT INFO -->
+            <div class="infos">
+              <ul class="profile-list">
+                <li class="clearfix">
+                  <span class="title"><i class="material-icons">email</i></span>
+                  <a class="content" [href]="personal.linkedIn" target="_blank">LinkedIn</a>
+                </li>
+                <li class="clearfix">
+                  <span class="title"><i class="material-icons">language</i></span>
+                  <a class="content" [href]="personal.portfolioUrl">{{personal.portfolioUrl}}</a>
+                </li>
+                <li class="clearfix">
+                  <span class="title"><i class="material-icons">place</i></span>
+                  <span class="content">{{personal.location}}</span>
+                </li>
+
+              </ul>
+            </div>
+
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

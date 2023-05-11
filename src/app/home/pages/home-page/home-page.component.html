@@ -1,0 +1,40 @@
+<div>
+  <app-v-card [personal]="personal$ | async"></app-v-card>
+
+  <div class="container">
+    <div class="card">
+      <div class="card-content" [innerHTML]="foreword$ | async"></div>
+    </div>
+    <app-skills [skills]="(skills$ | async) || []"></app-skills>
+  </div>
+
+  <app-banner
+      [bgImage]="{src: vvalBanner.bgImage.src}"
+      [laptopImage]="{src: vvalBanner.laptopImage.src}"
+      [mobileImage]="{src: vvalBanner.mobileImage.src}"
+  ></app-banner>
+
+  <div class="container">
+    <div class="section-title">
+      <h4 class="text-uppercase text-center"><img src="assets/icons/layers.png">Werkervaring</h4>
+    </div>
+
+    <app-project-filter
+        [keywordOptions]="(keywordOptions$ | async)!"
+        (keywordClicked)="updateKeywordSelections($event)"
+    ></app-project-filter>
+    <section class="section">
+      <app-project-list
+          (keywordClicked)="updateKeywordSelections($event)"
+          [keywordOptions]="(keywordOptions$ | async)!"
+          [projects]="(projects$ | async)!"
+      ></app-project-list>
+    </section>
+  </div>
+
+  <app-banner
+      [bgImage]="{src: gpBanner.bgImage.src}"
+      [laptopImage]="{src: gpBanner.laptopImage.src}"
+      [mobileImage]="{src: gpBanner.mobileImage.src}"
+  ></app-banner>
+</div>

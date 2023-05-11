@@ -1,0 +1,15 @@
+<div class="banner" [style.background-image]="'url('+bgImage?.src+')'">
+  <div class="laptop">
+    <div class="laptop__screen">
+      <div>
+        <img [src]="laptopImage?.src" width="1600" height="1000" alt="Screen">
+      </div>
+    </div>
+    <div class="laptop__bottom">
+      <div class="laptop__under"></div>
+    </div>
+    <div class="laptop__shadow"></div>
+  </div>
+
+  <app-i-phone [mobileImage]="mobileImage"></app-i-phone>
+</div>
