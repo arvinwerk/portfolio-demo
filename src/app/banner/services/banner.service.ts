@@ -9,6 +9,7 @@ export class BannerService {
 
   vvalImages() {
     return {
+      title: 'Vrienden van Amstel VIP Arrangementen 2024',
       bgImage: {
         src: '/assets/images/vval24.jpg'
       },
@@ -23,6 +24,7 @@ export class BannerService {
 
   gpImages() {
     return {
+      title: 'Heineken Formule 1 VIP',
       bgImage: {
         src: '/assets/images/gp-bg.jpg'
       },

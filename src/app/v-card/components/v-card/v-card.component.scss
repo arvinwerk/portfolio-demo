@@ -11,6 +11,15 @@
   height: auto;
   margin-top: -194px;
 
+  ul {
+    margin: 0;
+    padding: 0;
+    li {
+      margin: 0;
+      list-style: none;
+    }
+  }
+
   #v-card {
     /*v-card with fixed 400px height*/
     position: relative;
@@ -47,7 +56,6 @@
     .infos {
       /*detailed infos*/
       max-width: 515px;
-      margin-top: 99px;
       .profile-list {
         /*list*/
         .title {
@@ -131,7 +139,7 @@
 
       img {
         /*user image for 400x400px image*/
-        width: 226px;
+        width: 281px;
         height: auto;
       }
 

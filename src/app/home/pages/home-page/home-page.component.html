@@ -7,7 +7,7 @@
       <div id="about-btn" class="card-action">
         <div class="about-btn">
           <div [innerHTML]="(personal$ | async)?.githubDescription"></div>
-          <a [href]="(personal$ | async)?.github" class="btn waves-effect" target="_blank">CODE</a>
+          <a [href]="(personal$ | async)?.github" class="mmat-focus-indicator mat-raised-button mat-button-base waves-effect mat-primary" target="_blank">CODE</a>
         </div>
       </div>
     </div>
@@ -15,6 +15,7 @@
   </div>
 
   <app-banner
+      [title]="vvalBanner.title"
       [bgImage]="{src: vvalBanner.bgImage.src}"
       [laptopImage]="{src: vvalBanner.laptopImage.src}"
       [mobileImage]="{src: vvalBanner.mobileImage.src}"
@@ -39,8 +40,11 @@
   </div>
 
   <app-banner
+      [title]="gpBanner.title"
       [bgImage]="{src: gpBanner.bgImage.src}"
       [laptopImage]="{src: gpBanner.laptopImage.src}"
       [mobileImage]="{src: gpBanner.mobileImage.src}"
   ></app-banner>
+
+  <footer>Gemaakt door {{(personal$ | async)?.fullName}}</footer>
 </div>

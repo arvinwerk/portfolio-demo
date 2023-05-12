@@ -1,4 +1,5 @@
 export interface BannerModel {
+    title: string;
     bgImage: {
         src: string
     },

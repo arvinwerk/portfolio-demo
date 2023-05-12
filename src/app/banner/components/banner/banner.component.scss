@@ -1,4 +1,9 @@
 .banner {
+  h2 {
+    text-align: center;
+    color: #fff;
+    padding: 200px 0 0;
+  }
   height: 1000px;
   width: 100%;
   position: relative;
@@ -102,5 +107,14 @@
       background: radial-gradient(ellipse closest-side,#000,transparent);
       opacity: 0.5;
     }
+  }
+}
+
+@media only screen and (max-width: 600px) {
+  app-i-phone {
+    transform: scale(0.5) !important;
+  }
+  .laptop {
+    transform: translate(-50%, -50%) scale(0.5) !important;
   }
 }

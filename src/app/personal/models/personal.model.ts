@@ -2,6 +2,7 @@ export interface PersonalModel {
   fullName: string;
   function: string;
   email: string;
+  education: string;
   developingStartDate: string;
   linkedIn: string;
   portfolioUrl: string;

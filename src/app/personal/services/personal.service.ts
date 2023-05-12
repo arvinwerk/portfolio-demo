@@ -41,6 +41,6 @@ export class PersonalService {
     }
 
     private get yearsAsDeveloper$() {
-        return combineLatest([this.personal(), this.currentDate$]).pipe(map(([personal, currentDate]) => differenceInYears(currentDate, new Date(personal.dateOfBirth))));
+        return combineLatest([this.personal(), this.currentDate$]).pipe(map(([personal, currentDate]) => differenceInYears(currentDate, new Date(personal.developingStartDate))));
     }
 }

@@ -7,6 +7,7 @@ import {BannerModel} from '../../models/banner.model';
   styleUrls: ['./banner.component.scss']
 })
 export class BannerComponent implements OnInit {
+  @Input('title') title: string | null = null;
   @Input('bgImage') bgImage: BannerModel['bgImage'] | null = null;
   @Input('laptopImage') laptopImage: BannerModel['laptopImage'] | null = null;
   @Input('mobileImage') mobileImage: BannerModel['mobileImage'] | null = null;

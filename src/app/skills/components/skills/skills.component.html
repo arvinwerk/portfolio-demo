@@ -1,7 +1,7 @@
 <section id="skills">
   <div class="card" id="skills-card">
     <div class="card-content">
-      <mat-grid-list cols="3" gutterSize="25">
+      <mat-grid-list [cols]="cols$ | async" gutterSize="25" rowHeight="5:6" (window:resize)="setCols()">
         <mat-grid-tile>
           <div style="width: 100%">
             <div class="skills-title">
