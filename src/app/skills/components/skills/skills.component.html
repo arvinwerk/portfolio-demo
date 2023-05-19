@@ -2,7 +2,7 @@
   <div class="card" id="skills-card">
     <div class="card-content">
       <mat-grid-list [cols]="cols$ | async" gutterSize="25" rowHeight="5:6" (window:resize)="setCols()">
-        <mat-grid-tile>
+        <mat-grid-tile *ngIf="skillRows.length > 0">
           <div style="width: 100%">
             <div class="skills-title">
               <h6 class="text-center">Professional</h6>
@@ -15,7 +15,7 @@
           </div>
         </mat-grid-tile>
 
-        <mat-grid-tile>
+        <mat-grid-tile *ngIf="frameworkRows.length > 0">
           <div style="width: 100%">
             <div class="skills-title">
               <h6 class="text-center">Frameworks</h6>
@@ -28,7 +28,7 @@
           </div>
         </mat-grid-tile>
 
-        <mat-grid-tile>
+        <mat-grid-tile *ngIf="otherRows.length > 0">
           <div style="width: 100%">
             <div class="skills-title">
               <h6 class="text-center">Other</h6>

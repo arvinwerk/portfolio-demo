@@ -10,28 +10,28 @@ import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
 import {HttpClientModule} from '@angular/common/http';
 
 @NgModule({
-    declarations: [
-        AppComponent,
-    ],
-    imports: [
-        BrowserModule,
-        AppRoutingModule,
-        LayoutModule,
-        HttpClientModule,
-        StoreModule.forRoot({
-            projectsStore: ProjectStoreReducer,
-        }, {
-            runtimeChecks: {
-                strictStateImmutability: true,
-                strictActionImmutability: true,
-                strictStateSerializability: true,
-                strictActionSerializability: true,
-            },
-        }),
-        BrowserAnimationsModule,
-    ],
-    providers: [],
-    bootstrap: [AppComponent]
+  declarations: [
+    AppComponent,
+  ],
+  imports: [
+    BrowserModule,
+    AppRoutingModule,
+    LayoutModule,
+    HttpClientModule,
+    StoreModule.forRoot({
+      projectsStore: ProjectStoreReducer,
+    }, {
+      runtimeChecks: {
+        strictStateImmutability: true,
+        strictActionImmutability: true,
+        strictStateSerializability: true,
+        strictActionSerializability: true,
+      },
+    }),
+    BrowserAnimationsModule,
+  ],
+  providers: [],
+  bootstrap: [AppComponent]
 })
 export class AppModule {
 }
