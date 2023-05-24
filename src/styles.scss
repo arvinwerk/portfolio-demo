@@ -4,6 +4,14 @@ html, body { height: 100%; }
 body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif;
   line-height: 1.42857143; }
 
+@media print
+{
+  .no-print, .no-print *
+  {
+    display: none !important;
+  }
+}
+
 @import '~@angular/material/prebuilt-themes/indigo-pink.css';
 
 /* theme from theforest */

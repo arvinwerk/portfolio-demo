@@ -1,6 +1,6 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import {ComponentFixture, TestBed} from '@angular/core/testing';
 
-import { VCardComponent } from './v-card.component';
+import {VCardComponent} from './v-card.component';
 
 describe('VCardComponent', () => {
   let component: VCardComponent;
@@ -19,7 +19,29 @@ describe('VCardComponent', () => {
     fixture.detectChanges();
   });
 
-  it('should create', () => {
+  it('Should have added the personal data', () => {
     expect(component).toBeTruthy();
+    const personal = {
+      dateOfBirth: '',
+      developingStartDate: '',
+      education: '',
+      email: '',
+      foreword: '',
+      fullName: 'Jan Klaassen',
+      function: 'Developer',
+      github: '',
+      githubDescription: '',
+      linkedIn: '',
+      location: '',
+      portfolioUrl: ''
+
+    }
+    component.personal = personal; // Assign stub to component property
+
+    component.ngOnInit();
+    fixture.detectChanges();
+    expect(component).toBeTruthy();
+    expect(fixture.debugElement.nativeElement.querySelector('h4').innerHTML).toBe(personal.fullName);
+    expect(fixture.debugElement.nativeElement.querySelector('h6').innerHTML).toBe(personal.function);
   });
 });

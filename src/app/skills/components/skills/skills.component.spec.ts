@@ -6,7 +6,7 @@ import {By} from "@angular/platform-browser";
 import {CommonModule} from "@angular/common";
 import {MatGridList, MatGridListModule, MatGridTile} from "@angular/material/grid-list";
 
-fdescribe('SkillsComponent', () => {
+describe('SkillsComponent', () => {
   let component: SkillsComponent;
   let fixture: ComponentFixture<SkillsComponent>;
   let httpMock: HttpClientTestingModule;

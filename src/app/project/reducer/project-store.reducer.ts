@@ -5,7 +5,7 @@ import {ProjectModel} from "../models/project.model";
 import {createSelector} from "@ngrx/store";
 import {KeywordOptionModel} from "../models/keyword-option.model";
 
-const initialProjectState: ProjectStoreModel = {
+export const initialProjectState: ProjectStoreModel = {
   projects: {}, // save as object for faster update
   keywords: [],
   selectedKeywords: []

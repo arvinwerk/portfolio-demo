@@ -1,6 +1,8 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { DefaultLayoutComponent } from './default-layout.component';
+import {HeaderComponent} from "../../../header/components/header/header.component";
+import {RouterModule} from "@angular/router";
 
 describe('DefaultLayoutComponent', () => {
   let component: DefaultLayoutComponent;
@@ -8,7 +10,13 @@ describe('DefaultLayoutComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ DefaultLayoutComponent ]
+      declarations: [
+        DefaultLayoutComponent,
+        HeaderComponent,
+      ],
+      imports: [
+        RouterModule
+      ]
     })
     .compileComponents();
   });
