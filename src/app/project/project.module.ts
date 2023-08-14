@@ -4,8 +4,8 @@ import {ProjectListComponent} from './components/project-list/project-list.compo
 import {ProjectActions} from "./actions/project.actions";
 import { ProjectFilterComponent } from './components/project-filter/project-filter.component';
 import {MatButtonToggleModule} from "@angular/material/button-toggle";
-import {MatButtonModule} from "@angular/material/button";
-import {MatChipsModule} from "@angular/material/chips";
+import {MatLegacyButtonModule as MatButtonModule} from "@angular/material/legacy-button";
+import {MatLegacyChipsModule as MatChipsModule} from "@angular/material/legacy-chips";
 
 
 @NgModule({
