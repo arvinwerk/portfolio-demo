@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
   collectKeywords,
   effectiveSelection,
@@ -21,12 +22,25 @@ export function WorkExplorer({
   projects: Project[];
   initialSelected: string[];
 }) {
+  const router = useRouter();
   const catalog = useMemo(() => collectKeywords(projects), [projects]);
   const [selected, setSelected] = useState(initialSelected);
+  const pendingHref = useRef<string | null>(null);
+  const initialKey = initialSelected.join("\u0000");
   const links = keywordLinks(catalog, selected);
 
   useEffect(() => {
+    const href = keywordsToHref(initialSelected);
+    if (pendingHref.current !== null && pendingHref.current !== href) {
+      return;
+    }
+    pendingHref.current = null;
+    setSelected(initialSelected);
+  }, [initialKey, initialSelected]);
+
+  useEffect(() => {
     const syncFromUrl = () => {
+      pendingHref.current = null;
       const params = new URLSearchParams(window.location.search);
       setSelected(effectiveSelection(catalog, parseKeywords(params.getAll("keywords"))));
     };
@@ -37,8 +51,10 @@ export function WorkExplorer({
 
   function select(key: string | null) {
     const next = key == null ? [] : toggleKeyword(catalog, selected, key);
-    window.history.pushState(null, "", keywordsToHref(next));
+    const href = keywordsToHref(next);
+    pendingHref.current = href;
     setSelected(next);
+    router.push(href, { scroll: false });
   }
 
   return (
