@@ -60,7 +60,7 @@ export function parseChatMessages(value: unknown): UIMessage[] {
     throw new ChatRequestError("Dit gesprek is te lang. Begin opnieuw.");
   }
 
-  return value.map((message) => {
+  const messages = value.flatMap((message) => {
     if (!message || typeof message !== "object") {
       throw new ChatRequestError("Een bericht is ongeldig.");
     }
@@ -69,14 +69,15 @@ export function parseChatMessages(value: unknown): UIMessage[] {
     if (record.role !== "user" && record.role !== "assistant") {
       throw new ChatRequestError("Alleen gebruiker en assistent zijn toegestaan.");
     }
+    const role: "user" | "assistant" = record.role === "assistant" ? "assistant" : "user";
 
     if (!Array.isArray(record.parts) || record.parts.length === 0) {
       throw new ChatRequestError("Een bericht mist tekst.");
     }
 
-    const parts = record.parts.map((part) => {
+    const parts = record.parts.flatMap((part) => {
       if (!part || typeof part !== "object" || (part as { type?: unknown }).type !== "text") {
-        throw new ChatRequestError("Alleen tekstberichten zijn toegestaan.");
+        return [];
       }
 
       const text = (part as { text?: unknown }).text;
@@ -88,10 +89,20 @@ export function parseChatMessages(value: unknown): UIMessage[] {
         throw new ChatRequestError("Een bericht is te lang.");
       }
 
-      return { type: "text" as const, text };
+      return [{ type: "text" as const, text }];
     });
 
+    if (parts.length === 0) {
+      return [];
+    }
+
     const id = typeof record.id === "string" && record.id.length > 0 ? record.id : crypto.randomUUID();
-    return { id, role: record.role, parts };
+    return [{ id, role, parts }];
   });
+
+  if (messages.length === 0) {
+    throw new ChatRequestError("Stuur minstens één bericht.");
+  }
+
+  return messages;
 }

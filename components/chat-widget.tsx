@@ -78,21 +78,28 @@ export function ChatWidget() {
             </button>
           </header>
           <div className="flex flex-1 flex-col gap-3 overflow-y-auto bg-paper px-4 py-4">
-            {messages.map((message) => (
-              <p
-                key={message.id}
-                className={`max-w-[85%] px-3 py-2 whitespace-pre-wrap ${
-                  message.role === "user" ? "ml-auto bg-primary text-white" : "bg-white text-ink shadow-material"
-                }`}
-              >
-                {message.parts.map((part, index) =>
-                  part.type === "text" ? <span key={`${message.id}-${index}`}>{part.text}</span> : null,
-                )}
-                {busy && message.id === messages.at(-1)?.id && message.role === "assistant" ? (
-                  <span className="ml-1 inline-block h-4 w-1 animate-pulse bg-primary align-middle" aria-hidden="true" />
-                ) : null}
-              </p>
-            ))}
+            {messages.map((message) => {
+              const text = message.parts.flatMap((part) => (part.type === "text" ? [part.text] : []));
+              const searching = message.parts.some((part) => isPendingTool(part));
+              if (text.length === 0 && !searching) {
+                return null;
+              }
+
+              return (
+                <p
+                  key={message.id}
+                  className={`max-w-[85%] px-3 py-2 whitespace-pre-wrap ${
+                    message.role === "user" ? "ml-auto bg-primary text-white" : "bg-white text-ink shadow-material"
+                  }`}
+                >
+                  {text.join("")}
+                  {searching ? <span className="block text-sm text-muted">Ik zoek in het profiel.</span> : null}
+                  {busy && message.id === messages.at(-1)?.id && message.role === "assistant" ? (
+                    <span className="ml-1 inline-block h-4 w-1 animate-pulse bg-primary align-middle" aria-hidden="true" />
+                  ) : null}
+                </p>
+              );
+            })}
             <div ref={endRef} />
           </div>
           <p className="sr-only" aria-live="polite">
@@ -142,6 +149,10 @@ export function ChatWidget() {
       </button>
     </div>
   );
+}
+
+function isPendingTool(part: { type: string; state?: string }): boolean {
+  return part.type.startsWith("tool-") && part.state !== "output-available" && part.state !== "output-error";
 }
 
 function ChatIcon() {

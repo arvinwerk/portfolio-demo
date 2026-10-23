@@ -12,6 +12,7 @@ De oorspronkelijke Angular-app verwees naar `/assets/api/*.json` en beelden die 
 - `content/skills.json` — `category` is `skills`, `framework` of `other`.
 - `content/projects.json` — projecten krijgen hun id op volgorde in het bestand (`index + 1`).
 - `content/banners.json` — paden onder `/images/`.
+- `content/rag/profile.md` — profieltekst voor de chat. Dit is placeholdertekst. Vervang het bestand bij het deployen.
 
 Beelden staan in `public/images/`.
 
@@ -20,6 +21,8 @@ Beelden staan in `public/images/`.
 Het chatvenster rechtsonder hoort bij deze Next.js-app. De browser praat met `app/api/chat`. Die route streamt via de Vercel AI SDK. De sleutel blijft op de server.
 
 Kopieer `.env.example` naar `.env.local` en vul de variabelen in. `AI_MODEL` is het model-id, bijvoorbeeld `claude-haiku-5-5`. `AI_API_KEY` is de sleutel van dat model.
+
+De assistent haalt feiten over de persoon op met de tool `searchProfile`. Die tool zoekt in een index van `content/rag/profile.md`. De route leest dat bestand bij een verzoek van schijf. Vervang het bij het deployen door de echte tekst, of zet `RAG_DOCUMENT_PATH` op een andere bestandsnaam in dezelfde map. Een pad buiten `content/rag` wordt niet gelezen. De HTML-commentaar bovenin de placeholder wordt niet geïndexeerd.
 
 ## Scripts
 

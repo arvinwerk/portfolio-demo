@@ -1,14 +1,16 @@
 import { createAnthropic } from "@ai-sdk/anthropic";
-import { convertToModelMessages, createUIMessageStreamResponse, streamText, toUIMessageStream } from "ai";
-import { loadContent } from "@/lib/content";
-import { buildPageModel } from "@/lib/page-model";
+import { convertToModelMessages, createUIMessageStreamResponse, isStepCount, streamText, tool, toUIMessageStream } from "ai";
+import { z } from "zod";
 import { AiConfigError, ChatRequestError, parseChatMessages, readAiConfig } from "@/lib/ai";
+import { searchProfile } from "@/lib/rag";
 
 export const maxDuration = 30;
 
-const instructions = `Je bent de assistent op de portfolio van Arvin Sokarijo.
+const instructions = `Je bent de assistent op deze portfolio.
 Antwoord kort en in het Nederlands.
-Gebruik alleen de feiten hieronder. Verzin geen projecten, datums of contactgegevens.`;
+Roep searchProfile aan voordat je iets over de persoon beweert.
+Gebruik alleen de fragmenten die de tool teruggeeft. Vindt de tool niets, zeg dan dat het niet in het profiel staat.
+Verzin geen projecten, datums of contactgegevens.`;
 
 export async function POST(request: Request) {
   let messages;
@@ -31,33 +33,22 @@ export async function POST(request: Request) {
   const anthropic = createAnthropic({ apiKey: config.apiKey });
   const result = streamText({
     model: anthropic(config.model),
-    system: `${instructions}\n\n${portfolioBrief()}`,
+    system: instructions,
     messages: await convertToModelMessages(messages),
+    stopWhen: isStepCount(4),
+    tools: {
+      searchProfile: tool({
+        description:
+          "Doorzoek het geïndexeerde profiel en haal de fragmenten op die bij de vraag horen. Gebruik woorden die in een cv kunnen staan, zoals werk, opleiding, woonplaats of achtergrond.",
+        inputSchema: z.object({
+          query: z.string().describe("Zoekwoorden uit de vraag."),
+        }),
+        execute: async ({ query }) => searchProfile(query),
+      }),
+    },
   });
 
   return createUIMessageStreamResponse({
     stream: toUIMessageStream({ stream: result.stream }),
   });
-}
-
-function portfolioBrief(): string {
-  const model = buildPageModel(loadContent());
-  const skills = model.skillGroups
-    .map((group) => `${group.label}: ${group.skills.map((skill) => `${skill.name} ${skill.percentage}%`).join(", ")}`)
-    .join("\n");
-  const projects = model.allProjects
-    .map((project) => `${project.title} bij ${project.company}. ${project.shortDescription} Trefwoorden: ${project.keywords.join(", ")}.`)
-    .join("\n");
-
-  return [
-    `Naam: ${model.personal.fullName}`,
-    `Functie: ${model.personal.function}`,
-    `Opleiding: ${model.personal.education}`,
-    `Plaats: ${model.personal.location}`,
-    model.forewordParagraphs.join("\n"),
-    "Skills:",
-    skills,
-    "Werk:",
-    projects,
-  ].join("\n");
 }

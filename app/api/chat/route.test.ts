@@ -4,7 +4,15 @@ vi.mock("server-only", () => ({}));
 
 const { streamText, convertToModelMessages, toUIMessageStream, createUIMessageStreamResponse, createAnthropic } =
   vi.hoisted(() => ({
-    streamText: vi.fn(() => ({ stream: { kind: "model-stream" } })),
+    streamText: vi.fn(
+      (_options: {
+        tools: {
+          searchProfile: {
+            execute: (input: { query: string }) => Promise<{ found: boolean; fragments: { heading: string }[] }>;
+          };
+        };
+      }) => ({ stream: { kind: "model-stream" } }),
+    ),
     convertToModelMessages: vi.fn(async (messages: unknown) => messages),
     toUIMessageStream: vi.fn(() => ({ kind: "ui-stream" })),
     createUIMessageStreamResponse: vi.fn(
@@ -18,6 +26,8 @@ vi.mock("ai", () => ({
   convertToModelMessages,
   toUIMessageStream,
   createUIMessageStreamResponse,
+  tool: (definition: unknown) => definition,
+  isStepCount: (steps: number) => ({ steps }),
 }));
 
 vi.mock("@ai-sdk/anthropic", () => ({
@@ -52,9 +62,15 @@ describe("POST /api/chat", () => {
     expect(streamText).toHaveBeenCalledWith(
       expect.objectContaining({
         model: { modelId: "claude-haiku-5-5" },
-        system: expect.stringContaining("Arvin Sokarijo"),
+        system: expect.stringContaining("searchProfile"),
+        stopWhen: { steps: 4 },
       }),
     );
+    const call = streamText.mock.calls[0]?.[0];
+    await expect(call?.tools.searchProfile.execute({ query: "opleiding" })).resolves.toMatchObject({
+      found: true,
+      fragments: [expect.objectContaining({ heading: "Opleiding" })],
+    });
     expect(toUIMessageStream).toHaveBeenCalledWith({ stream: { kind: "model-stream" } });
   });
 

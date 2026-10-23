@@ -1,4 +1,4 @@
-import { fireEvent, render, screen } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const chat = vi.hoisted(() => ({
@@ -9,9 +9,13 @@ const chat = vi.hoisted(() => ({
     {
       id: "welcome",
       role: "assistant" as const,
-      parts: [{ type: "text" as const, text: "Hoi. Vraag gerust iets over dit portfolio." }],
+      parts: [{ type: "text", state: undefined, text: "Hoi. Vraag gerust iets over dit portfolio." }],
     },
-  ],
+  ] as {
+    id: string;
+    role: "assistant" | "user";
+    parts: { type: string; state?: string; text: string }[];
+  }[],
 }));
 
 vi.mock("@ai-sdk/react", () => ({
@@ -28,6 +32,7 @@ import { ChatWidget } from "./chat-widget";
 
 describe("ChatWidget", () => {
   beforeEach(() => {
+    cleanup();
     chat.sendMessage.mockClear();
     chat.stop.mockClear();
     chat.status = "ready";
@@ -53,6 +58,22 @@ describe("ChatWidget", () => {
     fireEvent.click(screen.getByRole("button", { name: "Verstuur" }));
 
     expect(chat.sendMessage).toHaveBeenCalledWith({ text: "Wie ben je?" });
+  });
+
+  it("toont dat het profiel wordt doorzocht", () => {
+    chat.status = "streaming";
+    chat.messages = [
+      {
+        id: "lookup",
+        role: "assistant",
+        parts: [{ type: "tool-searchProfile", state: "input-available", text: "" }],
+      },
+    ];
+
+    render(<ChatWidget />);
+    fireEvent.click(screen.getByRole("button", { name: "Chat openen" }));
+
+    expect(screen.getByText("Ik zoek in het profiel.")).toBeInTheDocument();
   });
 
   it("toont een binnenkomend antwoord en kan de stream stoppen", () => {
