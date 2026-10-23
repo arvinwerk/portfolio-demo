@@ -1,8 +1,9 @@
 "use client";
 
 import { useChat } from "@ai-sdk/react";
-import type { UIMessage } from "ai";
-import { useEffect, useId, useRef, useState, type FormEvent } from "react";
+import { DefaultChatTransport, type UIMessage } from "ai";
+import { useEffect, useId, useMemo, useRef, useState, type FormEvent } from "react";
+import { readableChatError } from "@/lib/ai";
 
 const welcome: UIMessage = {
   id: "welcome",
@@ -16,7 +17,14 @@ export function ChatWidget() {
   const titleId = useId();
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const endRef = useRef<HTMLDivElement>(null);
-  const { messages, sendMessage, stop, status, error } = useChat({ messages: [welcome] });
+  const transport = useMemo(
+    () =>
+      new DefaultChatTransport({
+        fetch: async (input, init) => readableChatError(await fetch(input, init)),
+      }),
+    [],
+  );
+  const { messages, sendMessage, stop, status, error } = useChat({ messages: [welcome], transport });
   const busy = status === "submitted" || status === "streaming";
 
   useEffect(() => {
