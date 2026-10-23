@@ -45,7 +45,7 @@ export function ProjectList({ projects, links }: { projects: Project[]; links: K
                   }
                   return (
                     <li key={keyword}>
-                      <Link href={link.href} aria-current={link.selected ? "true" : undefined}>
+                      <Link href={link.href} scroll={false} aria-current={link.selected ? "true" : undefined}>
                         {keyword}
                       </Link>
                     </li>
