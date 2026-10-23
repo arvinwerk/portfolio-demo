@@ -2,7 +2,7 @@
 
 Next.js-portfolio. De pagina is React. Persoonsgegevens, skills, projecten en banners komen uit `content/` en worden op de server gelezen. De browser haalt die JSON niet op.
 
-Het filter staat in de URL (`/?keywords=Angular&keywords=React`). Een lege selectie toont alle projecten. Meerdere trefwoorden zijn een OF-filter, net als in de oude Angular-store.
+Het filter staat in de URL (`/?keywords=Angular&keywords=React`). Een lege selectie toont alle projecten. Meerdere trefwoorden zijn een OF-filter, net als in de oude Angular-store. Een klik werkt de lijst bij. De link wijst naar `#werk`, zodat een gewone paginaload bij de lijst uitkomt. De eerste load filtert op de server aan de hand van de query.
 
 ## Content
 

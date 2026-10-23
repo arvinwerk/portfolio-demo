@@ -15,7 +15,7 @@ describe("ProjectFilter", () => {
       />,
     );
 
-    expect(screen.getByRole("link", { name: "Alles" })).toHaveAttribute("href", "/");
+    expect(screen.getByRole("link", { name: "Alles" })).toHaveAttribute("href", "/#werk");
     expect(screen.getByRole("link", { name: "Alles" })).toHaveAttribute("aria-current", "true");
     expect(screen.getByRole("link", { name: "Angular" })).toHaveAttribute("href", "/?keywords=Angular");
     expect(screen.getByRole("link", { name: "React" })).not.toHaveAttribute("aria-current");

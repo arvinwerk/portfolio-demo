@@ -57,8 +57,9 @@ export function toggleKeyword(catalog: string[], selected: string[], key: string
 }
 
 export function keywordsToHref(keywords: string[]): string {
+  const hash = "#werk";
   if (keywords.length === 0) {
-    return "/";
+    return `/${hash}`;
   }
 
   const params = new URLSearchParams();
@@ -66,7 +67,7 @@ export function keywordsToHref(keywords: string[]): string {
     params.append("keywords", keyword);
   }
 
-  return `/?${params.toString()}`;
+  return `/?${params.toString()}${hash}`;
 }
 
 export function keywordLinks(catalog: string[], selected: string[]): KeywordLink[] {

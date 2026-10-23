@@ -44,6 +44,7 @@ describe("WorkExplorer", () => {
     expect(screen.getByRole("heading", { name: "Content-API" })).toBeInTheDocument();
     expect(screen.queryByRole("heading", { name: "VIP Arrangementen 2024" })).not.toBeInTheDocument();
     expect(window.location.search).toBe("?keywords=Laravel");
+    expect(window.location.hash).toBe("#werk");
 
     fireEvent.click(within(filters).getByRole("link", { name: "Alles" }));
 

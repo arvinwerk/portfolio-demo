@@ -1,3 +1,4 @@
+import { keywordsToHref } from "@/lib/projects";
 import type { KeywordLink } from "@/lib/types";
 
 export function ProjectFilter({
@@ -12,7 +13,7 @@ export function ProjectFilter({
   return (
     <nav className="filters" aria-label="Filter op trefwoord">
       <a
-        href="/"
+        href={keywordsToHref([])}
         aria-current={allSelected ? "true" : undefined}
         className={allSelected ? "is-active" : undefined}
         onClick={(event) => {

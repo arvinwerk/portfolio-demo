@@ -36,7 +36,7 @@ export default async function HomePage({
         {firstBanner ? <Banner banner={firstBanner} /> : null}
 
         <div className="wrap sheet">
-          <section className="work" aria-labelledby="work-title">
+          <section className="work" id="werk" aria-labelledby="work-title">
             <div className="work__heading">
               <LayersIcon />
               <h2 id="work-title">Werkervaring</h2>

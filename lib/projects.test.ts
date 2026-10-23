@@ -94,7 +94,7 @@ describe("keywordLinks", () => {
     const links = keywordLinks(catalog, effectiveSelection(catalog, ["Angular"]));
     expect(links.find((link) => link.key === "Angular")).toMatchObject({
       selected: true,
-      href: "/",
+      href: "/#werk",
     });
     expect(links.find((link) => link.key === "React")?.href).toBe(
       keywordsToHref(["Angular", "React"]),
