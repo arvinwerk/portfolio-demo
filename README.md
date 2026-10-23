@@ -15,6 +15,12 @@ De oorspronkelijke Angular-app verwees naar `/assets/api/*.json` en beelden die 
 
 Beelden staan in `public/images/`.
 
+## Chat
+
+Het chatvenster rechtsonder hoort bij deze Next.js-app. De browser praat met `app/api/chat`. Die route streamt via de Vercel AI SDK. De sleutel blijft op de server.
+
+Kopieer `.env.example` naar `.env.local` en vul de variabelen in. `AI_MODEL` is het model-id, bijvoorbeeld `claude-haiku-5-5`. `AI_API_KEY` is de sleutel van dat model.
+
 ## Scripts
 
 ```bash
