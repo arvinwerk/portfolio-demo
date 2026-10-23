@@ -1,16 +1,10 @@
-import { createAnthropic } from "@ai-sdk/anthropic";
-import { convertToModelMessages, createUIMessageStreamResponse, isStepCount, streamText, tool, toUIMessageStream } from "ai";
-import { z } from "zod";
+import { convertToModelMessages, createUIMessageStreamResponse, toUIMessageStream } from "ai";
+import { streamAssistant } from "@/lib/chat/assistant";
+import { createChatModel } from "@/lib/chat/model";
 import { AiConfigError, ChatRequestError, parseChatMessages, readAiConfig } from "@/lib/ai";
-import { searchProfile } from "@/lib/rag";
+import { createProfileRetriever } from "@/lib/retrieval/file-profile-store";
 
 export const maxDuration = 30;
-
-const instructions = `Je bent de assistent op deze portfolio.
-Antwoord kort en in het Nederlands.
-Roep searchProfile aan voordat je iets over de persoon beweert.
-Gebruik alleen de fragmenten die de tool teruggeeft. Vindt de tool niets, zeg dan dat het niet in het profiel staat.
-Verzin geen projecten, datums of contactgegevens.`;
 
 export async function POST(request: Request) {
   let messages;
@@ -30,22 +24,10 @@ export async function POST(request: Request) {
     return Response.json({ error: message }, { status: 503 });
   }
 
-  const anthropic = createAnthropic({ apiKey: config.apiKey });
-  const result = streamText({
-    model: anthropic(config.model),
-    system: instructions,
+  const result = streamAssistant({
+    model: createChatModel(config),
     messages: await convertToModelMessages(messages),
-    stopWhen: isStepCount(4),
-    tools: {
-      searchProfile: tool({
-        description:
-          "Doorzoek het geïndexeerde profiel en haal de fragmenten op die bij de vraag horen. Gebruik woorden die in een cv kunnen staan, zoals werk, opleiding, woonplaats of achtergrond.",
-        inputSchema: z.object({
-          query: z.string().describe("Zoekwoorden uit de vraag."),
-        }),
-        execute: async ({ query }) => searchProfile(query),
-      }),
-    },
+    retriever: createProfileRetriever(),
   });
 
   return createUIMessageStreamResponse({

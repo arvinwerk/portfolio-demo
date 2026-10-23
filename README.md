@@ -52,7 +52,7 @@ Een aparte Node-server voor het model loont als meer producten hetzelfde model g
 
 ## Chat en streaming
 
-`components/chat-widget.tsx` is het venster. `useChat` stuurt het gesprek naar de route. De route roept `streamText` aan en geeft de stream terug als UI-messagestream. Tokens komen binnen terwijl het model nog schrijft.
+`components/chat-widget.tsx` is het venster. `useChat` stuurt het gesprek naar de route. De route geeft dat door aan `streamAssistant`, die `streamText` aanroept en de stream teruggeeft als UI-messagestream. Tokens komen binnen terwijl het model nog schrijft.
 
 `AI_MODEL` is het model-id. `claude-haiku-5-5` in `.env.example` is een voorbeeld, geen keuze die in de code vastzit. `AI_API_KEY` gaat naar de Anthropic-provider op de server. De route weigert het verzoek als een van beide ontbreekt, en het venster toont die zin in plaats van een rauwe JSON-body.
 
@@ -64,7 +64,7 @@ Binnenkomende berichten worden gecontroleerd: alleen gebruiker en assistent, een
 
 `searchProfile` is een tool van de Vercel AI SDK. Het model moet die tool aanroepen voordat het iets over de persoon beweert, en het mag alleen de teruggegeven fragmenten gebruiken.
 
-Het bestand is `content/rag/profile.md`. Koppen worden chunks. Een vraag wordt op woorden gezet, stopwoorden vallen weg, en de drie best passende chunks gaan terug. Een treffer in de kop weegt zwaarder. De index blijft in het geheugen en wordt opnieuw gebouwd als pad, wijzigingstijd of grootte verandert. Het bestand vervangen op de server is genoeg. De code hoeft niet opnieuw gebouwd te worden om de nieuwe tekst te zien.
+Het bestand is `content/rag/profile.md`. Koppen worden chunks. Een vraag wordt op woorden gezet, stopwoorden vallen weg, en de drie best passende chunks gaan terug. Een treffer in de kop weegt zwaarder. De store cachet de chunks en bouwt ze opnieuw als pad, wijzigingstijd of grootte verandert. Het bestand vervangen op de server is genoeg. Een bestand groter dan 64 kB wordt geweigerd, zodat een deploy het proces niet kan vullen met één tekst.
 
 Dit is retrieval-augmented generation in de kleine vorm. Het model krijgt niet het hele profiel in de systeemprompt, maar de stukken die bij de vraag horen. Een vraag die niets raakt, levert geen fragmenten op, en de instructie is dan om te zeggen dat het niet in het profiel staat.
 
@@ -73,6 +73,16 @@ Een embeddingmodel en een vectordatabase zijn hier een tweede systeem voor één
 `RAG_DOCUMENT_PATH` mag een andere bestandsnaam in `content/rag` zijn. Een pad met een map of `..` wordt geweigerd. Daardoor kan een deploy het bestand niet laten wijzen naar iets buiten die map, en traceert de bundler die map in plaats van de hele repository.
 
 De tekst in de repository is een placeholder. De HTML-commentaar bovenin wordt vóór het indexeren verwijderd, zodat de deploy-instructie niet in een antwoord belandt. Vervang het bestand bij het deployen door de echte tekst.
+
+## Naden
+
+De pagina was al gescheiden: JSON in, validatie, paginamodel, weergave. De chat had die naad nog niet.
+
+`app/api/chat/route.ts` is de HTTP-grens. Hij leest de berichten, weigert een verzoek zonder model of sleutel, en geeft de stream terug. Het model komt uit `createChatModel`. Een andere provider vervangt dat bestand. De route importeert de provider niet.
+
+`streamAssistant` krijgt een `ProfileRetriever`. Dat is het poortje naar de feiten. `FileProfileStore` is de huidige adapter: hij leest een markdownbestand, weigert iets groters dan 64 kB, en cachet de chunks op het eigen object. `indexMarkdown` en `searchChunks` zijn pure functies, zonder schijf en zonder server. Een latere adapter kan dezelfde interface vullen met embeddings. De tool en de route blijven staan.
+
+Het venster importeert alleen de fouttekst die het aan de bezoeker toont. De parser van binnenkomende berichten hoort bij de route.
 
 ## Tests
 

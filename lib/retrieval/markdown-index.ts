@@ -1,17 +1,6 @@
-import "server-only";
-
-import { readFileSync, statSync } from "node:fs";
-import path from "node:path";
-
 export type RagChunk = {
   heading: string;
   text: string;
-};
-
-export type ProfileSearch = {
-  found: boolean;
-  fragments: RagChunk[];
-  note?: string;
 };
 
 const STOP_WORDS = new Set([
@@ -36,17 +25,6 @@ const STOP_WORDS = new Set([
   "er",
   "niet",
 ]);
-
-let cached: { key: string; chunks: RagChunk[] } | undefined;
-
-export function profileFileName(env: Record<string, string | undefined> = process.env): string {
-  const configured = env.RAG_DOCUMENT_PATH?.trim();
-  const name = configured ? configured : "profile.md";
-  if (name !== path.basename(name)) {
-    throw new Error("RAG_DOCUMENT_PATH moet een bestandsnaam in content/rag zijn.");
-  }
-  return name;
-}
 
 export function indexMarkdown(markdown: string): RagChunk[] {
   const source = markdown.replace(/<!--[\s\S]*?-->/g, "").replace(/\r\n/g, "\n");
@@ -81,31 +59,6 @@ export function searchChunks(chunks: RagChunk[], query: string, limit = 3): RagC
     .sort((left, right) => right.score - left.score)
     .slice(0, limit)
     .map((item) => item.chunk);
-}
-
-export function searchProfile(query: string, env: Record<string, string | undefined> = process.env): ProfileSearch {
-  try {
-    const fragments = searchChunks(loadProfileChunks(env), query);
-    if (fragments.length === 0) {
-      return { found: false, fragments: [] };
-    }
-    return { found: true, fragments };
-  } catch {
-    return { found: false, fragments: [], note: "Het profielbestand is niet beschikbaar." };
-  }
-}
-
-function loadProfileChunks(env: Record<string, string | undefined>): RagChunk[] {
-  const file = path.join(process.cwd(), "content", "rag", profileFileName(env));
-  const stat = statSync(file);
-  const key = `${file}:${stat.mtimeMs}:${stat.size}`;
-  if (cached?.key === key) {
-    return cached.chunks;
-  }
-
-  const chunks = indexMarkdown(readFileSync(file, "utf8"));
-  cached = { key, chunks };
-  return chunks;
 }
 
 function scoreChunk(chunk: RagChunk, terms: string[]): number {

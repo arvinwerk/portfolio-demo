@@ -3,7 +3,7 @@
 import { useChat } from "@ai-sdk/react";
 import { DefaultChatTransport, type UIMessage } from "ai";
 import { useEffect, useId, useMemo, useRef, useState, type FormEvent } from "react";
-import { readableChatError } from "@/lib/ai";
+import { readableChatError } from "@/lib/chat/client-error";
 
 const welcome: UIMessage = {
   id: "welcome",
