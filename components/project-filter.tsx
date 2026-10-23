@@ -1,22 +1,40 @@
-import Link from "next/link";
 import type { KeywordLink } from "@/lib/types";
 
-export function ProjectFilter({ links, allSelected }: { links: KeywordLink[]; allSelected: boolean }) {
+export function ProjectFilter({
+  links,
+  allSelected,
+  onSelect,
+}: {
+  links: KeywordLink[];
+  allSelected: boolean;
+  onSelect: (key: string | null) => void;
+}) {
   return (
     <nav className="filters" aria-label="Filter op trefwoord">
-      <Link href="/" scroll={false} aria-current={allSelected ? "true" : undefined} className={allSelected ? "is-active" : undefined}>
+      <a
+        href="/"
+        aria-current={allSelected ? "true" : undefined}
+        className={allSelected ? "is-active" : undefined}
+        onClick={(event) => {
+          event.preventDefault();
+          onSelect(null);
+        }}
+      >
         Alles
-      </Link>
+      </a>
       {links.map((link) => (
-        <Link
+        <a
           key={link.key}
           href={link.href}
-          scroll={false}
           aria-current={link.selected ? "true" : undefined}
           className={link.selected ? "is-active" : undefined}
+          onClick={(event) => {
+            event.preventDefault();
+            onSelect(link.key);
+          }}
         >
           {link.key}
-        </Link>
+        </a>
       ))}
     </nav>
   );

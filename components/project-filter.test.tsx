@@ -7,6 +7,7 @@ describe("ProjectFilter", () => {
     render(
       <ProjectFilter
         allSelected
+        onSelect={() => undefined}
         links={[
           { key: "Angular", selected: false, href: "/?keywords=Angular" },
           { key: "React", selected: false, href: "/?keywords=React" },

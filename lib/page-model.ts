@@ -32,6 +32,8 @@ export function buildPageModel(
     banners: content.banners,
     keywordLinks: keywordLinks(catalog, selected),
     allSelected: selected.length === 0,
+    selectedKeywords: selected,
+    allProjects: projects,
     projects: filterProjects(projects, selected),
   };
 }

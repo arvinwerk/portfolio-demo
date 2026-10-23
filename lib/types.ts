@@ -74,5 +74,7 @@ export type PageModel = {
   banners: Banner[];
   keywordLinks: KeywordLink[];
   allSelected: boolean;
+  selectedKeywords: string[];
+  allProjects: Project[];
   projects: Project[];
 };

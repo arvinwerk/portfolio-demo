@@ -31,7 +31,7 @@ const links = [
 
 describe("ProjectList", () => {
   it("toont titel, bedrijf, beschrijving en een geselecteerd trefwoord", () => {
-    render(<ProjectList projects={projects} links={links} />);
+    render(<ProjectList projects={projects} links={links} onSelect={() => undefined} />);
 
     expect(screen.getByRole("heading", { name: "Componentbibliotheek" })).toBeInTheDocument();
     expect(screen.getByText("Studio Noord")).toBeInTheDocument();
@@ -45,7 +45,7 @@ describe("ProjectList", () => {
   });
 
   it("laat een lege selectie zien", () => {
-    render(<ProjectList projects={[]} links={links} />);
+    render(<ProjectList projects={[]} links={links} onSelect={() => undefined} />);
     expect(screen.getByText("Geen projecten voor deze selectie.")).toBeInTheDocument();
   });
 });

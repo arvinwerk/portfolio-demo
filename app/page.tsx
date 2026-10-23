@@ -1,7 +1,6 @@
 import { About } from "@/components/about";
 import { Banner } from "@/components/banner";
-import { ProjectFilter } from "@/components/project-filter";
-import { ProjectList } from "@/components/project-list";
+import { WorkExplorer } from "@/components/work-explorer";
 import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
 import { Skills } from "@/components/skills";
@@ -42,8 +41,7 @@ export default async function HomePage({
               <LayersIcon />
               <h2 id="work-title">Werkervaring</h2>
             </div>
-            <ProjectFilter links={model.keywordLinks} allSelected={model.allSelected} />
-            <ProjectList projects={model.projects} links={model.keywordLinks} />
+            <WorkExplorer projects={model.allProjects} initialSelected={model.selectedKeywords} />
           </section>
         </div>
 

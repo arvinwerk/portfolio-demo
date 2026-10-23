@@ -1,8 +1,15 @@
-import Link from "next/link";
 import type { KeywordLink, Project } from "@/lib/types";
 import { paragraphs } from "@/lib/text";
 
-export function ProjectList({ projects, links }: { projects: Project[]; links: KeywordLink[] }) {
+export function ProjectList({
+  projects,
+  links,
+  onSelect,
+}: {
+  projects: Project[];
+  links: KeywordLink[];
+  onSelect: (key: string) => void;
+}) {
   if (projects.length === 0) {
     return <p className="empty">Geen projecten voor deze selectie.</p>;
   }
@@ -45,9 +52,16 @@ export function ProjectList({ projects, links }: { projects: Project[]; links: K
                   }
                   return (
                     <li key={keyword}>
-                      <Link href={link.href} scroll={false} aria-current={link.selected ? "true" : undefined}>
+                      <a
+                        href={link.href}
+                        aria-current={link.selected ? "true" : undefined}
+                        onClick={(event) => {
+                          event.preventDefault();
+                          onSelect(keyword);
+                        }}
+                      >
                         {keyword}
-                      </Link>
+                      </a>
                     </li>
                   );
                 })}
