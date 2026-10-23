@@ -168,6 +168,7 @@ img {
 }
 
 .vcard__contacts a {
+  overflow-wrap: anywhere;
   text-underline-offset: 3px;
 }
 
@@ -489,8 +490,14 @@ a:focus-visible,
 
   .band__inner,
   .about__action,
-  .vcard {
+  .vcard,
+  .vcard__contacts {
     display: grid;
+    grid-template-columns: 1fr;
+  }
+
+  .band__aside {
+    max-width: none;
   }
 
   .vcard,
