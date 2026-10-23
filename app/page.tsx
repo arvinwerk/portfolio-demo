@@ -23,27 +23,27 @@ export default async function HomePage({
     <>
       <SiteHeader />
       <main id="inhoud">
-        <div className="wrap sheet">
-          <VCard personal={model.personal} />
-          <About
-            foreword={model.forewordParagraphs}
-            github={model.personal.github}
-            githubDescription={model.githubParagraphs}
-          />
-          <Skills groups={model.skillGroups} />
-        </div>
+        <VCard personal={model.personal} />
+        <About
+          foreword={model.forewordParagraphs}
+          github={model.personal.github}
+          githubDescription={model.githubParagraphs}
+        />
+        <Skills groups={model.skillGroups} />
 
         {firstBanner ? <Banner banner={firstBanner} /> : null}
 
-        <div className="wrap sheet">
-          <section className="work" id="werk" aria-labelledby="work-title">
-            <div className="work__heading">
+        <section className="mx-auto max-w-[1000px] px-4 py-12" id="werk" aria-labelledby="work-title">
+          <div className="mb-6 flex items-center justify-center gap-3">
+            <span className="inline-flex h-[66px] w-[66px] items-center justify-center bg-white p-2.5 text-primary shadow-material">
               <LayersIcon />
-              <h2 id="work-title">Werkervaring</h2>
-            </div>
-            <WorkExplorer projects={model.allProjects} initialSelected={model.selectedKeywords} />
-          </section>
-        </div>
+            </span>
+            <h2 id="work-title" className="font-display text-4xl font-semibold tracking-wide text-ink uppercase">
+              Werkervaring
+            </h2>
+          </div>
+          <WorkExplorer projects={model.allProjects} initialSelected={model.selectedKeywords} />
+        </section>
 
         {secondBanner ? <Banner banner={secondBanner} /> : null}
       </main>
@@ -54,7 +54,7 @@ export default async function HomePage({
 
 function LayersIcon() {
   return (
-    <svg className="work__icon" viewBox="0 0 24 24" aria-hidden="true">
+    <svg className="h-9 w-9" viewBox="0 0 24 24" aria-hidden="true">
       <path
         d="M12 3 3 8l9 5 9-5-9-5Zm-9 8 9 5 9-5M3 16l9 5 9-5"
         fill="none"

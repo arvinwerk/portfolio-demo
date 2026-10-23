@@ -1,16 +1,22 @@
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
-import { Fraunces, Outfit } from "next/font/google";
+import { Mulish, Raleway, Roboto } from "next/font/google";
 import "./globals.css";
 
-const display = Fraunces({
+const display = Raleway({
   subsets: ["latin"],
-  variable: "--font-display",
+  variable: "--font-raleway",
 });
 
-const sans = Outfit({
+const sans = Mulish({
   subsets: ["latin"],
-  variable: "--font-sans",
+  variable: "--font-mulish",
+});
+
+const ui = Roboto({
+  subsets: ["latin"],
+  weight: ["300", "400", "500", "700"],
+  variable: "--font-roboto",
 });
 
 export const metadata: Metadata = {
@@ -21,9 +27,12 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
-    <html lang="nl" className={`${display.variable} ${sans.variable}`}>
-      <body>
-        <a className="skip" href="#inhoud">
+    <html lang="nl" className={`${display.variable} ${sans.variable} ${ui.variable}`}>
+      <body className="bg-paper font-sans text-ink antialiased">
+        <a
+          className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-50 focus:bg-white focus:px-3 focus:py-2 focus:text-primary"
+          href="#inhoud"
+        >
           Naar inhoud
         </a>
         {children}

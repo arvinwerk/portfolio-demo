@@ -11,32 +11,43 @@ export function ProjectFilter({
   onSelect: (key: string | null) => void;
 }) {
   return (
-    <nav className="filters" aria-label="Filter op trefwoord">
-      <a
-        href={keywordsToHref([])}
-        aria-current={allSelected ? "true" : undefined}
-        className={allSelected ? "is-active" : undefined}
-        onClick={(event) => {
-          event.preventDefault();
-          onSelect(null);
-        }}
-      >
+    <nav className="flex flex-wrap gap-2" aria-label="Filter op trefwoord">
+      <FilterLink href={keywordsToHref([])} selected={allSelected} onClick={() => onSelect(null)}>
         Alles
-      </a>
+      </FilterLink>
       {links.map((link) => (
-        <a
-          key={link.key}
-          href={link.href}
-          aria-current={link.selected ? "true" : undefined}
-          className={link.selected ? "is-active" : undefined}
-          onClick={(event) => {
-            event.preventDefault();
-            onSelect(link.key);
-          }}
-        >
+        <FilterLink key={link.key} href={link.href} selected={link.selected} onClick={() => onSelect(link.key)}>
           {link.key}
-        </a>
+        </FilterLink>
       ))}
     </nav>
+  );
+}
+
+function FilterLink({
+  href,
+  selected,
+  onClick,
+  children,
+}: {
+  href: string;
+  selected: boolean;
+  onClick: () => void;
+  children: string;
+}) {
+  return (
+    <a
+      href={href}
+      aria-current={selected ? "true" : undefined}
+      className={`inline-block px-4 py-2 font-ui text-sm font-medium no-underline shadow-material ${
+        selected ? "bg-action text-white" : "bg-white text-ink"
+      }`}
+      onClick={(event) => {
+        event.preventDefault();
+        onClick();
+      }}
+    >
+      {children}
+    </a>
   );
 }
