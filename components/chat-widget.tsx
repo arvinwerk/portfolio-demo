@@ -57,10 +57,10 @@ export function ChatWidget() {
   }
 
   return (
-    <div className="fixed right-4 bottom-4 z-40 flex flex-col items-end gap-3 sm:right-6 sm:bottom-6">
+    <div className="fixed right-8 bottom-4 z-40 flex w-[calc(100%-4rem)] max-w-96 flex-col items-end gap-3 sm:bottom-6">
       {open ? (
         <section
-          className="flex h-[min(32rem,calc(100vh-7rem))] w-[min(24rem,calc(100vw-2rem))] flex-col overflow-hidden bg-white shadow-card"
+          className="flex h-[min(32rem,calc(100dvh-7rem))] w-full flex-col overflow-hidden bg-white shadow-card"
           role="dialog"
           aria-modal="true"
           aria-labelledby={titleId}
