@@ -1,0 +1,10 @@
+[
+  { "name": "TypeScript", "percentage": 90, "category": "skills" },
+  { "name": "JavaScript", "percentage": 86, "category": "skills" },
+  { "name": "Toegankelijkheid", "percentage": 74, "category": "skills" },
+  { "name": "Angular", "percentage": 84, "category": "framework" },
+  { "name": "React", "percentage": 88, "category": "framework" },
+  { "name": "Next.js", "percentage": 80, "category": "framework" },
+  { "name": "Node.js", "percentage": 68, "category": "other" },
+  { "name": "Testen", "percentage": 82, "category": "other" }
+]

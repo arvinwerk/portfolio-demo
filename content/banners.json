@@ -1,0 +1,14 @@
+[
+  {
+    "title": "Vrienden van Amstel VIP Arrangementen 2024",
+    "bgImage": { "src": "/images/banners/vval-bg.svg" },
+    "laptopImage": { "src": "/images/banners/vval-laptop.svg" },
+    "mobileImage": { "src": "/images/banners/vval-mobile.svg" }
+  },
+  {
+    "title": "Heineken Formule 1 VIP",
+    "bgImage": { "src": "/images/banners/gp-bg.svg" },
+    "laptopImage": { "src": "/images/banners/gp-laptop.svg" },
+    "mobileImage": { "src": "/images/banners/gp-mobile.svg" }
+  }
+]

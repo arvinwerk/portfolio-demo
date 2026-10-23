@@ -1,15 +1,28 @@
-# Resume
+# Portfolio
 
-This portfolio is intended as a simple demo on how to make an angular app. The main focus is the angular code, the scass is based on an existing theme. 
+Next.js-portfolio. De pagina is React. Persoonsgegevens, skills, projecten en banners komen uit `content/` en worden op de server gelezen. De browser haalt die JSON niet op.
 
-Some programming principles that have been applied:
-- Functional programming, so the functions can be tested and the outcome is predictable
-- Declarative programming, instead of the traditional imperative programming for better scaling readability
-- Reactive state management, keeping the state out of the component to keep components simple
+Het filter staat in de URL (`/?keywords=Angular&keywords=React`). Een lege selectie toont alle projecten. Meerdere trefwoorden zijn een OF-filter, net als in de oude Angular-store.
 
-# todo
+## Content
 
-- Add example jsons, so you can add your own json
-- Add tests
-- Create real API
-- Add loaders and css animations
+De oorspronkelijke Angular-app verwees naar `/assets/api/*.json` en beelden die niet in de repo stonden. De JSON in `content/` is daarom voorbeeldcontent, met de twee campagnes die al in de oude `BannerService` stonden. Vervang de bestanden door je eigen gegevens:
+
+- `content/personal.json` — profiel. `${age}` en `${yearsAsDeveloper}` in `foreword` worden op de server ingevuld vanuit `dateOfBirth` en `developingStartDate`.
+- `content/skills.json` — `category` is `skills`, `framework` of `other`.
+- `content/projects.json` — projecten krijgen hun id op volgorde in het bestand (`index + 1`).
+- `content/banners.json` — paden onder `/images/`.
+
+Beelden staan in `public/images/`.
+
+## Scripts
+
+```bash
+npm install
+npm run dev
+npm test
+npm run typecheck
+npm run build
+```
+
+`npm test` draait Vitest: domeinregels (leeftijd, filter, id's) en componenten via Testing Library.

@@ -1,0 +1,34 @@
+[
+  {
+    "company": "Vrienden van Amstel",
+    "title": "VIP Arrangementen 2024",
+    "shortDescription": "Campagnesite voor de VIP-arrangementen, met een zwaar visuele voorkant.",
+    "longDescription": "De pagina bracht sfeer en aanmelding samen in herbruikbare blokken, zodat een volgende editie de structuur kon houden.\n\nDeze campagne stond al als banner in de vorige versie van de site.",
+    "keywords": ["Angular", "TypeScript"],
+    "images": ["vval.svg"]
+  },
+  {
+    "company": "Heineken",
+    "title": "Formule 1 VIP",
+    "shortDescription": "VIP-ervaring rond de Grand Prix, van de landing tot de aanmelding.",
+    "longDescription": "Bezoekers zagen het arrangement op een laptop en op een telefoon, in dezelfde campagne.\n\nOok deze banner stond in de vorige versie. Het merkteken op de kaart is eigen werk, geen merklokogo.",
+    "keywords": ["Angular", "Laravel"],
+    "images": ["f1.svg"]
+  },
+  {
+    "company": "Studio Noord",
+    "title": "Componentbibliotheek",
+    "shortDescription": "Demoproject, zodat het filter ook React laat zien.",
+    "longDescription": "Filters, lijsten en balken delen één model. Een visuele wijziging kan de interactie niet stilletjes veranderen.\n\nElke staat van zo'n onderdeel heeft een unit test.",
+    "keywords": ["React", "TypeScript"],
+    "images": ["ui.svg"]
+  },
+  {
+    "company": "Haven & Co",
+    "title": "Content-API",
+    "shortDescription": "Demoproject voor content die de server aanlevert.",
+    "longDescription": "De pagina krijgt persoonsgegevens, skills en projecten als props.\n\nHet filter staat in de URL. Dezelfde selectie is deelbaar, en Next.js past hem toe voordat de HTML vertrekt.",
+    "keywords": ["Laravel", "Node.js"],
+    "images": ["api.svg"]
+  }
+]

@@ -1,0 +1,14 @@
+{
+  "fullName": "Arvin Sokarijo",
+  "function": "Frontend developer",
+  "email": "hello@example.com",
+  "education": "Informatica",
+  "developingStartDate": "2016-01-15",
+  "linkedIn": "https://www.linkedin.com",
+  "portfolioUrl": "https://example.com",
+  "location": "Nederland",
+  "foreword": "Ik bouw interfaces waarin de inhoud het werk doet. Ik ben ${age} en ontwikkel ${yearsAsDeveloper} jaar.\n\nDit demoportfolio leest de tekst en de datums op de server, vanuit content/personal.json.",
+  "dateOfBirth": "1994-06-20",
+  "github": "https://github.com/arvinwerk",
+  "githubDescription": "De broncode van dit portfolio staat op GitHub.\n\nDe pagina zelf haalt niets op in de browser. Next.js leest de content op de server."
+}
