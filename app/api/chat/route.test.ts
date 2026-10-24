@@ -8,7 +8,7 @@ const { streamText, convertToModelMessages, toUIMessageStream, createUIMessageSt
       (_options: {
         tools: {
           searchProfile: {
-            execute: (input: { query: string }) => Promise<{ found: boolean; fragments: { heading: string }[] }>;
+            execute: (input: { query: string }) => Promise<{ found: boolean; fragments: { source: string; text: string }[] }>;
           };
         };
       }) => ({ stream: { kind: "model-stream" } }),
@@ -48,6 +48,7 @@ describe("POST /api/chat", () => {
     createAnthropic.mockClear();
     vi.stubEnv("AI_MODEL", "");
     vi.stubEnv("AI_API_KEY", "");
+    vi.stubEnv("RAG_DOCUMENT_PATH", "");
   });
 
   it("streamt een antwoord met het model uit de omgeving", async () => {
@@ -69,7 +70,12 @@ describe("POST /api/chat", () => {
     const call = streamText.mock.calls[0]?.[0];
     await expect(call?.tools.searchProfile.execute({ query: "opleiding" })).resolves.toMatchObject({
       found: true,
-      fragments: [expect.objectContaining({ heading: "Opleiding" })],
+      fragments: [
+        expect.objectContaining({
+          source: "profile.txt",
+          text: expect.stringContaining("Voorbeeld Hogeschool"),
+        }),
+      ],
     });
     expect(toUIMessageStream).toHaveBeenCalledWith({ stream: { kind: "model-stream" } });
   });

@@ -1,11 +1,14 @@
-import type { RagChunk } from "./markdown-index";
+export type ProfileFragment = {
+  source: string;
+  text: string;
+};
 
 export type ProfileSearch = {
   found: boolean;
-  fragments: RagChunk[];
+  fragments: ProfileFragment[];
   note?: string;
 };
 
 export type ProfileRetriever = {
-  search(query: string): ProfileSearch;
+  search(query: string): Promise<ProfileSearch>;
 };

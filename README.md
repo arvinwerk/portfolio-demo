@@ -12,7 +12,7 @@ De pagina is een document. Persoonsgegevens, skills, projecten en banners komen 
 
 Het filter is URL-staat. `/?keywords=Angular&keywords=React#werk` is de selectie. Een lege selectie toont alles. Meerdere trefwoorden zijn een OF-filter, zoals in de oude store. Onbekende trefwoorden vallen weg. De eerste response filtert op de server. Een klik werkt de lijst bij zonder de viewport te verplaatsen: de client schrijft dezelfde URL met `scroll: false`, en de terugknop synchroniseert via `popstate`. De link wijst naar `#werk`, zodat een gewone paginaload bij de lijst uitkomt.
 
-De chat is een eiland in dezelfde app. Het venster rechtsonder praat alleen met `app/api/chat`. Model en sleutel blijven in de omgeving. Het model mag feiten over de persoon alleen ophalen via een tool, uit één markdownbestand.
+De chat is een eiland in dezelfde app. Het venster rechtsonder praat alleen met `app/api/chat`. Model en sleutel blijven in de omgeving. Het model mag feiten over de persoon alleen ophalen via een tool, uit de tekstbestanden in `content/rag`.
 
 ```mermaid
 flowchart TD
@@ -22,7 +22,7 @@ flowchart TD
   json[content JSON]
   route[app/api/chat]
   tool[searchProfile]
-  md[content/rag/profile.md]
+  corpus[content/rag tekstbestanden]
   model[Model via Vercel AI SDK]
 
   browser --> page
@@ -30,7 +30,7 @@ flowchart TD
   page --> json
   filter --> route
   route --> tool
-  tool --> md
+  tool --> corpus
   route --> model
 ```
 
@@ -64,15 +64,17 @@ Binnenkomende berichten worden gecontroleerd: alleen gebruiker en assistent, een
 
 `searchProfile` is een tool van de Vercel AI SDK. Het model moet die tool aanroepen voordat het iets over de persoon beweert, en het mag alleen de teruggegeven fragmenten gebruiken.
 
-Het bestand is `content/rag/profile.md`. Koppen worden chunks. Een vraag wordt op woorden gezet, stopwoorden vallen weg, en de drie best passende chunks gaan terug. Een treffer in de kop weegt zwaarder. De store cachet de chunks en bouwt ze opnieuw als pad, wijzigingstijd of grootte verandert. Het bestand vervangen op de server is genoeg. Een bestand groter dan 64 kB wordt geweigerd, zodat een deploy het proces niet kan vullen met één tekst.
+Het corpus is de map `content/rag`. Elk tekstbestand telt: `.txt`, `.md` en `.markdown`. Markdown mag, maar het formaat is geen eis. `RecursiveCharacterTextSplitter` uit LangChain knipt de documenten op tekengrootte, met overlap, en kijkt niet naar koppen. Okapi BM25 (`okapibm25`, hetzelfde algoritme als de BM25-retriever van LangChain) rangschikt die stukken. Een score van nul of lager valt weg, zodat een vraag die niets raakt geen fragmenten oplevert. De drie beste stukken gaan terug, met de bestandsnaam erbij.
 
-Dit is retrieval-augmented generation in de kleine vorm. Het model krijgt niet het hele profiel in de systeemprompt, maar de stukken die bij de vraag horen. Een vraag die niets raakt, levert geen fragmenten op, en de instructie is dan om te zeggen dat het niet in het profiel staat.
+De store cachet de stukken en bouwt ze opnieuw als een bestandsnaam, wijzigingstijd of grootte verandert. Een bestand vervangen op de server is genoeg. Een bestand groter dan 64 kB wordt geweigerd, zodat een deploy het proces niet kan vullen met één tekst.
 
-Een embeddingmodel en een vectordatabase zijn hier een tweede systeem voor één kort bestand. Lexicale overlap op koppen is uitlegbaar, testbaar, en heeft geen extra sleutel. Dezelfde toolgrens blijft staan als het corpus later groot genoeg wordt voor embeddings: de route blijft `searchProfile` aanroepen, de index erachter kan dan veranderen.
+Dit is retrieval-augmented generation in de kleine vorm. Het model krijgt niet het hele profiel in de systeemprompt, maar de stukken die bij de vraag horen. Vindt de tool niets, dan zegt de instructie dat het niet in het profiel staat.
 
-`RAG_DOCUMENT_PATH` mag een andere bestandsnaam in `content/rag` zijn. Een pad met een map of `..` wordt geweigerd. Daardoor kan een deploy het bestand niet laten wijzen naar iets buiten die map, en traceert de bundler die map in plaats van de hele repository.
+Een embeddingmodel en een vectordatabase zijn hier een tweede systeem voor een korte tekst, en ze vragen een tweede sleutel. BM25 draait lokaal, is uitlegbaar, en is te testen zonder het model. Dezelfde toolgrens blijft staan als het corpus later groot genoeg wordt voor embeddings: de route blijft `searchProfile` aanroepen, de index erachter kan dan veranderen.
 
-De tekst in de repository is een placeholder. De HTML-commentaar bovenin wordt vóór het indexeren verwijderd, zodat de deploy-instructie niet in een antwoord belandt. Vervang het bestand bij het deployen door de echte tekst.
+Zonder `RAG_DOCUMENT_PATH` worden alle tekstbestanden in de map geïndexeerd. Met die variabele blijft het bij één bestandsnaam. Een pad met een map of `..` wordt geweigerd, net als een andere extensie. Daardoor kan een deploy het corpus niet buiten die map laten wijzen. De route neemt de map expliciet mee in de file trace, omdat de bestandsnaam pas bij deploy vaststaat.
+
+`content/rag/profile.txt` is een placeholder. Vervang dat bestand, of leg er andere teksten naast, bij het deployen.
 
 ## Naden
 
@@ -80,7 +82,7 @@ De pagina was al gescheiden: JSON in, validatie, paginamodel, weergave. De chat 
 
 `app/api/chat/route.ts` is de HTTP-grens. Hij leest de berichten, weigert een verzoek zonder model of sleutel, en geeft de stream terug. Het model komt uit `createChatModel`. Een andere provider vervangt dat bestand. De route importeert de provider niet.
 
-`streamAssistant` krijgt een `ProfileRetriever`. Dat is het poortje naar de feiten. `FileProfileStore` is de huidige adapter: hij leest een markdownbestand, weigert iets groters dan 64 kB, en cachet de chunks op het eigen object. `indexMarkdown` en `searchChunks` zijn pure functies, zonder schijf en zonder server. Een latere adapter kan dezelfde interface vullen met embeddings. De tool en de route blijven staan.
+`streamAssistant` krijgt een `ProfileRetriever`. Dat is het poortje naar de feiten. `FileProfileStore` is de huidige adapter: hij leest de tekstbestanden, laat LangChain ze splitsen, rangschikt met BM25, weigert iets groters dan 64 kB, en cachet de stukken op het eigen object. Een latere adapter kan dezelfde interface vullen met embeddings. De tool en de route blijven staan.
 
 Het venster importeert alleen de fouttekst die het aan de bezoeker toont. De parser van binnenkomende berichten hoort bij de route.
 
@@ -88,9 +90,9 @@ Het venster importeert alleen de fouttekst die het aan de bezoeker toont. De par
 
 `npm test` draait Vitest.
 
-Domeintests dekken datums, het filter, project-id's, de contentvalidatie en de profielindex, inclusief een vervangen bestand en een pad dat buiten de map wijst. Componenttests dekken de kaart, de skills, het filter en het chatvenster, ook de regel die verschijnt terwijl de tool zoekt.
+Domeintests dekken datums, het filter, project-id's, de contentvalidatie en de profielstore, inclusief een vervangen bestand, een map met tekst én markdown, en een pad dat buiten de map wijst. Componenttests dekken de kaart, de skills, het filter en het chatvenster, ook de regel die verschijnt terwijl de tool zoekt.
 
-De routetest controleert dat `searchProfile` aan de stream hangt en dat een zoekopdracht op "opleiding" het opleidingsfragment teruggeeft. Een tweede test stuurt een nagebootste Anthropic-stream door de echte SDK en controleert dat de tekst in het antwoord naar de browser zit en de sleutel niet.
+De routetest controleert dat `searchProfile` aan de stream hangt en dat een zoekopdracht op "opleiding" het fragment met de Voorbeeld Hogeschool teruggeeft. Een tweede test stuurt een nagebootste Anthropic-stream door de echte SDK en controleert dat de tekst in het antwoord naar de browser zit en de sleutel niet.
 
 ## Lokaal draaien
 
@@ -120,6 +122,6 @@ De JSON in `content/` is voorbeeldcontent. De oorspronkelijke Angular-app verwee
 - `content/skills.json` — `category` is `skills`, `framework` of `other`.
 - `content/projects.json` — de id is de volgorde in het bestand plus één.
 - `content/banners.json` — paden onder `/images/`.
-- `content/rag/profile.md` — de tekst die de chat mag gebruiken. Placeholder, vervangen bij deploy.
+- `content/rag/` — de tekst die de chat mag gebruiken. `profile.txt` is de placeholder. Andere `.txt`-, `.md`- of `.markdown`-bestanden in die map tellen mee, tenzij `RAG_DOCUMENT_PATH` er één van aanwijst. Vervangen bij deploy.
 
 Beelden staan in `public/images/`.
