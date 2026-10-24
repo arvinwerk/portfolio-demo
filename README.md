@@ -116,6 +116,17 @@ AI_API_KEY=
 
 Zonder die twee variabelen werkt de pagina. De chat antwoordt dan dat model en sleutel gezet moeten worden.
 
+## Container
+
+`output: "standalone"` levert één Node-server zonder de volledige `node_modules`. De Dockerfile kopieert daarnaast `public/`, `.next/static/` en `content/`. De pagina en de chat lezen `content/` bij het verzoek van schijf, dus die map staat in de image.
+
+```bash
+cp .env.example .env
+docker compose up -d --build
+```
+
+De site luistert op `127.0.0.1:3000`. Een proxy ervoor zet HTTPS en `X-Real-IP`. Die proxy mag `/api/chat` niet bufferen, anders komt de stream pas binnen als het model klaar is. `AI_MODEL` en `AI_API_KEY` komen uit `.env` bij het starten van de container. Ze worden niet in de image gebakken.
+
 ## Content vervangen
 
 De JSON in `content/` is voorbeeldcontent. De oorspronkelijke Angular-app verwees naar bestanden die niet in de repo stonden. De twee campagnes in de banners komen uit de oude `BannerService`.

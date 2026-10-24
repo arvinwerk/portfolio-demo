@@ -1,0 +1,15 @@
+node_modules
+.next
+.git
+.github
+coverage
+out
+*.log
+*.tsbuildinfo
+.DS_Store
+.idea
+.vscode
+.env
+.env.*
+!.env.example
+README.md
