@@ -39,8 +39,8 @@ function FilterLink({
     <a
       href={href}
       aria-current={selected ? "true" : undefined}
-      className={`inline-block px-4 py-2 font-ui text-sm font-medium no-underline shadow-material ${
-        selected ? "bg-action text-white" : "bg-white text-ink"
+      className={`inline-block rounded-full px-4 py-2 font-ui text-sm no-underline ${
+        selected ? "bg-primary text-white" : "bg-white text-ink ring-1 ring-black/10 hover:ring-primary/40"
       }`}
       onClick={(event) => {
         event.preventDefault();

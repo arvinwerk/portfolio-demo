@@ -7,7 +7,8 @@ export function Banner({ banner }: { banner: BannerModel }) {
       style={{ backgroundImage: `url(${banner.bgImage.src})` }}
       aria-label={banner.title}
     >
-      <h2 className="px-4 pt-12 text-center font-display text-3xl font-semibold text-white md:pt-24 md:text-5xl">
+      <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-black/60 via-black/15 to-black/45" aria-hidden="true" />
+      <h2 className="relative z-10 px-4 pt-20 text-center font-display text-3xl font-semibold tracking-tight text-white md:pt-24 md:text-5xl">
         {banner.title}
       </h2>
       <div className="device-laptop">

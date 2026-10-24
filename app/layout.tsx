@@ -21,8 +21,8 @@ const ui = Roboto({
 });
 
 export const metadata: Metadata = {
-  title: "Portfolio Arvin Sokarijo",
-  description: "Portfolio met werk, skills en een filter. De data komt van de Next.js-server.",
+  title: "Arvin Sokarijo — Frontend developer",
+  description: "Frontend developer. Werk, vaardigheden en een chat die het profiel doorzoekt.",
   robots: { index: false, follow: false },
 };
 

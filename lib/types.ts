@@ -68,6 +68,7 @@ export type KeywordLink = {
 
 export type PageModel = {
   personal: Personal;
+  yearsAsDeveloper: number;
   forewordParagraphs: string[];
   githubParagraphs: string[];
   skillGroups: SkillGroup[];

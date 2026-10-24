@@ -26,6 +26,7 @@ export function buildPageModel(
 
   return {
     personal,
+    yearsAsDeveloper,
     forewordParagraphs: paragraphs(renderForeword(personal.foreword, age, yearsAsDeveloper)),
     githubParagraphs: paragraphs(personal.githubDescription),
     skillGroups: groupSkills(content.skills),

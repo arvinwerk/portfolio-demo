@@ -4,15 +4,15 @@
   --font-display: var(--font-raleway), "Raleway", sans-serif;
   --font-sans: var(--font-mulish), "Mulish", sans-serif;
   --font-ui: var(--font-roboto), "Roboto", sans-serif;
-  --color-primary: #a0141c;
-  --color-primary-dark: #94121a;
-  --color-accent: #a1222a;
-  --color-action: #00bf4e;
-  --color-paper: #f5f5f5;
-  --color-ink: #616161;
-  --color-muted: #757575;
-  --shadow-card: 0 15px 15px 0 #ccc;
-  --shadow-material: 0 2px 5px 0 rgb(0 0 0 / 0.16), 0 2px 10px 0 rgb(0 0 0 / 0.12);
+  --color-primary: #9d1c24;
+  --color-primary-dark: #6e1016;
+  --color-accent: #9d1c24;
+  --color-action: #00a844;
+  --color-paper: #f3efe8;
+  --color-ink: #241c1c;
+  --color-muted: #5e564f;
+  --shadow-card: 0 24px 50px -32px rgb(36 16 18 / 0.45);
+  --shadow-material: 0 12px 28px -16px rgb(36 16 18 / 0.38);
 }
 
 @layer base {
@@ -25,8 +25,8 @@
     background: var(--color-paper);
     color: var(--color-ink);
     font-family: var(--font-sans), sans-serif;
-    font-size: 15px;
-    line-height: 1.5;
+    font-size: 16px;
+    line-height: 1.6;
   }
 
   h1,
@@ -36,21 +36,27 @@
   h5,
   h6 {
     font-family: var(--font-display), sans-serif;
+    color: var(--color-ink);
+    letter-spacing: -0.03em;
   }
 
-  p {
-    color: var(--color-muted);
+  :focus-visible {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 3px;
   }
 
-  #werk {
-    scroll-margin-top: 24px;
+  #over,
+  #skills,
+  #werk,
+  #contact {
+    scroll-margin-top: 5.5rem;
   }
 }
 
 @layer components {
   .device-stage {
     position: relative;
-    height: 640px;
+    height: 520px;
     overflow: hidden;
     background-position: center;
     background-size: cover;
@@ -59,7 +65,7 @@
 
   .device-laptop {
     position: absolute;
-    top: 54%;
+    top: 62%;
     left: 50%;
     z-index: 1;
     width: min(600px, 92vw);
@@ -70,7 +76,7 @@
     position: relative;
     z-index: 1;
     overflow: hidden;
-    height: 18rem;
+    height: 15rem;
     border: 2px solid #ccc;
     border-radius: 1.4rem;
     background: linear-gradient(#333, #111);
@@ -167,7 +173,7 @@
 
   @media (max-width: 700px) {
     .device-stage {
-      height: 420px;
+      height: 390px;
     }
 
     .device-laptop {
@@ -187,11 +193,11 @@
 
   @media (min-width: 900px) {
     .device-stage {
-      height: 860px;
+      height: 640px;
     }
 
     .device-laptop__screen {
-      height: 25rem;
+      height: 20rem;
     }
   }
 

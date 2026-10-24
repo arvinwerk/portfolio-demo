@@ -47,6 +47,12 @@ export function ChatWidget() {
     endRef.current?.scrollIntoView?.({ block: "end" });
   }, [messages, open, status]);
 
+  useEffect(() => {
+    const openChat = () => setOpen(true);
+    window.addEventListener("portfolio-chat-open", openChat);
+    return () => window.removeEventListener("portfolio-chat-open", openChat);
+  }, []);
+
   function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const text = input.trim();
@@ -58,18 +64,25 @@ export function ChatWidget() {
   }
 
   return (
-    <div className="fixed right-8 bottom-4 z-40 flex w-[calc(100%-4rem)] max-w-96 flex-col items-end gap-3 sm:bottom-6">
+    <div
+      className={`fixed right-4 bottom-4 z-40 flex flex-col gap-3 sm:right-8 sm:bottom-6 ${
+        open ? "w-[calc(100%-2rem)] max-w-96 items-stretch" : "items-end"
+      }`}
+    >
       {open ? (
         <section
-          className="flex h-[min(32rem,calc(100dvh-7rem))] w-full flex-col overflow-hidden bg-white shadow-card"
+          className="flex h-[min(32rem,calc(100dvh-7rem))] w-full flex-col overflow-hidden rounded-3xl bg-white shadow-card ring-1 ring-black/5"
           role="dialog"
           aria-modal="true"
           aria-labelledby={titleId}
         >
           <header className="flex items-center justify-between bg-primary px-4 py-3 text-white">
-            <h2 id={titleId} className="font-display text-lg font-semibold">
-              Chat
-            </h2>
+            <div>
+              <h2 id={titleId} className="font-display text-lg font-semibold text-white">
+                Chat
+              </h2>
+              <p className="text-xs text-white/75">Antwoorden komen uit het profiel.</p>
+            </div>
             <button
               type="button"
               className="px-2 py-1 text-sm text-white"
@@ -139,15 +152,15 @@ export function ChatWidget() {
         </section>
       ) : null}
       <button
-        type="button"
-        className="flex h-14 w-14 items-center justify-center rounded-full bg-primary text-white shadow-material"
-        aria-expanded={open}
-        aria-controls={open ? titleId : undefined}
-        onClick={() => setOpen((current) => !current)}
-      >
-        <span className="sr-only">{open ? "Chat sluiten" : "Chat openen"}</span>
-        <ChatIcon />
-      </button>
+          type="button"
+          className="hidden h-14 w-14 items-center justify-center self-end rounded-full bg-primary text-white shadow-material sm:flex"
+          aria-expanded={open}
+          aria-controls={open ? titleId : undefined}
+          onClick={() => setOpen((current) => !current)}
+        >
+          <span className="sr-only">{open ? "Chat sluiten" : "Chat openen"}</span>
+          <ChatIcon />
+        </button>
     </div>
   );
 }

@@ -51,6 +51,7 @@ const now = new Date(2026, 9, 23);
 describe("buildPageModel", () => {
   it("vult leeftijd en jaren in en splitst de github-tekst", () => {
     const model = buildPageModel(content, { now });
+    expect(model.yearsAsDeveloper).toBe(10);
     expect(model.forewordParagraphs).toEqual(["Leeftijd 32. Jaren 10."]);
     expect(model.githubParagraphs).toEqual(["Eerste alinea.", "Tweede alinea."]);
     expect(model.allSelected).toBe(true);
