@@ -1,6 +1,6 @@
 import "server-only";
 
-import { readdirSync, readFileSync, statSync } from "node:fs";
+import { readdirSync, readFileSync, realpathSync, statSync } from "node:fs";
 import path from "node:path";
 import { Document } from "@langchain/core/documents";
 import { RecursiveCharacterTextSplitter } from "@langchain/textsplitters";
@@ -37,7 +37,7 @@ export class FileProfileStore {
 
   async search(query: string, fileName?: string): Promise<ProfileSearch> {
     try {
-      const keywords = tokenize(query);
+      const keywords = tokenize(query.slice(0, 500));
       if (keywords.length === 0) {
         return { found: false, fragments: [] };
       }
@@ -66,7 +66,7 @@ export class FileProfileStore {
   private async load(fileName?: string): Promise<IndexedChunk[]> {
     const names = this.fileNames(fileName);
     const stats = names.map((name) => {
-      const file = path.join(this.directory, name);
+      const file = resolveInside(this.directory, name);
       const stat = statSync(/*turbopackIgnore: true*/ file);
       if (!stat.isFile()) {
         throw new ProfileStoreError("Het profielbestand is niet beschikbaar.");
@@ -151,8 +151,26 @@ function assertTextFileName(name: string): void {
   }
 }
 
+function resolveInside(directory: string, name: string): string {
+  let root: string;
+  let resolved: string;
+  try {
+    root = realpathSync(/*turbopackIgnore: true*/ directory);
+    resolved = realpathSync(/*turbopackIgnore: true*/ path.join(root, name));
+  } catch {
+    throw new ProfileStoreError("Het profielbestand is niet beschikbaar.");
+  }
+
+  const relative = path.relative(root, resolved);
+  if (relative === "" || relative === ".." || relative.startsWith(`..${path.sep}`) || path.isAbsolute(relative)) {
+    throw new ProfileStoreError("Het profielbestand moet in content/rag blijven.");
+  }
+
+  return resolved;
+}
+
 function tokenize(value: string): string[] {
-  return value.toLowerCase().match(/\w+/g) ?? [];
+  return (value.toLowerCase().match(/\w+/g) ?? []).slice(0, 16);
 }
 
 function takeFragments(chunks: IndexedChunk[], ranked: BMDocument[]): ProfileFragment[] {

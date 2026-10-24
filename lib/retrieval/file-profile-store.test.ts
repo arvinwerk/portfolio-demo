@@ -1,4 +1,4 @@
-import { mkdtempSync, rmSync, writeFileSync } from "node:fs";
+import { mkdtempSync, rmSync, symlinkSync, writeFileSync } from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import { afterEach, describe, expect, it, vi } from "vitest";
@@ -65,6 +65,20 @@ describe("FileProfileStore", () => {
       found: false,
       fragments: [],
       note: "Het profielbestand is te groot.",
+    });
+  });
+
+  it("volgt geen symlink die buiten de map wijst", async () => {
+    const directory = tempCorpus();
+    const outside = tempCorpus();
+    const secret = write(outside, "secret.txt", "geheim wachtwoord\n");
+    symlinkSync(secret, path.join(directory, "profile.txt"));
+    const store = new FileProfileStore(directory);
+
+    expect(await store.search("wachtwoord", "profile.txt")).toEqual({
+      found: false,
+      fragments: [],
+      note: "Het profielbestand moet in content/rag blijven.",
     });
   });
 

@@ -56,9 +56,11 @@ Een aparte Node-server voor het model loont als meer producten hetzelfde model g
 
 `AI_MODEL` is het model-id. `claude-haiku-5-5` in `.env.example` is een voorbeeld, geen keuze die in de code vastzit. `AI_API_KEY` gaat naar de Anthropic-provider op de server. De route weigert het verzoek als een van beide ontbreekt, en het venster toont die zin in plaats van een rauwe JSON-body.
 
-Binnenkomende berichten worden gecontroleerd: alleen gebruiker en assistent, een begrensd aantal, alleen tekst, en een maximumlengte. Tool-onderdelen uit de browser worden weggegooid. Anders kan een client een verzonnen toolresultaat in de geschiedenis zetten en het model laten doen alsof het profiel dat zei.
+Binnenkomende berichten worden gecontroleerd: alleen gebruiker en assistent, een begrensd aantal, alleen tekst, en een maximumlengte. Het lichaam van het verzoek stopt bij 96 kB. Tool-onderdelen uit de browser worden weggegooid. Een assistentbericht telt alleen mee als deze server het zelf ondertekend heeft met `AI_API_KEY`, of als het de vaste welkomstzin is. Een verzonnen antwoord of een verzonnen toolresultaat bereikt het model niet. De handtekening gaat mee in de stream en komt bij de volgende beurt terug. Wisselt de sleutel, dan vervalt de oude geschiedenis.
 
-`stopWhen: isStepCount(4)` laat het model een tool aanroepen en daarna nog antwoorden, en kapt een lus af voordat een vastgelopen gesprek de sleutel blijft gebruiken.
+`/api/chat` heeft geen login. Zonder plafond kan een bezoeker de sleutel leegtrekken. Per adres geldt een venster van 8 verzoeken per minuut. Per proces geldt daarnaast 100 verzoeken per tien minuten, ook als het adres in `x-forwarded-for` meedraait. Daarboven antwoordt de route met 429, vóórdat het model wordt aangeroepen. Het plafond zit in het geheugen van dit proces. Meerdere instances delen het niet. Een fout van de provider gaat als vaste zin naar de browser, niet als ruwe fouttekst.
+
+`stopWhen: isStepCount(4)` laat het model een tool aanroepen en daarna nog antwoorden, en kapt een lus af voordat een vastgelopen gesprek de sleutel blijft gebruiken. De zoekterm uit het model is begrensd op 200 tekens.
 
 ## Profiel als RAG, zonder vectordatabase
 
@@ -72,7 +74,7 @@ Dit is retrieval-augmented generation in de kleine vorm. Het model krijgt niet h
 
 Een embeddingmodel en een vectordatabase zijn hier een tweede systeem voor een korte tekst, en ze vragen een tweede sleutel. BM25 draait lokaal, is uitlegbaar, en is te testen zonder het model. Dezelfde toolgrens blijft staan als het corpus later groot genoeg wordt voor embeddings: de route blijft `searchProfile` aanroepen, de index erachter kan dan veranderen.
 
-Zonder `RAG_DOCUMENT_PATH` worden alle tekstbestanden in de map geïndexeerd. Met die variabele blijft het bij één bestandsnaam. Een pad met een map of `..` wordt geweigerd, net als een andere extensie. Daardoor kan een deploy het corpus niet buiten die map laten wijzen. De route neemt de map expliciet mee in de file trace, omdat de bestandsnaam pas bij deploy vaststaat.
+Zonder `RAG_DOCUMENT_PATH` worden alle tekstbestanden in de map geïndexeerd. Met die variabele blijft het bij één bestandsnaam. Een pad met een map of `..` wordt geweigerd, net als een andere extensie. `realpath` moet daarna binnen `content/rag` blijven, zodat een symlink het corpus niet naar een bestand buiten die map trekt. De route neemt de map expliciet mee in de file trace, omdat de bestandsnaam pas bij deploy vaststaat.
 
 `content/rag/profile.txt` is een placeholder. Vervang dat bestand, of leg er andere teksten naast, bij het deployen.
 
@@ -92,7 +94,7 @@ Het venster importeert alleen de fouttekst die het aan de bezoeker toont. De par
 
 Domeintests dekken datums, het filter, project-id's, de contentvalidatie en de profielstore, inclusief een vervangen bestand, een map met tekst én markdown, en een pad dat buiten de map wijst. Componenttests dekken de kaart, de skills, het filter en het chatvenster, ook de regel die verschijnt terwijl de tool zoekt.
 
-De routetest controleert dat `searchProfile` aan de stream hangt en dat een zoekopdracht op "opleiding" het fragment met de Voorbeeld Hogeschool teruggeeft. Een tweede test stuurt een nagebootste Anthropic-stream door de echte SDK en controleert dat de tekst in het antwoord naar de browser zit en de sleutel niet.
+De routetest controleert dat `searchProfile` aan de stream hangt, dat een zoekopdracht op "opleiding" het fragment met de Voorbeeld Hogeschool teruggeeft, en dat een verzonnen assistentantwoord het model niet bereikt. Een tweede test stuurt een nagebootste Anthropic-stream door de echte SDK en controleert dat de tekst in het antwoord naar de browser zit, dat die tekst ondertekend is, en dat de sleutel niet in het antwoord staat.
 
 ## Lokaal draaien
 

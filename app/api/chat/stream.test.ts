@@ -2,6 +2,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 
 vi.mock("server-only", () => ({}));
 
+import { signAssistantTurn } from "@/lib/chat/transcript";
 import { POST } from "./route";
 
 function event(payload: unknown) {
@@ -78,5 +79,14 @@ describe("streaming via de Anthropic-provider", () => {
     expect(text).toContain("Hallo");
     expect(text).toContain("daar");
     expect(text).not.toContain("test-sleutel");
+    const events = text.split("\n").flatMap((line) => {
+      if (!line.startsWith("data: ") || line.slice(6) === "[DONE]") {
+        return [];
+      }
+      return [JSON.parse(line.slice(6)) as { type?: string; messageId?: string; messageMetadata?: { signature?: string } }];
+    });
+    const messageId = events.find((event) => event.type === "start")?.messageId;
+    const signature = events.find((event) => event.type === "finish")?.messageMetadata?.signature;
+    expect(signature).toBe(signAssistantTurn(messageId ?? "", "Hallo daar", "test-sleutel"));
   });
 });

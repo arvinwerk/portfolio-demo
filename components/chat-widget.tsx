@@ -4,11 +4,12 @@ import { useChat } from "@ai-sdk/react";
 import { DefaultChatTransport, type UIMessage } from "ai";
 import { useEffect, useId, useMemo, useRef, useState, type FormEvent } from "react";
 import { readableChatError } from "@/lib/chat/client-error";
+import { WELCOME_TEXT } from "@/lib/chat/welcome";
 
 const welcome: UIMessage = {
   id: "welcome",
   role: "assistant",
-  parts: [{ type: "text", text: "Hoi. Vraag gerust iets over dit portfolio." }],
+  parts: [{ type: "text", text: WELCOME_TEXT }],
 };
 
 export function ChatWidget() {

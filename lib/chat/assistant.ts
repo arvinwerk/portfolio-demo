@@ -27,7 +27,7 @@ export function streamAssistant(options: {
         description:
           "Doorzoek het geïndexeerde profiel en haal de fragmenten op die bij de vraag horen. Gebruik woorden die in een cv kunnen staan, zoals werk, opleiding, woonplaats of achtergrond.",
         inputSchema: z.object({
-          query: z.string().describe("Zoekwoorden uit de vraag."),
+          query: z.string().max(200).describe("Zoekwoorden uit de vraag."),
         }),
         execute: async ({ query }) => retriever.search(query),
       }),
