@@ -90,7 +90,7 @@ Het venster importeert alleen de fouttekst die het aan de bezoeker toont. De par
 
 ## Tests
 
-`npm test` draait Vitest.
+`pnpm test` draait Vitest.
 
 Domeintests dekken datums, het filter, project-id's, de contentvalidatie en de profielstore, inclusief een vervangen bestand, een map met tekst én markdown, en een pad dat buiten de map wijst. Componenttests dekken de kaart, de skills, het filter en het chatvenster, ook de regel die verschijnt terwijl de tool zoekt.
 
@@ -99,12 +99,13 @@ De routetest controleert dat `searchProfile` aan de stream hangt, dat een zoekop
 ## Lokaal draaien
 
 ```bash
-npm install
+pnpm install
 cp .env.example .env.local
-npm run dev
-npm test
-npm run typecheck
-npm run build
+pnpm dev
+pnpm test
+pnpm typecheck
+pnpm build
+pnpm start
 ```
 
 `.env.local`:

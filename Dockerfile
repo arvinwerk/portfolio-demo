@@ -5,17 +5,15 @@
 #
 # .env is read when the container starts, not during the build.
 
-FROM node:22-bookworm-slim AS deps
-WORKDIR /app
-COPY package.json package-lock.json ./
-RUN npm ci
-
 FROM node:22-bookworm-slim AS build
-WORKDIR /app
+ENV COREPACK_ENABLE_DOWNLOAD_PROMPT=0
 ENV NEXT_TELEMETRY_DISABLED=1
-COPY --from=deps /app/node_modules ./node_modules
+RUN corepack enable && corepack prepare pnpm@10.33.4 --activate
+WORKDIR /app
+COPY package.json pnpm-lock.yaml ./
+RUN pnpm install --frozen-lockfile
 COPY . .
-RUN npm run build \
+RUN pnpm build \
   && test -f .next/standalone/server.js \
   && test -f content/personal.json \
   && test -f content/rag/profile.txt
