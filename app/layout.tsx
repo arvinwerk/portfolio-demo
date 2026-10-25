@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import type { ReactNode } from "react";
 import { Mulish, Raleway, Roboto } from "next/font/google";
 import { ChatWidget } from "@/components/chat-widget";
+import { loadContent } from "@/lib/content";
 import "./globals.css";
 
 const display = Raleway({
@@ -20,11 +21,17 @@ const ui = Roboto({
   variable: "--font-roboto",
 });
 
-export const metadata: Metadata = {
-  title: "Arvin Sokarijo — Frontend developer",
-  description: "Frontend developer. Werk, vaardigheden en een chat die het profiel doorzoekt.",
-  robots: { index: false, follow: false },
-};
+export const dynamic = "force-dynamic";
+
+export function generateMetadata(): Metadata {
+  const { personal } = loadContent();
+
+  return {
+    title: `${personal.fullName} — ${personal.function}`,
+    description: `Demoportfolio van ${personal.fullName}, een verzonnen ${personal.function.toLowerCase()}. Werk, vaardigheden en een chat over het profiel.`,
+    robots: { index: false, follow: false },
+  };
+}
 
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (

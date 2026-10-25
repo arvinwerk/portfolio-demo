@@ -13,17 +13,20 @@ describe("voorbeeldcontent", () => {
   it("houdt de placeholders en de twee campagnes uit de oude banners", () => {
     expect(content.personal.foreword).toContain("${age}");
     expect(content.personal.foreword).toContain("${yearsAsDeveloper}");
+    expect(content.personal.fullName).toBe("Noor Linden");
+    expect(content.personal.location).toContain("verzonnen");
     expect(content.banners.map((banner) => banner.title)).toEqual([
-      "Vrienden van Amstel VIP Arrangementen 2024",
-      "Heineken Formule 1 VIP",
+      "Festival Noordlicht — Lichtarrangementen",
+      "Circuit Meridiaan — Baan VIP",
     ]);
   });
 
-  it("bouwt op 23 oktober 2026 een voorwoord met leeftijd 32 en 10 jaar ontwikkeling", () => {
+  it("bouwt op 23 oktober 2026 een voorwoord met leeftijd 33 en 11 jaar ontwikkeling", () => {
     const model = buildPageModel(content, { now: new Date(2026, 9, 23) });
-    expect(model.forewordParagraphs.join(" ")).toContain("32");
-    expect(model.forewordParagraphs.join(" ")).toContain("10");
-    expect(model.projects.map((project) => project.id)).toEqual([1, 2, 3, 4]);
+    expect(model.forewordParagraphs.join(" ")).toContain("verzonnen");
+    expect(model.forewordParagraphs.join(" ")).toContain("33");
+    expect(model.forewordParagraphs.join(" ")).toContain("11");
+    expect(model.projects.map((project) => project.id)).toEqual([1, 2, 3, 4, 5]);
     expect(model.skillGroups.map((group) => group.label)).toEqual(["Professional", "Frameworks", "Other"]);
   });
 

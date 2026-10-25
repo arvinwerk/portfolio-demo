@@ -1,34 +1,42 @@
 [
   {
-    "company": "Vrienden van Amstel",
-    "title": "VIP Arrangementen 2024",
-    "shortDescription": "Campagnesite voor de VIP-arrangementen, met een zwaar visuele voorkant.",
-    "longDescription": "De pagina bracht sfeer en aanmelding samen in herbruikbare blokken, zodat een volgende editie de structuur kon houden.\n\nDeze campagne stond al als banner in de vorige versie van de site.",
+    "company": "Festival Noordlicht",
+    "title": "Lichtarrangementen",
+    "shortDescription": "Verzonnen campagnesite voor een lichtfestival, met een zwaar visuele voorkant.",
+    "longDescription": "De pagina brengt sfeer en aanmelding samen in herbruikbare blokken, zodat een volgende editie de structuur kan houden. Angular en TypeScript delen dezelfde inhoud op laptop en telefoon.\n\nOpdrachtgever, festival en aanmeldingen zijn verzonnen. De banner hierboven is het scherm van deze campagne.",
     "keywords": ["Angular", "TypeScript"],
-    "images": ["vval.svg"]
+    "images": ["noordlicht.svg"]
   },
   {
-    "company": "Heineken",
-    "title": "Formule 1 VIP",
-    "shortDescription": "VIP-ervaring rond de Grand Prix, van de landing tot de aanmelding.",
-    "longDescription": "Bezoekers zagen het arrangement op een laptop en op een telefoon, in dezelfde campagne.\n\nOok deze banner stond in de vorige versie. Het merkteken op de kaart is eigen werk, geen merklokogo.",
+    "company": "Circuit Meridiaan",
+    "title": "Baan VIP",
+    "shortDescription": "VIP-ervaring rond een verzonnen racereeks, van de landing tot de aanmelding.",
+    "longDescription": "Bezoekers zien het arrangement op een laptop en op een telefoon, in dezelfde campagne. Angular levert het scherm, Laravel de aanmelding.\n\nCircuit Meridiaan bestaat niet. Het merkteken op de kaart is een demo, geen logo van een renstal of een biermerk.",
     "keywords": ["Angular", "Laravel"],
-    "images": ["f1.svg"]
+    "images": ["meridiaan.svg"]
   },
   {
     "company": "Studio Noord",
     "title": "Componentbibliotheek",
-    "shortDescription": "Demoproject, zodat het filter ook React laat zien.",
-    "longDescription": "Filters, lijsten en balken delen één model. Een visuele wijziging kan de interactie niet stilletjes veranderen.\n\nElke staat van zo'n onderdeel heeft een unit test.",
-    "keywords": ["React", "TypeScript"],
+    "shortDescription": "Verzonnen bibliotheek, zodat het filter React, TypeScript en Next.js laat zien.",
+    "longDescription": "Filters, lijsten en balken delen één model. Een visuele wijziging kan de interactie niet stilletjes veranderen.\n\nElke staat van zo'n onderdeel heeft een test. Studio Noord is geen bestaand bureau.",
+    "keywords": ["React", "TypeScript", "Next.js"],
     "images": ["ui.svg"]
   },
   {
     "company": "Haven & Co",
     "title": "Content-API",
-    "shortDescription": "Demoproject voor content die de server aanlevert.",
-    "longDescription": "De pagina krijgt persoonsgegevens, skills en projecten als props.\n\nHet filter staat in de URL. Dezelfde selectie is deelbaar, en Next.js past hem toe voordat de HTML vertrekt.",
+    "shortDescription": "Verzonnen API, zodat het filter Laravel en Node.js laat zien.",
+    "longDescription": "De pagina krijgt persoonsgegevens, vaardigheden en projecten als props.\n\nHet filter staat in de URL. Dezelfde selectie is deelbaar, en Next.js past hem toe voordat de HTML vertrekt. Haven & Co is een verzonnen opdrachtgever.",
     "keywords": ["Laravel", "Node.js"],
     "images": ["api.svg"]
+  },
+  {
+    "company": "Atelier Linden",
+    "title": "Deze demopagina",
+    "shortDescription": "Het portfolio zelf, als laatste kaart: React en Next.js lezen de JSON op de server.",
+    "longDescription": "Persoonsgegevens, vaardigheden, projecten en banners komen uit bestanden. De browser haalt die JSON niet op.\n\nAtelier Linden is de verzonnen studiowanaam van Noor. De kaart laat zien dat de pagina een project in dezelfde lijst kan zijn.",
+    "keywords": ["React", "Next.js"],
+    "images": ["atelier.svg"]
   }
 ]

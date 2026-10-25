@@ -4,17 +4,17 @@ import type { Personal } from "@/lib/types";
 import { VCard } from "./v-card";
 
 const personal: Personal = {
-  fullName: "Arvin Sokarijo",
+  fullName: "Noor Linden",
   function: "Frontend developer",
-  email: "hello@example.com",
-  education: "Voorbeeldopleiding",
-  developingStartDate: "2016-01-15",
-  linkedIn: "https://www.linkedin.com",
-  portfolioUrl: "https://example.com/werk",
-  location: "Nederland",
+  email: "noor.linden@example.com",
+  education: "Informatica, Voorbeeld Hogeschool",
+  developingStartDate: "2015-08-03",
+  linkedIn: "https://example.com/demo/noor-linden/linkedin",
+  portfolioUrl: "https://example.com/demo/noor-linden",
+  location: "Kadewijk (verzonnen)",
   foreword: "Hoi",
-  dateOfBirth: "1994-06-20",
-  github: "https://github.com/arvinwerk",
+  dateOfBirth: "1993-04-18",
+  github: "https://example.com/demo/noor-linden/code",
   githubDescription: "Code",
 };
 
@@ -22,16 +22,16 @@ describe("VCard", () => {
   it("toont naam, opleiding en contactlinks", () => {
     render(<VCard personal={personal} />);
 
-    expect(screen.getByRole("heading", { name: "Arvin Sokarijo" })).toBeInTheDocument();
-    expect(screen.getByText("Voorbeeldopleiding")).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "hello@example.com" })).toHaveAttribute(
+    expect(screen.getByRole("heading", { name: "Noor Linden" })).toBeInTheDocument();
+    expect(screen.getByText("Informatica, Voorbeeld Hogeschool")).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "noor.linden@example.com" })).toHaveAttribute(
       "href",
-      "mailto:hello@example.com",
+      "mailto:noor.linden@example.com",
     );
-    expect(screen.getByRole("link", { name: "example.com/werk" })).toHaveAttribute(
+    expect(screen.getByRole("link", { name: "example.com/demo/noor-linden" })).toHaveAttribute(
       "href",
-      "https://example.com/werk",
+      "https://example.com/demo/noor-linden",
     );
-    expect(screen.getByText("Nederland")).toBeInTheDocument();
+    expect(screen.getByText("Kadewijk (verzonnen)")).toBeInTheDocument();
   });
 });

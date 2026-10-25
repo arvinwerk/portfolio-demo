@@ -1,0 +1,11 @@
+Dit bestand hoort bij de democontent. Alle opdrachtgevers zijn verzonnen. Geen van deze projecten is voor een bestaand merk gemaakt.
+
+Festival Noordlicht, Lichtarrangementen. Campagnesite voor een fictief lichtfestival. Noor zette sfeer en aanmelding in herbruikbare blokken, in Angular en TypeScript, zodat een volgende editie de structuur kon houden. De eerste banner op de pagina toont de laptop en de telefoon van die campagne.
+
+Circuit Meridiaan, Baan VIP. Verzonnen autosportreeks. Bezoekers zagen het VIP-arrangement op een laptop en op een telefoon. Stack: Angular en Laravel. Het merkteken op de kaart is een demo. De tweede banner hoort bij deze campagne.
+
+Studio Noord, componentbibliotheek. Filters, lijsten en balken delen één model. Gemaakt met React, TypeScript en Next.js. Elke staat van zo'n onderdeel heeft een test. Dit is het project waarmee het filter React en Next.js laat zien.
+
+Haven & Co, content-API. De pagina krijgt persoonsgegevens, vaardigheden en projecten als props. Het filter staat in de URL. Laravel levert de inhoud, Node.js staat op de achtergrond van deze demo.
+
+Atelier Linden, deze demopagina. De site die je nu bekijkt, als laatste project in de lijst. React en Next.js lezen de JSON op de server. De chat zoekt in deze tekstbestanden en verzint geen extra opdrachtgevers.

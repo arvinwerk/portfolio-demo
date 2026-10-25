@@ -7,12 +7,15 @@ describe("About", () => {
     render(
       <About
         foreword={["Ik ben 32."]}
-        github="https://github.com/arvinwerk"
+        github="https://example.com/demo/noor-linden/code"
         githubDescription={["Bron op GitHub."]}
       />,
     );
 
     expect(screen.getByText("Ik ben 32.")).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "Code" })).toHaveAttribute("href", "https://github.com/arvinwerk");
+    expect(screen.getByRole("link", { name: "Code" })).toHaveAttribute(
+      "href",
+      "https://example.com/demo/noor-linden/code",
+    );
   });
 });

@@ -76,7 +76,7 @@ Een embeddingmodel en een vectordatabase zijn hier een tweede systeem voor een k
 
 Zonder `RAG_DOCUMENT_PATH` worden alle tekstbestanden in de map geïndexeerd. Met die variabele blijft het bij één bestandsnaam. Een pad met een map of `..` wordt geweigerd, net als een andere extensie. `realpath` moet daarna binnen `content/rag` blijven, zodat een symlink het corpus niet naar een bestand buiten die map trekt. De route neemt de map expliciet mee in de file trace, omdat de bestandsnaam pas bij deploy vaststaat.
 
-`content/rag/profile.txt` is een placeholder. Vervang dat bestand, of leg er andere teksten naast, bij het deployen.
+`content/rag/profile.txt` en `content/rag/werk.txt` beschrijven dezelfde demopersona. Vervang die bestanden, of leg er andere teksten naast, bij het deployen.
 
 ## Naden
 
@@ -130,12 +130,12 @@ De site luistert op `127.0.0.1:3000`. Een proxy ervoor zet HTTPS en `X-Real-IP`.
 
 ## Content vervangen
 
-De JSON in `content/` is voorbeeldcontent. De oorspronkelijke Angular-app verwees naar bestanden die niet in de repo stonden. De twee campagnes in de banners komen uit de oude `BannerService`.
+De JSON in `content/` is democontent over Noor Linden, een verzonnen frontend developer. Het vak en de stack lijken op een echte frontendpraktijk. De naam, de plaats Kadewijk, de opdrachtgevers en de campagnes zijn verzonnen, en volledig genoeg om filter, banners, vaardigheden en chat te gebruiken. De balk bovenin en de voettekst zeggen dat het geen echt cv is. De twee banners zijn fictieve campagnes, Festival Noordlicht en Circuit Meridiaan.
 
 - `content/personal.json` — profiel. `${age}` en `${yearsAsDeveloper}` in `foreword` worden op de server ingevuld vanuit `dateOfBirth` en `developingStartDate`.
 - `content/skills.json` — `category` is `skills`, `framework` of `other`.
 - `content/projects.json` — de id is de volgorde in het bestand plus één.
 - `content/banners.json` — paden onder `/images/`.
-- `content/rag/` — de tekst die de chat mag gebruiken. `profile.txt` is de placeholder. Andere `.txt`-, `.md`- of `.markdown`-bestanden in die map tellen mee, tenzij `RAG_DOCUMENT_PATH` er één van aanwijst. Vervangen bij deploy.
+- `content/rag/` — de tekst die de chat mag gebruiken. `profile.txt` is de persoon, `werk.txt` de projecten. Beide zijn democontent. Andere `.txt`-, `.md`- of `.markdown`-bestanden in die map tellen mee, tenzij `RAG_DOCUMENT_PATH` er één van aanwijst. Vervangen bij deploy. De balk in de header en de regel in de voettekst horen bij deze demo; haal die weg als de JSON een echt profiel wordt.
 
 Beelden staan in `public/images/`.

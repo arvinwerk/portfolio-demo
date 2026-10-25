@@ -1,5 +1,6 @@
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import { WELCOME_TEXT } from "@/lib/chat/welcome";
 
 const chat = vi.hoisted(() => ({
   sendMessage: vi.fn(),
@@ -9,7 +10,7 @@ const chat = vi.hoisted(() => ({
     {
       id: "welcome",
       role: "assistant" as const,
-      parts: [{ type: "text", state: undefined, text: "Hoi. Vraag gerust iets over dit portfolio." }],
+      parts: [{ type: "text", state: undefined, text: "" }],
     },
   ] as {
     id: string;
@@ -40,7 +41,7 @@ describe("ChatWidget", () => {
       {
         id: "welcome",
         role: "assistant",
-        parts: [{ type: "text", text: "Hoi. Vraag gerust iets over dit portfolio." }],
+        parts: [{ type: "text", text: WELCOME_TEXT }],
       },
     ];
   });
@@ -52,7 +53,7 @@ describe("ChatWidget", () => {
     fireEvent.click(screen.getByRole("button", { name: "Chat openen" }));
 
     expect(screen.getByRole("dialog", { name: "Chat" })).toBeInTheDocument();
-    expect(screen.getByText("Hoi. Vraag gerust iets over dit portfolio.")).toBeInTheDocument();
+    expect(screen.getByText(WELCOME_TEXT)).toBeInTheDocument();
 
     fireEvent.change(screen.getByRole("textbox", { name: "Bericht" }), { target: { value: "Wie ben je?" } });
     fireEvent.click(screen.getByRole("button", { name: "Verstuur" }));

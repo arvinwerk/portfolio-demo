@@ -13,7 +13,7 @@ import type { ProjectInput } from "./types";
 
 const input: ProjectInput[] = [
   {
-    company: "Vrienden van Amstel",
+    company: "Festival Noordlicht",
     title: "VIP",
     shortDescription: "Kort",
     longDescription: null,
@@ -21,8 +21,8 @@ const input: ProjectInput[] = [
     images: [],
   },
   {
-    company: "Heineken",
-    title: "GP",
+    company: "Circuit Meridiaan",
+    title: "Baan",
     shortDescription: "Kort",
     longDescription: "Lang",
     keywords: ["Angular", "Laravel"],
@@ -85,7 +85,7 @@ describe("filterProjects", () => {
 
   it("houdt een project als één trefwoord overeenkomt", () => {
     expect(filterProjects(projects, ["Angular", "React"]).map((project) => project.id)).toEqual([1, 2, 3]);
-    expect(filterProjects(projects, ["Laravel"]).map((project) => project.title)).toEqual(["GP"]);
+    expect(filterProjects(projects, ["Laravel"]).map((project) => project.title)).toEqual(["Baan"]);
   });
 });
 

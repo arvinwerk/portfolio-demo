@@ -3,10 +3,10 @@ import { differenceInYears, parseCalendarDate } from "./dates";
 
 describe("parseCalendarDate", () => {
   it("leest een kalenderdatum in de lokale tijdzone", () => {
-    const date = parseCalendarDate("1994-06-20");
-    expect(date.getFullYear()).toBe(1994);
-    expect(date.getMonth()).toBe(5);
-    expect(date.getDate()).toBe(20);
+    const date = parseCalendarDate("1993-04-18");
+    expect(date.getFullYear()).toBe(1993);
+    expect(date.getMonth()).toBe(3);
+    expect(date.getDate()).toBe(18);
   });
 
   it.each(["20-06-1994", "1994/06/20", "1994-02-29", "1994-13-01", ""])(
@@ -22,11 +22,11 @@ describe("parseCalendarDate", () => {
 });
 
 describe("differenceInYears", () => {
-  const birth = parseCalendarDate("1994-06-20");
+  const birth = parseCalendarDate("1993-04-18");
 
   it("telt pas een jaar op de verjaardag", () => {
-    expect(differenceInYears(parseCalendarDate("2026-06-19"), birth)).toBe(31);
-    expect(differenceInYears(parseCalendarDate("2026-06-20"), birth)).toBe(32);
+    expect(differenceInYears(parseCalendarDate("2026-04-17"), birth)).toBe(32);
+    expect(differenceInYears(parseCalendarDate("2026-04-18"), birth)).toBe(33);
   });
 
   it("houdt 29 februari aan als de dag nog niet geweest is", () => {

@@ -1,14 +1,14 @@
 [
   {
-    "title": "Vrienden van Amstel VIP Arrangementen 2024",
-    "bgImage": { "src": "/images/banners/vval-bg.svg" },
-    "laptopImage": { "src": "/images/banners/vval-laptop.svg" },
-    "mobileImage": { "src": "/images/banners/vval-mobile.svg" }
+    "title": "Festival Noordlicht — Lichtarrangementen",
+    "bgImage": { "src": "/images/banners/noordlicht-bg.svg" },
+    "laptopImage": { "src": "/images/banners/noordlicht-laptop.svg" },
+    "mobileImage": { "src": "/images/banners/noordlicht-mobile.svg" }
   },
   {
-    "title": "Heineken Formule 1 VIP",
-    "bgImage": { "src": "/images/banners/gp-bg.svg" },
-    "laptopImage": { "src": "/images/banners/gp-laptop.svg" },
-    "mobileImage": { "src": "/images/banners/gp-mobile.svg" }
+    "title": "Circuit Meridiaan — Baan VIP",
+    "bgImage": { "src": "/images/banners/meridiaan-bg.svg" },
+    "laptopImage": { "src": "/images/banners/meridiaan-laptop.svg" },
+    "mobileImage": { "src": "/images/banners/meridiaan-mobile.svg" }
   }
 ]

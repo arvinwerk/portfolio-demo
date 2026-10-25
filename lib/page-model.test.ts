@@ -4,17 +4,17 @@ import type { Content } from "./types";
 
 const content: Content = {
   personal: {
-    fullName: "Arvin Sokarijo",
+    fullName: "Noor Linden",
     function: "Frontend developer",
-    email: "hello@example.com",
+    email: "noor.linden@example.com",
     education: "Voorbeeld",
-    developingStartDate: "2016-01-15",
-    linkedIn: "https://www.linkedin.com",
-    portfolioUrl: "https://example.com",
-    location: "Nederland",
+    developingStartDate: "2015-08-03",
+    linkedIn: "https://example.com/demo/noor-linden/linkedin",
+    portfolioUrl: "https://example.com/demo/noor-linden",
+    location: "Kadewijk (verzonnen)",
     foreword: "Leeftijd ${age}. Jaren ${yearsAsDeveloper}.",
-    dateOfBirth: "1994-06-20",
-    github: "https://github.com/arvinwerk",
+    dateOfBirth: "1993-04-18",
+    github: "https://example.com/demo/noor-linden/code",
     githubDescription: "Eerste alinea.\n\nTweede alinea.",
   },
   skills: [{ name: "React", percentage: 80, category: "framework" }],
@@ -39,9 +39,9 @@ const content: Content = {
   banners: [
     {
       title: "Campagne",
-      bgImage: { src: "/images/banners/vval-bg.svg" },
-      laptopImage: { src: "/images/banners/vval-laptop.svg" },
-      mobileImage: { src: "/images/banners/vval-mobile.svg" },
+      bgImage: { src: "/images/banners/noordlicht-bg.svg" },
+      laptopImage: { src: "/images/banners/noordlicht-laptop.svg" },
+      mobileImage: { src: "/images/banners/noordlicht-mobile.svg" },
     },
   ],
 };
@@ -51,8 +51,8 @@ const now = new Date(2026, 9, 23);
 describe("buildPageModel", () => {
   it("vult leeftijd en jaren in en splitst de github-tekst", () => {
     const model = buildPageModel(content, { now });
-    expect(model.yearsAsDeveloper).toBe(10);
-    expect(model.forewordParagraphs).toEqual(["Leeftijd 32. Jaren 10."]);
+    expect(model.yearsAsDeveloper).toBe(11);
+    expect(model.forewordParagraphs).toEqual(["Leeftijd 33. Jaren 11."]);
     expect(model.githubParagraphs).toEqual(["Eerste alinea.", "Tweede alinea."]);
     expect(model.allSelected).toBe(true);
     expect(model.projects.map((project) => project.id)).toEqual([1, 2]);
