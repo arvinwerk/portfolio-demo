@@ -21,8 +21,6 @@ const ui = Roboto({
 });
 
 export const metadata: Metadata = {
-  title: "Arvin Sokarijo — Frontend developer",
-  description: "Frontend developer. Werk, vaardigheden en een chat die het profiel doorzoekt.",
   robots: { index: false, follow: false },
 };
 

@@ -77,7 +77,7 @@ describe("POST /api/chat", () => {
       fragments: [
         expect.objectContaining({
           source: "profile.txt",
-          text: expect.stringContaining("Voorbeeld Hogeschool"),
+          text: expect.stringContaining("[opleiding]"),
         }),
       ],
     });

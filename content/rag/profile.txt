@@ -1,9 +1,9 @@
-Dit is verzonnen placeholdertekst over de demo op deze site. De naam hoort bij de voorbeeldpagina, de feiten niet bij een echt persoon.
+Dit bestand is placeholdertekst voor de chat. Vervang het bij het deployen.
 
-Arvin Sokarijo is in deze demo frontend developer en woont in Utrecht. De achtergrond hier is fictief: geboren in 1994, werkt het liefst aan interfaces waarin de inhoud voorop staat.
+[Naam] is [functie] en woont in [locatie].
 
-Van 2019 tot 2023 bouwde deze demo interfaces voor Voorbeeld BV. Het ging om campagnes en een interne planningstool. Er zijn geen echte klanten in dit bestand.
+Opleiding: [opleiding].
 
-Opleiding: informatica aan de Voorbeeld Hogeschool, afgerond in 2016. Het afstudeerproject was een fictieve catalogus voor een bibliotheek.
+Werk: [bedrijf], van [startjaar] tot [eindjaar].
 
-De demo begint bij de tekst en houdt het scherm rustig. Vrije tijd in dit placeholderprofiel is donderdagmiddag, en het contactadres is hello@example.com.
+Contact: naam@example.com. LinkedIn: https://example.com/linkedin. GitHub: https://example.com/github.

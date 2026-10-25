@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { About } from "@/components/about";
 import { Banner } from "@/components/banner";
 import { WorkExplorer } from "@/components/work-explorer";
@@ -9,6 +10,15 @@ import { loadContent } from "@/lib/content";
 import { buildPageModel } from "@/lib/page-model";
 
 export const dynamic = "force-dynamic";
+
+export async function generateMetadata(): Promise<Metadata> {
+  const { personal } = loadContent();
+
+  return {
+    title: `${personal.fullName} — ${personal.function}`,
+    description: `${personal.function}. Werk, vaardigheden en een chat die het profiel doorzoekt.`,
+  };
+}
 
 export default async function HomePage({
   searchParams,

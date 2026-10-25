@@ -65,7 +65,7 @@ export function VCard({
           <img
             className="relative aspect-[4/5] w-full object-cover"
             src="/images/profile.svg"
-            alt={`Monogram van ${personal.fullName}`}
+            alt={`Portret van ${personal.fullName}`}
             width={640}
             height={800}
           />

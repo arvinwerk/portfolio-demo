@@ -1,4 +1,4 @@
-import { existsSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import path from "node:path";
 import { describe, expect, it, vi } from "vitest";
 
@@ -11,8 +11,21 @@ describe("voorbeeldcontent", () => {
   const content = loadContent();
 
   it("houdt de placeholders en de twee campagnes uit de oude banners", () => {
+    expect(content.personal).toMatchObject({
+      fullName: "[Naam]",
+      function: "[Functie]",
+      email: "naam@example.com",
+      education: "[Opleiding]",
+      location: "[Locatie]",
+      linkedIn: "https://example.com/linkedin",
+      github: "https://example.com/github",
+      portfolioUrl: "https://example.com",
+    });
     expect(content.personal.foreword).toContain("${age}");
     expect(content.personal.foreword).toContain("${yearsAsDeveloper}");
+    const profile = readFileSync(path.join(process.cwd(), "content/rag/profile.txt"), "utf8");
+    expect(profile).toContain("[Naam]");
+    expect(profile).toContain("https://example.com/linkedin");
     expect(content.banners.map((banner) => banner.title)).toEqual([
       "Vrienden van Amstel VIP Arrangementen 2024",
       "Heineken Formule 1 VIP",
