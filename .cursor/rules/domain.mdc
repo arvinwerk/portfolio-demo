@@ -1,0 +1,15 @@
+---
+description: Domeinmodules in lib/ blijven puur, smal en testbaar zonder React.
+globs: lib/**/*.ts
+alwaysApply: false
+---
+
+# Domein in lib/
+
+- Een bestand dekt één onderwerp. I/O hoort in `content.ts` en `file-profile-store.ts`. `page-model`, `projects`, `skills`, `dates`, `text` en `parse-content` blijven vrij van filesystem, netwerk en React.
+- Valideer aan de grens. Na `parseContent` of `parseChatMessages` vertrouwt de rest het type.
+- Gooi een bestaande foutklasse als de invoer van die grens ongeldig is. Vang die klasse aan de rand en vertaal naar een vaste zin.
+- Houd functies klein genoeg om met invoer en uitvoer te testen. Geef `now`, `env` en callbacks mee, zoals `buildPageModel` en `readAiConfig` dat doen.
+- Een module-singleton is alleen voor processtaat die de README al noemt, zoals `chatRateLimiter`. Domeinregels blijven functies. Tests bouwen hun eigen `ChatRateLimiter`.
+- `server-only` staat op een module die bestanden leest, de sleutel ziet of de provider aanroept. Modules die de client importeert (`welcome`, `client-error`, `projects`) blijven zonder die import.
+- `parseContent` en `parseChatMessages` blijven handmatige versmallers van `unknown`. `zod` blijft de invoer van `searchProfile`. Herschrijf een werkende parser niet naar het andere gereedschap.

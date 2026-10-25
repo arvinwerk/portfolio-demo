@@ -1,3 +1,5 @@
+import "server-only";
+
 import type { UIMessage } from "ai";
 import { WELCOME_TEXT } from "./chat/welcome";
 
