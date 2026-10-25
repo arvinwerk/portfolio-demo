@@ -96,6 +96,12 @@ Domeintests dekken datums, het filter, project-id's, de contentvalidatie en de p
 
 De routetest controleert dat `searchProfile` aan de stream hangt, dat een zoekopdracht op "opleiding" het fragment met de Voorbeeld Hogeschool teruggeeft, en dat een verzonnen assistentantwoord het model niet bereikt. Een tweede test stuurt een nagebootste Anthropic-stream door de echte SDK en controleert dat de tekst in het antwoord naar de browser zit, dat die tekst ondertekend is, en dat de sleutel niet in het antwoord staat.
 
+`pnpm test:e2e` draait Playwright tegen een productiebuild. Die suite dekt de pagina, het filter en de chat. Het filter wordt gecontroleerd in de eerste HTML, na een klik, met de terugknop, zonder JavaScript, en zonder dat die klik de scrollpositie verschuift. De chat dekt openen en sluiten, een leeg bericht, een antwoordstroom, het zoeken in het profiel, stoppen, en de zinnen die `/api/chat` teruggeeft. Zonder `AI_MODEL` en `AI_API_KEY` antwoordt die route met 503. Een ongeldige of te grote body wordt geweigerd voordat het model eraan te pas komt.
+
+```bash
+pnpm exec playwright install chromium
+```
+
 ## Lokaal draaien
 
 ```bash
@@ -103,6 +109,8 @@ pnpm install
 cp .env.example .env.local
 pnpm dev
 pnpm test
+pnpm exec playwright install chromium
+pnpm test:e2e
 pnpm typecheck
 pnpm build
 pnpm start

@@ -139,12 +139,17 @@ export function ChatWidget() {
                 }
               }}
             />
+            {/* type="button" zodat Stop niet tijdens de klik in een submit-knop verandert. */}
             {busy ? (
-              <button type="button" className="bg-ink px-3 py-2 text-sm text-white" onClick={() => stop()}>
+              <button type="button" className="bg-ink px-3 py-2 text-sm text-white" onClick={() => void stop()}>
                 Stop
               </button>
             ) : (
-              <button type="submit" className="bg-action px-3 py-2 text-sm font-medium text-white uppercase">
+              <button
+                type="button"
+                className="bg-action px-3 py-2 text-sm font-medium text-white uppercase"
+                onClick={(event) => event.currentTarget.form?.requestSubmit()}
+              >
                 Verstuur
               </button>
             )}

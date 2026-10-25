@@ -7,6 +7,9 @@
 
 # tests
 /coverage
+/test-results/
+/playwright-report/
+/blob-report/
 
 # secrets
 .env
