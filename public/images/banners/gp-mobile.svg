@@ -1,7 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 390 844">
-  <rect width="390" height="844" fill="#10140f"/>
-  <text x="28" y="120" font-family="Georgia, serif" font-size="42" fill="#f3efe6">GP VIP</text>
-  <rect x="28" y="170" width="334" height="180" rx="22" fill="#1f7a4d"/>
-  <rect x="28" y="376" width="334" height="120" rx="22" fill="#1c3b2c"/>
-  <path d="M28 700c80-80 140 40 220-20s80-40 130 30" fill="none" stroke="#d6f25c" stroke-width="10"/>
-</svg>

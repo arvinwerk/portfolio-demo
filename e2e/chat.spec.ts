@@ -44,7 +44,7 @@ test.describe("venster", () => {
     const dialog = await openChat(page);
     await expect(dialog).toHaveAttribute("aria-modal", "true");
     await expect(dialog.getByRole("heading", { name: "Chat" })).toBeVisible();
-    await expect(dialog.getByText("Antwoorden komen uit het profiel.")).toBeVisible();
+    await expect(dialog.getByText("Antwoorden komen uit het demoprofiel.")).toBeVisible();
     await expect(dialog.getByText(WELCOME_TEXT, { exact: true })).toBeVisible();
     await expect(dialog.getByText(WELCOME_TEXT, { exact: true })).not.toHaveClass(/ml-auto/);
     await expect(dialog.getByRole("textbox", { name: "Bericht" })).toHaveAttribute("placeholder", "Stel een vraag");

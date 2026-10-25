@@ -81,7 +81,7 @@ export function ChatWidget() {
               <h2 id={titleId} className="font-display text-lg font-semibold text-white">
                 Chat
               </h2>
-              <p className="text-xs text-white/75">Antwoorden komen uit het profiel.</p>
+              <p className="text-xs text-white/75">Antwoorden komen uit het demoprofiel.</p>
             </div>
             <button
               type="button"

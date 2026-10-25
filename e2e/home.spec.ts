@@ -1,4 +1,5 @@
 import { expect, test } from "@playwright/test";
+import { displayUrl } from "../src/modules/portfolio/domain/prose";
 import { portfolio } from "./helpers/content";
 import { gotoPortfolio } from "./helpers/page";
 
@@ -19,7 +20,7 @@ test("zet taal, titel en een niet-geïndexeerde omschrijving", async ({ page }) 
   await expect(page).toHaveTitle(`${personal.fullName} — ${personal.function}`);
   await expect(page.locator('meta[name="description"]')).toHaveAttribute(
     "content",
-    `${personal.function}. Werk, vaardigheden en een chat die het profiel doorzoekt.`,
+    `Demoportfolio van ${personal.fullName}, een verzonnen ${personal.function.toLowerCase()}. Werk, vaardigheden en een chat over het profiel.`,
   );
   await expect(page.locator('meta[name="robots"]')).toHaveAttribute("content", /noindex/);
 });
@@ -52,7 +53,7 @@ test("toont het profiel, de afgeleide feiten en de contactlinks", async ({ page 
   await expect(profile.getByRole("link", { name: "LinkedIn" })).toHaveAttribute("href", personal.linkedIn);
   await expect(profile.getByRole("link", { name: "LinkedIn" })).toHaveAttribute("target", "_blank");
   await expect(profile.getByRole("link", { name: "GitHub" })).toHaveAttribute("href", personal.github);
-  await expect(profile.getByRole("link", { name: "example.com", exact: true })).toHaveAttribute(
+  await expect(profile.getByRole("link", { name: displayUrl(personal.portfolioUrl), exact: true })).toHaveAttribute(
     "href",
     personal.portfolioUrl,
   );
@@ -186,7 +187,7 @@ test("de sectielinks en de naam gaan naar het juiste anker", async ({ page }) =>
 test("de footer herhaalt naam en contact", async ({ page }) => {
   const footer = page.getByRole("contentinfo");
   await expect(footer.getByText(personal.fullName, { exact: true })).toBeVisible();
-  await expect(footer.getByText(`Gemaakt door ${personal.fullName}`)).toBeVisible();
+  await expect(footer.getByText(`Demopagina over ${personal.fullName}. Geen echt cv.`)).toBeVisible();
   await expect(footer.getByRole("link", { name: personal.email })).toHaveAttribute("href", `mailto:${personal.email}`);
   await expect(footer.getByRole("link", { name: "LinkedIn" })).toHaveAttribute("href", personal.linkedIn);
   await expect(footer.getByRole("link", { name: "GitHub" })).toHaveAttribute("href", personal.github);

@@ -4,17 +4,17 @@ import { ContentError, parseContent } from "./portfolio-document";
 function validInput() {
   return {
     personal: {
-      fullName: "[Naam]",
-      function: "[Functie]",
-      email: "naam@example.com",
-      education: "[Opleiding]",
-      developingStartDate: "2016-01-15",
-      linkedIn: "https://example.com/linkedin",
-      portfolioUrl: "https://example.com",
-      location: "[Locatie]",
+      fullName: "Noor Linden",
+      function: "Frontend developer",
+      email: "noor.linden@example.com",
+      education: "Voorbeeld",
+      developingStartDate: "2015-08-03",
+      linkedIn: "https://example.com/demo/noor-linden/linkedin",
+      portfolioUrl: "https://example.com/demo/noor-linden",
+      location: "Kadewijk (verzonnen)",
       foreword: "Hoi ${age}",
-      dateOfBirth: "1994-06-20",
-      github: "https://example.com/github",
+      dateOfBirth: "1993-04-18",
+      github: "https://example.com/demo/noor-linden/code",
       githubDescription: "Code",
     },
     skills: [{ name: "React", percentage: 80, category: "framework" }],
@@ -31,9 +31,9 @@ function validInput() {
     banners: [
       {
         title: "Campagne",
-        bgImage: { src: "/images/banners/vval-bg.svg" },
-        laptopImage: { src: "/images/banners/vval-laptop.svg" },
-        mobileImage: { src: "/images/banners/vval-mobile.svg" },
+        bgImage: { src: "/images/banners/noordlicht-bg.svg" },
+        laptopImage: { src: "/images/banners/noordlicht-laptop.svg" },
+        mobileImage: { src: "/images/banners/noordlicht-mobile.svg" },
       },
     ],
   };

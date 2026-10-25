@@ -1,9 +1,13 @@
-Dit bestand is placeholdertekst voor de chat. Vervang het bij het deployen.
+Dit bestand is democontent. Noor Linden is een verzonnen frontend developer, geen echt persoon en geen cv. De feiten hieronder zijn verzonnen zodat de chat, het filter en de pagina laten zien hoe het portfolio werkt. De rol is geïnspireerd op een frontend developer: interfaces, campagnes en herbruikbare onderdelen.
 
-[Naam] is [functie] en woont in [locatie].
+Noor Linden woont in de verzonnen plaats Kadewijk en werkt het liefst aan schermen waarin de inhoud voorop staat. Geboren op 18 april 1993. Met interfaces bouwen begon Noor op 3 augustus 2015.
 
-Opleiding: [opleiding].
+Opleiding: informatica aan de Voorbeeld Hogeschool, afgerond in 2015. Het afstudeerproject was een fictieve catalogus voor een bibliotheek in Kadewijk.
 
-Werk: [bedrijf], van [startjaar] tot [eindjaar].
+Werk, allemaal verzonnen: van 2015 tot 2019 interfaces bij Studio Kade, daarna campagnes voor Festival Noordlicht en Circuit Meridiaan, een componentbibliotheek voor Studio Noord, en een content-API voor Haven & Co. Sinds 2023 werkt Noor onder de naam Atelier Linden. Details van die projecten staan in werk.txt.
 
-Contact: naam@example.com. LinkedIn: https://example.com/linkedin. GitHub: https://example.com/github.
+Vaardigheden in deze demo: TypeScript, JavaScript, toegankelijkheid, Angular, React, Next.js, Laravel, Node.js en testen. Noor bouwt het liefst in TypeScript en laat filters, lijsten en pagina's dezelfde inhoud delen.
+
+Contact in deze demo, geen echt postvak: noor.linden@example.com. LinkedIn, GitHub en de portfoliolink wijzen naar example.com/demo/noor-linden. Er staat geen echt account achter.
+
+Vrije tijd in dit verzonnen profiel: donderdagmiddag tekenen in Kadewijk, en 's avonds een ronde langs de kade.

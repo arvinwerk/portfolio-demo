@@ -16,8 +16,8 @@ vi.mock("next/navigation", () => ({
 const projects: Project[] = [
   {
     id: 1,
-    company: "Vrienden van Amstel",
-    title: "VIP Arrangementen 2024",
+    company: "Festival Noordlicht",
+    title: "Lichtarrangementen",
     shortDescription: "Campagne",
     longDescription: null,
     keywords: ["Angular"],
@@ -25,8 +25,8 @@ const projects: Project[] = [
   },
   {
     id: 2,
-    company: "Heineken",
-    title: "Formule 1 VIP",
+    company: "Circuit Meridiaan",
+    title: "Baan VIP",
     shortDescription: "Grand Prix",
     longDescription: null,
     keywords: ["Laravel"],
@@ -51,16 +51,16 @@ describe("WorkExplorer", () => {
     const filters = screen.getByRole("navigation", { name: "Filter op trefwoord" });
     fireEvent.click(within(filters).getByRole("link", { name: "Laravel" }));
 
-    expect(screen.getByRole("heading", { name: "Formule 1 VIP" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Baan VIP" })).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "Content-API" })).toBeInTheDocument();
-    expect(screen.queryByRole("heading", { name: "VIP Arrangementen 2024" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("heading", { name: "Lichtarrangementen" })).not.toBeInTheDocument();
     expect(push).toHaveBeenCalledWith("/?keywords=Laravel#werk", { scroll: false });
     expect(window.location.search).toBe("?keywords=Laravel");
     expect(window.location.hash).toBe("#werk");
 
     fireEvent.click(within(filters).getByRole("link", { name: "Alles" }));
 
-    expect(screen.getByRole("heading", { name: "VIP Arrangementen 2024" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Lichtarrangementen" })).toBeInTheDocument();
     expect(push).toHaveBeenLastCalledWith("/#werk", { scroll: false });
     expect(window.location.pathname).toBe("/");
     expect(window.location.search).toBe("");

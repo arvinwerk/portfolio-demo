@@ -10,33 +10,34 @@ import { JsonPortfolioRepository } from "./json-portfolio-repository";
 describe("JsonPortfolioRepository", () => {
   const portfolio = new JsonPortfolioRepository().load();
 
-  it("houdt de placeholders en de twee campagnes uit de oude banners", () => {
+  it("houdt de demopersona en de twee verzonnen campagnes", () => {
     expect(portfolio.profile).toMatchObject({
-      fullName: "[Naam]",
-      function: "[Functie]",
-      email: "naam@example.com",
-      education: "[Opleiding]",
-      location: "[Locatie]",
-      linkedIn: "https://example.com/linkedin",
-      github: "https://example.com/github",
-      portfolioUrl: "https://example.com",
+      fullName: "Noor Linden",
+      function: "Frontend developer",
+      email: "noor.linden@example.com",
+      education: "Informatica, Voorbeeld Hogeschool",
+      location: "Kadewijk (verzonnen)",
+      linkedIn: "https://example.com/demo/noor-linden/linkedin",
+      github: "https://example.com/demo/noor-linden/code",
+      portfolioUrl: "https://example.com/demo/noor-linden",
     });
     expect(portfolio.profile.foreword).toContain("${age}");
     expect(portfolio.profile.foreword).toContain("${yearsAsDeveloper}");
     const profile = readFileSync(path.join(process.cwd(), "content/rag/profile.txt"), "utf8");
-    expect(profile).toContain("[Naam]");
-    expect(profile).toContain("https://example.com/linkedin");
+    expect(profile).toContain("Noor Linden");
+    expect(profile).toContain("Voorbeeld Hogeschool");
     expect(portfolio.banners.map((banner) => banner.title)).toEqual([
-      "Vrienden van Amstel VIP Arrangementen 2024",
-      "Heineken Formule 1 VIP",
+      "Festival Noordlicht — Lichtarrangementen",
+      "Circuit Meridiaan — Baan VIP",
     ]);
   });
 
-  it("bouwt op 23 oktober 2026 een voorwoord met leeftijd 32 en 10 jaar ontwikkeling", () => {
+  it("bouwt op 23 oktober 2026 een voorwoord met leeftijd 33 en 11 jaar ontwikkeling", () => {
     const model = composePortfolioPage(portfolio, { now: new Date(2026, 9, 23) });
-    expect(model.forewordParagraphs.join(" ")).toContain("32");
-    expect(model.forewordParagraphs.join(" ")).toContain("10");
-    expect(model.projects.map((project) => project.id)).toEqual([1, 2, 3, 4]);
+    expect(model.forewordParagraphs.join(" ")).toContain("verzonnen");
+    expect(model.forewordParagraphs.join(" ")).toContain("33");
+    expect(model.forewordParagraphs.join(" ")).toContain("11");
+    expect(model.projects.map((project) => project.id)).toEqual([1, 2, 3, 4, 5]);
     expect(model.skillGroups.map((group) => group.label)).toEqual(["Professional", "Frameworks", "Other"]);
   });
 

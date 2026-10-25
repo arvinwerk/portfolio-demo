@@ -1,14 +1,14 @@
 {
-  "fullName": "[Naam]",
-  "function": "[Functie]",
-  "email": "naam@example.com",
-  "education": "[Opleiding]",
-  "developingStartDate": "2016-01-15",
-  "linkedIn": "https://example.com/linkedin",
-  "portfolioUrl": "https://example.com",
-  "location": "[Locatie]",
-  "foreword": "Ik ben ${age} en ontwikkel ${yearsAsDeveloper} jaar.\n\n[Naam], [Functie], [Opleiding], [Locatie], het e-mailadres en de links zijn placeholders in content/personal.json. dateOfBirth en developingStartDate zijn voorbeelddata.",
-  "dateOfBirth": "1994-06-20",
-  "github": "https://example.com/github",
-  "githubDescription": "Vervang deze tekst en de GitHub-link in content/personal.json.\n\nDe pagina leest die waarden op de server."
+  "fullName": "Noor Linden",
+  "function": "Frontend developer",
+  "email": "noor.linden@example.com",
+  "education": "Informatica, Voorbeeld Hogeschool",
+  "developingStartDate": "2015-08-03",
+  "linkedIn": "https://example.com/demo/noor-linden/linkedin",
+  "portfolioUrl": "https://example.com/demo/noor-linden",
+  "location": "Kadewijk (verzonnen)",
+  "foreword": "Noor Linden is een verzonnen frontend developer. Het vak lijkt op een echt beroep, het cv niet. In deze demo is Noor ${age} en bouwt ${yearsAsDeveloper} jaar aan interfaces.\n\nDe teksten, de projecten en de chat zijn compleet genoeg om de pagina te gebruiken. Leeftijd en jaren komen uit de datums in content/personal.json. Er staat geen echte persoon achter de naam.",
+  "dateOfBirth": "1993-04-18",
+  "github": "https://example.com/demo/noor-linden/code",
+  "githubDescription": "De knop wijst naar een voorbeeldadres op example.com. Er staat geen repository en geen account achter.\n\nDe pagina haalt die content niet op in de browser. Next.js leest de JSON op de server, en de chat zoekt alleen in de tekstbestanden onder content/rag."
 }
