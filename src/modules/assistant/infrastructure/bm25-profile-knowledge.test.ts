@@ -42,13 +42,13 @@ describe("FileProfileStore", () => {
   it("rangschikt het passende document, ook als dat geen markdown is", async () => {
     const directory = tempCorpus();
     const store = new FileProfileStore(directory);
-    write(directory, "contact.txt", "Het contactadres is hello@example.com.\n");
-    write(directory, "opleiding.md", "Opleiding: informatica aan de Voorbeeld Hogeschool.\n");
+    write(directory, "contact.txt", "Het contactadres is naam@example.com.\n");
+    write(directory, "opleiding.md", "Opleiding: [opleiding].\n");
     write(directory, "geheim.json", "Dit json-bestand hoort niet in de index.\n");
 
     const education = await store.search("welke opleiding");
     expect(education.fragments).toEqual([
-      expect.objectContaining({ source: "opleiding.md", text: expect.stringContaining("Voorbeeld Hogeschool") }),
+      expect.objectContaining({ source: "opleiding.md", text: expect.stringContaining("[opleiding]") }),
     ]);
 
     const contact = await store.search("contactadres");

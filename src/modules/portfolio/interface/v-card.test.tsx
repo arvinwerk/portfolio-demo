@@ -4,17 +4,17 @@ import type { PersonalProfile } from "../domain/model";
 import { VCard } from "./v-card";
 
 const profile: PersonalProfile = {
-  fullName: "Arvin Sokarijo",
-  function: "Frontend developer",
-  email: "hello@example.com",
-  education: "Voorbeeldopleiding",
+  fullName: "[Naam]",
+  function: "[Functie]",
+  email: "naam@example.com",
+  education: "[Opleiding]",
   developingStartDate: "2016-01-15",
-  linkedIn: "https://www.linkedin.com",
+  linkedIn: "https://example.com/linkedin",
   portfolioUrl: "https://example.com/werk",
-  location: "Nederland",
+  location: "[Locatie]",
   foreword: "Hoi",
   dateOfBirth: "1994-06-20",
-  github: "https://github.com/arvinwerk",
+  github: "https://example.com/github",
   githubDescription: "Code",
 };
 
@@ -22,16 +22,18 @@ describe("VCard", () => {
   it("toont naam, opleiding en contactlinks", () => {
     render(<VCard profile={profile} />);
 
-    expect(screen.getByRole("heading", { name: "Arvin Sokarijo" })).toBeInTheDocument();
-    expect(screen.getByText("Voorbeeldopleiding")).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "hello@example.com" })).toHaveAttribute(
+    expect(screen.getByRole("heading", { name: "[Naam]" })).toBeInTheDocument();
+    expect(screen.getByText("[Opleiding]")).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "naam@example.com" })).toHaveAttribute(
       "href",
-      "mailto:hello@example.com",
+      "mailto:naam@example.com",
     );
     expect(screen.getByRole("link", { name: "example.com/werk" })).toHaveAttribute(
       "href",
       "https://example.com/werk",
     );
-    expect(screen.getByText("Nederland")).toBeInTheDocument();
+    expect(screen.getByText("[Locatie]")).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "LinkedIn" })).toHaveAttribute("href", "https://example.com/linkedin");
+    expect(screen.getByRole("link", { name: "GitHub" })).toHaveAttribute("href", "https://example.com/github");
   });
 });

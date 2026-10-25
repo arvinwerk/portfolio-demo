@@ -16,10 +16,10 @@ test.beforeEach(async ({ page }) => {
 
 test("zet taal, titel en een niet-geïndexeerde omschrijving", async ({ page }) => {
   await expect(page.locator("html")).toHaveAttribute("lang", "nl");
-  await expect(page).toHaveTitle(`${personal.fullName} — Frontend developer`);
+  await expect(page).toHaveTitle(`${personal.fullName} — ${personal.function}`);
   await expect(page.locator('meta[name="description"]')).toHaveAttribute(
     "content",
-    "Frontend developer. Werk, vaardigheden en een chat die het profiel doorzoekt.",
+    `${personal.function}. Werk, vaardigheden en een chat die het profiel doorzoekt.`,
   );
   await expect(page.locator('meta[name="robots"]')).toHaveAttribute("content", /noindex/);
 });

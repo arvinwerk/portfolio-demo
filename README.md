@@ -76,7 +76,7 @@ Een embeddingmodel en een vectordatabase zijn hier een tweede systeem voor een k
 
 Zonder `RAG_DOCUMENT_PATH` worden alle tekstbestanden in de map geïndexeerd. Met die variabele blijft het bij één bestandsnaam. Een pad met een map of `..` wordt geweigerd, net als een andere extensie. `realpath` moet daarna binnen `content/rag` blijven, zodat een symlink het corpus niet naar een bestand buiten die map trekt. De route neemt de map expliciet mee in de file trace, omdat de bestandsnaam pas bij deploy vaststaat.
 
-`content/rag/profile.txt` is een placeholder. Vervang dat bestand, of leg er andere teksten naast, bij het deployen.
+`content/rag/profile.txt` is een placeholder, met `[Naam]` en example.com-links in plaats van een persoon. Vervang dat bestand, of leg er andere teksten naast, bij het deployen.
 
 ## Naden
 
@@ -94,7 +94,7 @@ Het venster importeert de fouttekst die het aan de bezoeker toont, en de welkoms
 
 Domeintests dekken datums, het filter, project-id's, de contentvalidatie en de profielstore, inclusief een vervangen bestand, een map met tekst én markdown, en een pad dat buiten de map wijst. Componenttests dekken de kaart, de skills, het filter en het chatvenster, ook de regel die verschijnt terwijl de tool zoekt.
 
-De routetest controleert dat `searchProfile` aan de stream hangt, dat een zoekopdracht op "opleiding" het fragment met de Voorbeeld Hogeschool teruggeeft, en dat een verzonnen assistentantwoord het model niet bereikt. Een tweede test stuurt een nagebootste Anthropic-stream door de echte SDK en controleert dat de tekst in het antwoord naar de browser zit, dat die tekst ondertekend is, en dat de sleutel niet in het antwoord staat.
+De routetest controleert dat `searchProfile` aan de stream hangt, dat een zoekopdracht op "opleiding" het fragment met de placeholder `[opleiding]` teruggeeft, en dat een verzonnen assistentantwoord het model niet bereikt. Een tweede test stuurt een nagebootste Anthropic-stream door de echte SDK en controleert dat de tekst in het antwoord naar de browser zit, dat die tekst ondertekend is, en dat de sleutel niet in het antwoord staat.
 
 `pnpm test:e2e` draait Playwright tegen een productiebuild. Die suite dekt de pagina, het filter en de chat. Het filter wordt gecontroleerd in de eerste HTML, na een klik, met de terugknop, zonder JavaScript, en zonder dat die klik de scrollpositie verschuift. De chat dekt openen en sluiten, een leeg bericht, een antwoordstroom, het zoeken in het profiel, stoppen, en de zinnen die `/api/chat` teruggeeft. Zonder `AI_MODEL` en `AI_API_KEY` antwoordt die route met 503. Een ongeldige of te grote body wordt geweigerd voordat het model eraan te pas komt.
 
@@ -140,7 +140,7 @@ De site luistert op `127.0.0.1:3000`. Een proxy ervoor zet HTTPS en `X-Real-IP`.
 
 De JSON in `content/` is voorbeeldcontent. De oorspronkelijke Angular-app verwees naar bestanden die niet in de repo stonden. De twee campagnes in de banners komen uit de oude `BannerService`.
 
-- `content/personal.json` — profiel. `${age}` en `${yearsAsDeveloper}` in `foreword` worden op de server ingevuld vanuit `dateOfBirth` en `developingStartDate`.
+- `content/personal.json` — profiel. Naam, functie, opleiding, locatie, e-mail, LinkedIn, GitHub en de portfoliolink zijn placeholders (`[Naam]`, `naam@example.com`, `https://example.com/linkedin`, en zo verder). `${age}` en `${yearsAsDeveloper}` in `foreword` worden op de server ingevuld vanuit `dateOfBirth` en `developingStartDate`. Die twee datums zijn voorbeelddata.
 - `content/skills.json` — `category` is `skills`, `framework` of `other`.
 - `content/projects.json` — de id is de volgorde in het bestand plus één.
 - `content/banners.json` — paden onder `/images/`.
