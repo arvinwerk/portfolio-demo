@@ -2,8 +2,14 @@ node_modules
 .next
 .git
 .github
+.cursor
 coverage
 out
+e2e
+test-results
+playwright-report
+blob-report
+deploy
 *.log
 *.tsbuildinfo
 .DS_Store
@@ -13,3 +19,4 @@ out
 .env.*
 !.env.example
 README.md
+AGENTS.md
