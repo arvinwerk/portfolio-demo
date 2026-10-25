@@ -6,13 +6,13 @@ export default defineConfig({
   plugins: [react()],
   resolve: {
     alias: {
-      "@": path.resolve(import.meta.dirname, "."),
+      "@": path.resolve(import.meta.dirname, "src"),
     },
   },
   test: {
     environment: "jsdom",
     setupFiles: ["./vitest.setup.tsx"],
     include: ["**/*.{test,spec}.{ts,tsx}"],
-    exclude: ["node_modules", ".next"],
+    exclude: ["node_modules", ".next", "e2e"],
   },
 });

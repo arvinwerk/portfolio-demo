@@ -1,0 +1,15 @@
+---
+description: Domeinlaag per bounded context. Model, invarianten, poorten.
+globs: src/modules/**/domain/**/*.ts
+alwaysApply: false
+---
+
+# Domain
+
+- Deze map bevat het model en de regels die waar blijven zonder React, Next, schijf of netwerk.
+- Een type drukt de taal van zijn context uit. Geen DTO van een HTTP-body en geen rij uit een JSON-bestand als publiek model.
+- Valideer invarianten hier: datumvorm, selectie van trefwoorden, lengte en rol van een beurt, welkomstbeurt tegenover een gezegelde beurt.
+- Een poort beschrijft wat het model nodig heeft (`ProfileKnowledge`, `TranscriptSeal`) en bevat geen adapter.
+- Functies zijn puur. `now` komt binnen als argument. Geen `Date.now()` en geen `process.env` in een beslisregel.
+- Gooi een fout van deze context. Vertaal haar pas in de interface naar een status of een zin voor de bezoeker.
+- Test de regel met invoer en uitvoer. Geen render, geen schijf.

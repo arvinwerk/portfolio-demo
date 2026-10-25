@@ -1,0 +1,13 @@
+---
+description: Applicatielaag. Eén use case orkestreert domain en poorten.
+globs: src/modules/**/application/**/*.ts
+alwaysApply: false
+---
+
+# Application
+
+- Eén bestand, één use case. De use case roept het domain aan en praat met poorten. Hij voegt geen tweede betekenis toe aan een invariant.
+- Het resultaat naar de interface is een read-model: platte velden, klaar om te renderen of om te serialiseren naar een clientcomponent.
+- De use case ontvangt repository, klok, zegel, poort en sessie als argument. Hij maakt ze niet zelf met `new` op een adapter.
+- Geen import uit `infrastructure/`, `interface/`, `react`, `next`, of een SDK.
+- Een use case die alleen één domeinfunctie doorgeeft, bestaat niet. Die functie blijft in het domain.

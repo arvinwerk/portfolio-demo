@@ -2,7 +2,7 @@
 
 Deze site is een herbouw van een Angular 16-portfolio. Het doel is niet een visuele kopie, maar een kleine applicatie waarvan je kunt uitleggen waar de data leeft, hoe de staat gedeeld wordt, en waar een model wel en niet bij mag.
 
-De pagina is React op de Next.js App Router. De vorm volgt het oude ontwerp: bordeaux, Raleway en Mulish, kaarten en een tijdlijn. De stijl staat in Tailwind, als tokens in `app/globals.css`. Eén stylingsysteem is genoeg. Een tweede componentbibliotheek zou de look namaken die Tailwind hier al vastlegt.
+De pagina is React op de Next.js App Router. De vorm volgt het oude ontwerp: bordeaux, Raleway en Mulish, kaarten en een tijdlijn. De stijl staat in Tailwind, als tokens in `src/app/globals.css`. Eén stylingsysteem is genoeg. Een tweede componentbibliotheek zou de look namaken die Tailwind hier al vastlegt.
 
 ## Wat de architectuur moet laten zien
 
@@ -42,17 +42,17 @@ Een monorepo loont als pakketten een eigen release hebben of als meerdere apps d
 
 Een aparte Node-server voor het model loont als meer producten hetzelfde model gebruiken, als dat proces apart moet schalen, of als het model buiten het webproces moet blijven. Deze chat bestaat alleen voor deze pagina. Een tweede server betekent een tweede deploy, CORS, en een sleutel op nog een plek. De Vercel AI SDK streamt vanuit een Route Handler. De browser ziet alleen `/api/chat`.
 
-`server-only` op de modules die bestanden lezen laat de build stuklopen als een clientcomponent ze per ongeluk importeert. De domeinregels in `lib/` importeren geen React. Daardoor zijn leeftijd, filter, id's en de profielindex te testen zonder de pagina op te bouwen.
+De bron staat in `src/`. Twee bounded contexts, `portfolio` en `assistant`, elk met `domain`, `application`, `infrastructure` en `interface`. `src/app` bedraadt die modules en bevat geen beslisregels. `server-only` op adapters die bestanden lezen of de sleutel zien laat de build stuklopen als een clientcomponent ze importeert. Het domain importeert geen React, dus leeftijd, filter, id's en het gesprek zijn te testen zonder de pagina op te bouwen. De importregel wordt afgedwongen door `src/shared/kernel/architecture.test.ts`.
 
 ## Van bestand naar pagina
 
-`lib/content.ts` leest `content/*.json` van schijf. `lib/parse-content.ts` controleert de vorm. Die scheiding maakt de validatie testbaar zonder het filesystem, en de loader testbaar tegen de echte voorbeeldbestanden.
+`JsonPortfolioRepository` leest `content/*.json`. De anti-corruptielaag in `portfolio-document.ts` controleert de vorm van het document. `assemblePortfolio` maakt daar het aggregate van. Die scheiding maakt de documentcontrole testbaar zonder het filesystem, en de repository testbaar tegen de echte voorbeeldbestanden.
 
-`lib/page-model.ts` maakt daar een paginamodel van: leeftijd, jaren als developer, skillgroepen, trefwoorden en de gefilterde projecten. Project-id's zijn de volgorde in het bestand plus één. De pagina zelf rendert dat model. Alleen het filter en de chat zijn clientcomponenten, omdat alleen die interactie hebben na de eerste response.
+`composePortfolioPage` maakt er een read-model van: leeftijd, jaren als developer, skillgroepen, de geldige trefwoordselectie en de gefilterde projecten. Project-id's zijn de volgorde in het bestand plus één. `PortfolioView` rendert dat model. Alleen het filter en de chat zijn clientcomponenten, omdat alleen die interactie hebben na de eerste response. De URL-hrefs horen bij de interface, de selectieregel bij het domain.
 
 ## Chat en streaming
 
-`components/chat-widget.tsx` is het venster. `useChat` stuurt het gesprek naar de route. De route geeft dat door aan `streamAssistant`, die `streamText` aanroept en de stream teruggeeft als UI-messagestream. Tokens komen binnen terwijl het model nog schrijft.
+`ChatWidget` is het venster. `useChat` stuurt het gesprek naar de route. De route is een dunne Next-adapter op `handleVisitorChat`. Die herstelt het gesprek, controleert het tempo en opent een Anthropic-sessie. De sessie roept `streamText` aan en geeft de stream terug als UI-messagestream. Tokens komen binnen terwijl het model nog schrijft.
 
 `AI_MODEL` is het model-id. `claude-haiku-5-5` in `.env.example` is een voorbeeld, geen keuze die in de code vastzit. `AI_API_KEY` gaat naar de Anthropic-provider op de server. De route weigert het verzoek als een van beide ontbreekt, en het venster toont die zin in plaats van een rauwe JSON-body.
 
@@ -80,13 +80,13 @@ Zonder `RAG_DOCUMENT_PATH` worden alle tekstbestanden in de map geïndexeerd. Me
 
 ## Naden
 
-De pagina was al gescheiden: JSON in, validatie, paginamodel, weergave. De chat had die naad nog niet.
+Elke context houdt dezelfde volgorde aan: document of verzoek naar binnen, domain beslist, interface tekent.
 
-`app/api/chat/route.ts` is de HTTP-grens. Hij leest de berichten, weigert een verzoek zonder model of sleutel, en geeft de stream terug. Het model komt uit `createChatModel`. Een andere provider vervangt dat bestand. De route importeert de provider niet.
+`src/app/api/chat/route.ts` geeft het verzoek door aan de assistant-module. De provider zit in `createAnthropicSession`. Een andere provider vervangt die adapter. De route importeert de provider niet.
 
-`streamAssistant` krijgt een `ProfileRetriever`. Dat is het poortje naar de feiten. `FileProfileStore` is de huidige adapter: hij leest de tekstbestanden, laat LangChain ze splitsen, rangschikt met BM25, weigert iets groters dan 64 kB, en cachet de stukken op het eigen object. Een latere adapter kan dezelfde interface vullen met embeddings. De tool en de route blijven staan.
+`ProfileKnowledge` is de poort naar de feiten. `FileProfileStore` is de huidige adapter: hij leest de tekstbestanden, laat LangChain ze splitsen, rangschikt met BM25, weigert iets groters dan 64 kB, en cachet de stukken op het eigen object. Een latere adapter kan dezelfde poort vullen met embeddings. De tool en de route blijven staan.
 
-Het venster importeert alleen de fouttekst die het aan de bezoeker toont. De parser van binnenkomende berichten hoort bij de route.
+Het venster importeert de fouttekst die het aan de bezoeker toont, en de welkomstzin uit het domain. Het herstellen van een gesprek blijft in het domain.
 
 ## Tests
 
@@ -96,6 +96,12 @@ Domeintests dekken datums, het filter, project-id's, de contentvalidatie en de p
 
 De routetest controleert dat `searchProfile` aan de stream hangt, dat een zoekopdracht op "opleiding" het fragment met de Voorbeeld Hogeschool teruggeeft, en dat een verzonnen assistentantwoord het model niet bereikt. Een tweede test stuurt een nagebootste Anthropic-stream door de echte SDK en controleert dat de tekst in het antwoord naar de browser zit, dat die tekst ondertekend is, en dat de sleutel niet in het antwoord staat.
 
+`pnpm test:e2e` draait Playwright tegen een productiebuild. Die suite dekt de pagina, het filter en de chat. Het filter wordt gecontroleerd in de eerste HTML, na een klik, met de terugknop, zonder JavaScript, en zonder dat die klik de scrollpositie verschuift. De chat dekt openen en sluiten, een leeg bericht, een antwoordstroom, het zoeken in het profiel, stoppen, en de zinnen die `/api/chat` teruggeeft. Zonder `AI_MODEL` en `AI_API_KEY` antwoordt die route met 503. Een ongeldige of te grote body wordt geweigerd voordat het model eraan te pas komt.
+
+```bash
+pnpm exec playwright install chromium
+```
+
 ## Lokaal draaien
 
 ```bash
@@ -103,6 +109,8 @@ pnpm install
 cp .env.example .env.local
 pnpm dev
 pnpm test
+pnpm exec playwright install chromium
+pnpm test:e2e
 pnpm typecheck
 pnpm build
 pnpm start
@@ -132,7 +140,7 @@ De site luistert op `127.0.0.1:3000`. Een proxy ervoor zet HTTPS en `X-Real-IP`.
 
 De JSON in `content/` is democontent over Noor Linden, een verzonnen frontend developer. Het vak en de stack lijken op een echte frontendpraktijk. De naam, de plaats Kadewijk, de opdrachtgevers en de campagnes zijn verzonnen, en volledig genoeg om filter, banners, vaardigheden en chat te gebruiken. De balk bovenin en de voettekst zeggen dat het geen echt cv is. De twee banners zijn fictieve campagnes, Festival Noordlicht en Circuit Meridiaan.
 
-- `content/personal.json` — profiel. `${age}` en `${yearsAsDeveloper}` in `foreword` worden op de server ingevuld vanuit `dateOfBirth` en `developingStartDate`.
+- `content/personal.json` — profiel van Noor Linden. `${age}` en `${yearsAsDeveloper}` in `foreword` worden op de server ingevuld vanuit `dateOfBirth` en `developingStartDate`. Die twee datums zijn voorbeelddata.
 - `content/skills.json` — `category` is `skills`, `framework` of `other`.
 - `content/projects.json` — de id is de volgorde in het bestand plus één.
 - `content/banners.json` — paden onder `/images/`.
