@@ -1,0 +1,89 @@
+---
+description: Enterprise-architectuur. Bounded contexts, lagen, DDD en verplichte patronen.
+alwaysApply: true
+---
+
+# Architectuur
+
+Dit is een modulaire monoliet. De regels hier zijn het contract. Code, mappen en tests volgen het contract. Een bestaande map is geen argument om het contract te versoepelen.
+
+## Bounded contexts
+
+Twee contexts, elk een module onder `src/modules/`:
+
+- `portfolio` — het gepubliceerde profiel: persoon, vaardigheden, projecten, banners, trefwoordselectie.
+- `assistant` — het gesprek met de bezoeker: transcript, zegel, profielkennis, tempo.
+
+Een context bezit zijn taal. De ander importeert die taal niet. Een derde context krijgt een eigen module, pas nadat een ADR in `docs/adr/` uitlegt welk model niet in de bestaande twee past.
+
+`src/shared/kernel/` is alleen voor technische primitieven zonder bedrijfsnaam. Geen portfolio- of assistantregel, geen React, geen I/O.
+
+## Mappen
+
+```
+src/app/                         compositie-root en Next.js-routes, geen beslisregels
+src/modules/<context>/domain/    model, invarianten, poorten van het model
+src/modules/<context>/application/  use cases en read-models
+src/modules/<context>/infrastructure/  adapters: schijf, netwerk, SDK, procesgeheugen
+src/modules/<context>/interface/    HTTP, React, URL
+src/modules/<context>/index.ts   facade die de browser veilig kan importeren
+src/modules/<context>/server.ts  bedrading van adapters, alleen voor servercode
+content/                         documenten, geen broncode
+public/                          statische bestanden
+```
+
+`src/app` is de enige Next.js-app. `content/` en `public/` blijven in de root omdat het proces ze vanaf de werkdirectory leest.
+
+Buiten een module importeer je die module alleen via `index.ts` of `server.ts`. `server.ts` is servercode. Een clientcomponent importeert hem niet.
+
+## Afhankelijkheidsregel
+
+Binnen een module wijst een import naar binnen:
+
+`interface → application → domain`
+
+`infrastructure → application` en `infrastructure → domain`
+
+`domain` importeert geen application, infrastructure, interface, React, Next, `server-only`, filesystem, crypto, of een vendor-SDK.
+
+`application` importeert geen infrastructure, interface, React, Next, filesystem, of een vendor-SDK. Tijd komt binnen als argument.
+
+`interface` importeert geen infrastructure. De compositie in `server.ts` geeft adapters als argument mee.
+
+`index.ts` importeert domain en interface. Niet infrastructure.
+
+Een test staat naast het bestand dat hij beschermt. Hij boot de app niet om een domeinregel te bewijzen.
+
+`src/shared/kernel/architecture.test.ts` borgt deze richting. Een import die het contract breekt, laat `pnpm test` falen.
+
+## Tactisch DDD
+
+- Ubiquitous language in types en functies: `Portfolio`, `PersonalProfile`, `KeywordSelection`, `Conversation`, `TranscriptSeal`, `ProfileKnowledge`.
+- Een value object is onveranderlijk en geldig na constructie, of een pure functie die alleen geldige waarden teruggeeft.
+- Een aggregate is de consistentiegrens. Van buiten gebruik je de root: `Portfolio`, `Conversation`.
+- Een invariant hoort in het domain. Een use case orkestreert en beslist niet zelf de bedrijfsregel.
+- Een read-model is een DTO in application. Alleen platte data gaat naar een clientcomponent.
+- Een repository is een poort op het aggregate, gedefinieerd bij de consumer, geïmplementeerd in infrastructure.
+- Een anti-corruptielaag vertaalt JSON en HTTP naar het model. Padfouten van een document blijven in die laag. Het domain kent de bestandsindeling niet.
+
+## Patronen die je gebruikt
+
+| Situatie | Patroon |
+| --- | --- |
+| Vervangbare techniek (model, index, zegel, schijf) | Poort in domain of application, adapter in infrastructure |
+| Opbouw van een aggregate uit geldige delen | Factory in het domain |
+| Bedrading van adapters | Composition root: `server.ts` en `src/app` |
+| Algoritme dat de aanroeper kiest (zegel controleren) | Strategy via een argument |
+| Selectieregel op projecten | Specification in het domain |
+| Extern document of verzoek | Anti-corruptielaag |
+| Scherm of HTTP-antwoord | DTO, geen entity met gedrag |
+| Publieke ingang van een module | Facade: `index.ts` en `server.ts` |
+
+Geen DI-container, geen generic `Repository<T>`, geen event sourcing, geen tweede deployable, geen gedeelde utils-map. Die keuzes horen in een ADR, niet in een pull request die een scherm wijzigt.
+
+## Kwaliteitslat
+
+- `strict` TypeScript. Geen `any`. Onbetrouwbare invoer is `unknown` tot de anti-corruptielaag haar versmalt.
+- Named exports. Een default export alleen waar Next.js die eist.
+- Namen in code zijn Engels. Tekst voor de bezoeker is Nederlands, als vaste zin. Geen stacktrace en geen sleutel naar buiten.
+- Nieuw gedrag krijgt een test in dezelfde laag. `pnpm test` en `pnpm typecheck` blijven slagen.
