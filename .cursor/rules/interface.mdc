@@ -1,0 +1,15 @@
+---
+description: Interface. Dunne HTTP- en React-adapters boven de use case.
+globs: src/modules/**/interface/**/*.{ts,tsx},src/app/**/*.{ts,tsx}
+alwaysApply: false
+---
+
+# Interface
+
+- Een route of scherm roept een use case aan en tekent het read-model. Beslisregels blijven in het domain.
+- `"use client"` staat op het component dat na de eerste response interactie heeft. Kinderen erven die grens en herhalen de directive niet.
+- De URL is de staat van de trefwoordselectie. De interface schrijft de query en het anker. Het domain beslist welke selectie geldig is.
+- Een clientcomponent importeert `server.ts` niet, en geen bestand onder `infrastructure/`.
+- `src/app` bedraadt modules via `index.ts` en `server.ts`. Geen diepe import naar een laag van een module.
+- Fouten naar de bezoeker zijn vaste Nederlandse zinnen. De providerfout en de sleutel blijven op de server.
+- Interactie en vertakkingen krijgen een componenttest. Een component dat alleen props toont, hoeft geen markup-snapshot.

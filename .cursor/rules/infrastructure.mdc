@@ -1,0 +1,14 @@
+---
+description: Infrastructuur. Adapters, anti-corruptielaag, vendor-SDK's.
+globs: src/modules/**/infrastructure/**/*.ts
+alwaysApply: false
+---
+
+# Infrastructure
+
+- Deze map implementeert poorten. Bestandssysteem, BM25, de modelprovider, HMAC en procesgeheugen horen hier.
+- Een adapter vertaalt vendor-types naar het model van de context. Het domain ziet die vendor-types niet.
+- JSON en omgevingsvariabelen gaan door een anti-corruptielaag. Fouten noemen het document of de variabele. Daarna roept de adapter een factory in het domain aan.
+- Een module die bestanden leest, een sleutel ziet of een provider aanroept, begint met `import "server-only"`.
+- Geen React en geen HTTP-status. Een adapter geeft het model of een domeinfout terug.
+- Test de adapter met een tijdelijke map of een nep-SDK. Test geen bedrijfsregel die al een domeintest heeft.

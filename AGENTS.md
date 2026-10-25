@@ -10,4 +10,4 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 
 ## Codekwaliteit
 
-De beslisregels staan in `.cursor/rules/`. `app/` stelt samen, `components/` tonen props, `lib/` beslist zonder React. De chat hangt aan `ProfileRetriever` en `createChatModel`. Uitbreiden gaat via die naden. Een extra laag of package volgt de voorwaarden in `README.md`.
+De beslisregels staan in `.cursor/rules/`. Code volgt die regels. Twee bounded contexts onder `src/modules`: `portfolio` en `assistant`, elk met `domain`, `application`, `infrastructure` en `interface`. `src/app` bedraadt alleen hun `index.ts` en `server.ts`.

@@ -1,53 +1,89 @@
 ---
-description: Architectuur, SOLID, YAGNI en losse koppeling voor deze portfolio.
+description: Enterprise-architectuur. Bounded contexts, lagen, DDD en verplichte patronen.
 alwaysApply: true
 ---
 
-# Codekwaliteit
+# Architectuur
 
-Deze site blijft één uitlegbare Next.js-app. Een principe is een beslisregel. Het is geen reden om een laag toe te voegen.
+Dit is een modulaire monoliet. De regels hier zijn het contract. Code, mappen en tests volgen het contract. Een bestaande map is geen argument om het contract te versoepelen.
 
-## Losse koppeling
+## Bounded contexts
 
-- `app/` stelt samen, `components/` tonen, `lib/` beslist.
-- `lib/` importeert geen React, geen `app/` en geen `components/`.
-- Een clientcomponent importeert geen `server-only` module, geen filesystem en geen sleutel.
-- Modules die bestanden lezen, `AI_API_KEY` zien of de provider aanroepen, beginnen met `import "server-only"`.
-- Content loopt `content/*.json` → `parseContent` → `buildPageModel` → de pagina. De browser leest die bestanden niet.
-- Filterstaat is de query `keywords`. Na een load en na de terugknop wint de URL.
-- De browser bereikt het model alleen via `POST /api/chat`.
+Twee contexts, elk een module onder `src/modules/`:
 
-## Patronen die hier al staan
+- `portfolio` — het gepubliceerde profiel: persoon, vaardigheden, projecten, banners, trefwoordselectie.
+- `assistant` — het gesprek met de bezoeker: transcript, zegel, profielkennis, tempo.
 
-Gebruik deze naden. Zet er geen tweede patroon naast.
+Een context bezit zijn taal. De ander importeert die taal niet. Een derde context krijgt een eigen module, pas nadat een ADR in `docs/adr/` uitlegt welk model niet in de bestaande twee past.
 
-- Pure functies voor beslissingen: `buildPageModel`, `lib/projects.ts`, `lib/skills.ts`, `lib/dates.ts`, `lib/text.ts`, `parseContent`.
-- Poort en adapter: `streamAssistant` hangt aan `ProfileRetriever`. `FileProfileStore` is de adapter. Een andere index vervangt de adapter.
-- Factory aan de rand: `createChatModel` kiest de provider, `createProfileRetriever` kiest de index, `loadContent` leest de schijf. De route importeert de provider niet.
-- Strategie via een argument: `verifyAssistant`, `env`, `now`. Geen service locator.
-- Fout aan de grens: `ContentError`, `ChatRequestError`, `AiConfigError`, `ProfileStoreError`. De browser krijgt een vaste Nederlandse zin.
+`src/shared/kernel/` is alleen voor technische primitieven zonder bedrijfsnaam. Geen portfolio- of assistantregel, geen React, geen I/O.
 
-## SOLID op deze schaal
+## Mappen
 
-- Eén reden om een bestand te wijzigen. De route blijft HTTP. `parse-content` blijft vorm. `page-model` blijft afgeleide weergave. De store blijft de index. Een component blijft weergave.
-- Uitbreiden doe je via een bestaande naad. Een nieuwe provider hoort in `createChatModel`. Een nieuwe index implementeert `ProfileRetriever`. De aanroeper krijgt geen tak per provider of per index.
-- `ProfileRetriever` blijft één methode: `search` → `ProfileSearch`. Een implementatie houdt dat contract, inclusief `found: false` zonder fragmenten.
-- Houd een type zo smal als de gebruiker nodig heeft. Gedeelde types staan in `lib/types.ts`. Een type met één gebruiker blijft lokaal.
-- De compositie (welke adapter, welke sleutel) gebeurt in de route, in `page.tsx` en in de factories. Daarbinnen hangt een functie alleen van zijn argumenten af.
+```
+src/app/                         compositie-root en Next.js-routes, geen beslisregels
+src/modules/<context>/domain/    model, invarianten, poorten van het model
+src/modules/<context>/application/  use cases en read-models
+src/modules/<context>/infrastructure/  adapters: schijf, netwerk, SDK, procesgeheugen
+src/modules/<context>/interface/    HTTP, React, URL
+src/modules/<context>/index.ts   facade die de browser veilig kan importeren
+src/modules/<context>/server.ts  bedrading van adapters, alleen voor servercode
+content/                         documenten, geen broncode
+public/                          statische bestanden
+```
 
-## YAGNI
+`src/app` is de enige Next.js-app. `content/` en `public/` blijven in de root omdat het proces ze vanaf de werkdirectory leest.
 
-- Drie vergelijkbare regels zijn beter dan een helper, hook of generic met één aanroeper.
-- Een interface komt er pas bij een tweede implementatie, of omdat de naad al in deze lijst staat.
-- Geen DI-container, `Result`-type, eventbus, repository-generiek of abstracte basisklasse.
-- Geen monorepo, tweede server, componentbibliotheek of vectordatabase. Die horen pas als de voorwaarde in `README.md` al geldt: een tweede consument, een proces dat apart moet schalen, of een corpus dat BM25 niet meer draagt.
-- Eén stijlsysteem: Tailwind-tokens in `app/globals.css`.
-- Het hele profiel hoort niet in de systeemprompt. Feiten over de persoon komen uit `searchProfile`.
+Buiten een module importeer je die module alleen via `index.ts` of `server.ts`. `server.ts` is servercode. Een clientcomponent importeert hem niet.
 
-## Stijl die de kwaliteit vasthoudt
+## Afhankelijkheidsregel
 
-- Namen in code zijn Engels. Tekst voor de bezoeker is Nederlands.
-- Geen `any`. Onbetrouwbare invoer komt binnen als `unknown` en wordt versmald vóór gebruik.
-- Named exports. Een default export alleen waar het framework die eist (`page.tsx`, `layout.tsx`, `next.config.ts`, `vitest.config.ts`).
-- Nieuw of gewijzigd gedrag krijgt een test naast de module (`*.test.ts` of `*.test.tsx`). Domeinlogica test je zonder de pagina te renderen. Geef afhankelijkheden door waar de functie dat al toelaat.
-- `pnpm test` en `pnpm typecheck` blijven slagen.
+Binnen een module wijst een import naar binnen:
+
+`interface → application → domain`
+
+`infrastructure → application` en `infrastructure → domain`
+
+`domain` importeert geen application, infrastructure, interface, React, Next, `server-only`, filesystem, crypto, of een vendor-SDK.
+
+`application` importeert geen infrastructure, interface, React, Next, filesystem, of een vendor-SDK. Tijd komt binnen als argument.
+
+`interface` importeert geen infrastructure. De compositie in `server.ts` geeft adapters als argument mee.
+
+`index.ts` importeert domain en interface. Niet infrastructure.
+
+Een test staat naast het bestand dat hij beschermt. Hij boot de app niet om een domeinregel te bewijzen.
+
+`src/shared/kernel/architecture.test.ts` borgt deze richting. Een import die het contract breekt, laat `pnpm test` falen.
+
+## Tactisch DDD
+
+- Ubiquitous language in types en functies: `Portfolio`, `PersonalProfile`, `KeywordSelection`, `Conversation`, `TranscriptSeal`, `ProfileKnowledge`.
+- Een value object is onveranderlijk en geldig na constructie, of een pure functie die alleen geldige waarden teruggeeft.
+- Een aggregate is de consistentiegrens. Van buiten gebruik je de root: `Portfolio`, `Conversation`.
+- Een invariant hoort in het domain. Een use case orkestreert en beslist niet zelf de bedrijfsregel.
+- Een read-model is een DTO in application. Alleen platte data gaat naar een clientcomponent.
+- Een repository is een poort op het aggregate, gedefinieerd bij de consumer, geïmplementeerd in infrastructure.
+- Een anti-corruptielaag vertaalt JSON en HTTP naar het model. Padfouten van een document blijven in die laag. Het domain kent de bestandsindeling niet.
+
+## Patronen die je gebruikt
+
+| Situatie | Patroon |
+| --- | --- |
+| Vervangbare techniek (model, index, zegel, schijf) | Poort in domain of application, adapter in infrastructure |
+| Opbouw van een aggregate uit geldige delen | Factory in het domain |
+| Bedrading van adapters | Composition root: `server.ts` en `src/app` |
+| Algoritme dat de aanroeper kiest (zegel controleren) | Strategy via een argument |
+| Selectieregel op projecten | Specification in het domain |
+| Extern document of verzoek | Anti-corruptielaag |
+| Scherm of HTTP-antwoord | DTO, geen entity met gedrag |
+| Publieke ingang van een module | Facade: `index.ts` en `server.ts` |
+
+Geen DI-container, geen generic `Repository<T>`, geen event sourcing, geen tweede deployable, geen gedeelde utils-map. Die keuzes horen in een ADR, niet in een pull request die een scherm wijzigt.
+
+## Kwaliteitslat
+
+- `strict` TypeScript. Geen `any`. Onbetrouwbare invoer is `unknown` tot de anti-corruptielaag haar versmalt.
+- Named exports. Een default export alleen waar Next.js die eist.
+- Namen in code zijn Engels. Tekst voor de bezoeker is Nederlands, als vaste zin. Geen stacktrace en geen sleutel naar buiten.
+- Nieuw gedrag krijgt een test in dezelfde laag. `pnpm test` en `pnpm typecheck` blijven slagen.
