@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { ChatLauncher } from "@/modules/assistant";
+import { ChatLauncher, StudyBench } from "@/modules/assistant";
 import { PortfolioView } from "@/modules/portfolio";
 import { loadPortfolioPage } from "@/modules/portfolio/server";
 
@@ -17,9 +17,9 @@ export async function generateMetadata(): Promise<Metadata> {
 export default async function HomePage({
   searchParams,
 }: {
-  searchParams: Promise<{ keywords?: string | string[] }>;
+  searchParams: Promise<{ keywords?: string | string[]; lens?: string | string[]; scenario?: string | string[] }>;
 }) {
   const params = await searchParams;
-  const model = loadPortfolioPage(params.keywords);
-  return <PortfolioView model={model} chatAction={<ChatLauncher />} />;
+  const model = loadPortfolioPage(params.keywords, new Date(), { lens: params.lens, scenario: params.scenario });
+  return <PortfolioView model={model} chatAction={<ChatLauncher />} studyBench={<StudyBench />} />;
 }

@@ -17,25 +17,27 @@ import { ProjectList } from "./project-list";
 export function WorkExplorer({
   projects,
   initialSelected,
+  lens,
 }: {
   projects: Project[];
   initialSelected: string[];
+  lens?: string;
 }) {
   const router = useRouter();
   const catalog = useMemo(() => collectKeywords(projects), [projects]);
   const [selected, setSelected] = useState(initialSelected);
   const pendingHref = useRef<string | null>(null);
   const initialKey = initialSelected.join("\u0000");
-  const links = keywordLinks(catalog, selected);
+  const links = keywordLinks(catalog, selected, lens);
 
   useEffect(() => {
-    const href = keywordsToHref(initialSelected);
+    const href = keywordsToHref(initialSelected, lens && lens !== "portrait" ? { lens } : undefined);
     if (pendingHref.current !== null && pendingHref.current !== href) {
       return;
     }
     pendingHref.current = null;
     setSelected(initialSelected);
-  }, [initialKey, initialSelected]);
+  }, [initialKey, initialSelected, lens]);
 
   useEffect(() => {
     const syncFromUrl = () => {
@@ -50,7 +52,7 @@ export function WorkExplorer({
 
   function select(key: string | null) {
     const next = key == null ? [] : toggleKeyword(catalog, selected, key);
-    const href = keywordsToHref(next);
+    const href = keywordsToHref(next, lens && lens !== "portrait" ? { lens } : undefined);
     pendingHref.current = href;
     setSelected(next);
     router.push(href, { scroll: false });
@@ -58,7 +60,7 @@ export function WorkExplorer({
 
   return (
     <>
-      <ProjectFilter links={links} allSelected={selected.length === 0} onSelect={select} />
+      <ProjectFilter links={links} allSelected={selected.length === 0} onSelect={select} lens={lens} />
       <ProjectList projects={filterProjects(projects, selected)} links={links} onSelect={select} />
     </>
   );

@@ -14,6 +14,7 @@ const nextConfig: NextConfig = {
   outputFileTracingIncludes: {
     "/": ["./content/**/*"],
     "/api/chat": ["./content/**/*"],
+    "/api/probe": ["./content/**/*"],
   },
 };
 

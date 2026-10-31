@@ -10,7 +10,7 @@ export function SiteFooter({
   github: string;
 }) {
   return (
-    <footer id="contact" className="bg-primary text-white">
+    <footer id="contact" className="bg-primary text-white" data-boundary="voet">
       <div className="mx-auto flex max-w-5xl flex-col gap-8 px-4 py-16 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <p className="font-ui text-xs font-medium tracking-[0.22em] text-white/70 uppercase">Contact</p>
@@ -34,7 +34,7 @@ export function SiteFooter({
           </li>
         </ul>
       </div>
-      <p className="border-t border-white/15 px-4 py-4 pr-24 text-center text-sm text-white/75">
+      <p className="border-t border-white/15 px-4 pt-4 pr-24 pb-24 text-center text-sm text-white/75">
         Demopagina over {name}. Geen echt cv.
       </p>
     </footer>

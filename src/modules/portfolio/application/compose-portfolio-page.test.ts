@@ -62,6 +62,26 @@ describe("composePortfolioPage", () => {
     expect(model.githubParagraphs).toEqual(["Eerste alinea.", "Tweede alinea."]);
     expect(model.selectedKeywords).toEqual([]);
     expect(model.projects.map((project) => project.id)).toEqual([1, 2]);
+    expect(model.lens).toBe("portrait");
+    expect(model.scenario).toBeNull();
+  });
+
+  it("leest een bekende ingang en laat een onbekend scenario vallen", () => {
+    const model = composePortfolioPage(assemblePortfolio({ profile, skills, projects, banners }), {
+      now,
+      lens: "thinking",
+      scenario: "dependency-rule",
+    });
+    expect(model.lens).toBe("thinking");
+    expect(model.scenario).toBe("dependency-rule");
+
+    const ignored = composePortfolioPage(assemblePortfolio({ profile, skills, projects, banners }), {
+      now,
+      lens: "ergens",
+      scenario: "niet-bekend",
+    });
+    expect(ignored.lens).toBe("portrait");
+    expect(ignored.scenario).toBeNull();
   });
 
   it("filtert op bekende trefwoorden en negeert onbekende", () => {

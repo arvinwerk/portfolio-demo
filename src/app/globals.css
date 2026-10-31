@@ -18,6 +18,7 @@
 @layer base {
   html {
     scroll-behavior: smooth;
+    scroll-padding-bottom: 6rem;
   }
 
   body {
@@ -205,5 +206,44 @@
     html {
       scroll-behavior: auto;
     }
+  }
+
+  .atlas-frame {
+    height: 22rem;
+  }
+
+  @media (min-width: 64rem) {
+    .atlas-board {
+      height: clamp(20rem, calc(100dvh - 26.5rem), 36rem);
+      min-height: 18rem;
+    }
+
+    .atlas-board > * {
+      min-height: 0;
+      min-width: 0;
+    }
+
+    .atlas-frame {
+      height: auto;
+      flex: 1 1 auto;
+      min-height: 0;
+    }
+  }
+
+  .atlas .react-flow {
+    --xy-background-color: transparent;
+    background: transparent;
+    font-family: var(--font-sans), sans-serif;
+  }
+
+  .atlas .react-flow__attribution {
+    background: transparent;
+    color: var(--color-muted);
+    font-size: 10px;
+  }
+
+  .xray [data-boundary] {
+    outline: 1px dashed color-mix(in srgb, var(--color-primary) 75%, transparent);
+    outline-offset: 4px;
   }
 }

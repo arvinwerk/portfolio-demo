@@ -15,7 +15,11 @@ export function VCard({
   const showFacts = yearsAsDeveloper != null && projectCount != null && skillCount != null;
 
   return (
-    <section className="px-4 pt-10 pb-6 sm:pt-14 sm:pb-10" aria-label="Profiel">
+    <section
+      className="flex min-h-[calc(100dvh-4.5rem)] flex-col justify-center px-4 py-10 sm:py-14"
+      aria-label="Profiel"
+      data-boundary="identiteit"
+    >
       <div className="mx-auto grid max-w-5xl items-center gap-10 md:grid-cols-[minmax(0,1.2fr)_minmax(240px,0.8fr)] md:gap-16">
         <div>
           <p className="font-ui text-xs font-medium tracking-[0.22em] text-primary uppercase">{profile.function}</p>

@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
 import { Mulish, Raleway, Roboto } from "next/font/google";
-import { ChatWidget } from "@/modules/assistant";
+import { ChatWidget, CommandDock } from "@/modules/assistant";
 import "./globals.css";
 
 const display = Raleway({
@@ -35,6 +35,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
           Naar inhoud
         </a>
         {children}
+        <CommandDock />
         <ChatWidget />
       </body>
     </html>

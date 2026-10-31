@@ -4,14 +4,17 @@ export function ProjectFilter({
   links,
   allSelected,
   onSelect,
+  lens,
 }: {
   links: KeywordLink[];
   allSelected: boolean;
   onSelect: (key: string | null) => void;
+  lens?: string;
 }) {
+  const workspace = lens && lens !== "portrait" ? { lens } : undefined;
   return (
     <nav className="flex flex-wrap gap-2" aria-label="Filter op trefwoord">
-      <FilterLink href={keywordsToHref([])} selected={allSelected} onClick={() => onSelect(null)}>
+      <FilterLink href={keywordsToHref([], workspace)} selected={allSelected} onClick={() => onSelect(null)}>
         Alles
       </FilterLink>
       {links.map((link) => (

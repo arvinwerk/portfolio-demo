@@ -13,4 +13,12 @@ describe("keywordLinks", () => {
     });
     expect(links.find((link) => link.key === "React")?.href).toBe(keywordsToHref(["Angular", "React"]));
   });
+
+  it("houdt een werkruimte vast zonder het portret te vervuilen", () => {
+    expect(keywordsToHref(["React"], { lens: "work" })).toBe("/?lens=work&keywords=React#werk");
+    expect(keywordsToHref([], { lens: "thinking", scenario: "dependency-rule" })).toBe(
+      "/?lens=thinking&scenario=dependency-rule#werk",
+    );
+    expect(keywordsToHref([])).toBe("/#werk");
+  });
 });

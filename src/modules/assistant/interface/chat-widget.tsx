@@ -65,6 +65,7 @@ export function ChatWidget() {
 
   return (
     <div
+      data-boundary="chat"
       className={`fixed right-4 bottom-4 z-40 flex flex-col gap-3 sm:right-8 sm:bottom-6 ${
         open ? "w-[calc(100%-2rem)] max-w-96 items-stretch" : "items-end"
       }`}
