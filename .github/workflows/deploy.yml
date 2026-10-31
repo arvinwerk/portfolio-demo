@@ -1,0 +1,37 @@
+name: Deploy
+
+on:
+  push:
+    branches: [master]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Install and build
+        run: |
+          corepack enable
+          corepack prepare pnpm@10.33.4 --activate
+          pnpm install --frozen-lockfile
+          pnpm build
+      - name: Pack release
+        run: |
+          mkdir -p release/.next
+          cp -a .next/standalone/. release/
+          cp -a .next/static release/.next/static
+          cp -a public release/public
+          cp -a content release/content
+          tar -C release -cJf portfolio.tar.xz .
+      - name: Deploy
+        env:
+          DEPLOY_SSH_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
+        run: |
+          install -d -m 700 ~/.ssh
+          printf '%s\n' "$DEPLOY_SSH_KEY" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          printf '%s\n' '136.144.146.87 ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIBBQ4SiFeHJWTIqwr34Cw6jJPoK7J/lYapT/zXb12tf/' >> ~/.ssh/known_hosts
+          ssh -T -i ~/.ssh/deploy_key -o IdentitiesOnly=yes -o BatchMode=yes arvinwerk@136.144.146.87 run < portfolio.tar.xz
