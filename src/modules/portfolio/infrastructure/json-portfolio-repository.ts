@@ -4,6 +4,7 @@ import { readFileSync } from "node:fs";
 import path from "node:path";
 import type { PortfolioRepository } from "../application/ports";
 import { assemblePortfolio, type Portfolio } from "../domain/portfolio";
+import { contentDirectory } from "./content-directory";
 import { parseContent } from "./portfolio-document";
 
 function readJson(directory: string, name: string): unknown {
@@ -11,7 +12,7 @@ function readJson(directory: string, name: string): unknown {
 }
 
 export class JsonPortfolioRepository implements PortfolioRepository {
-  constructor(private readonly directory = path.join(process.cwd(), "content")) {}
+  constructor(private readonly directory = contentDirectory()) {}
 
   load(): Portfolio {
     const document = parseContent({

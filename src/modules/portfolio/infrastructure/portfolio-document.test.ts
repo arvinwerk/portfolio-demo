@@ -46,6 +46,12 @@ describe("parseContent", () => {
     expect(content.skills[0].category).toBe("framework");
   });
 
+  it("accepteert een rasterlogo", () => {
+    const input = validInput();
+    input.projects[0].images = ["merk.png"];
+    expect(parseContent(input).projects[0].images).toEqual(["merk.png"]);
+  });
+
   it.each([
     ["een percentage boven 100", (input: ReturnType<typeof validInput>) => {
       input.skills[0].percentage = 101;

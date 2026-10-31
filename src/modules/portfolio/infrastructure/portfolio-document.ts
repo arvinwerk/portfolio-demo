@@ -191,7 +191,7 @@ function parseProject(value: unknown, index: number): ProjectDraft {
     shortDescription: assertString(record.shortDescription, `${path}.shortDescription`),
     longDescription: assertNullableString(record.longDescription, `${path}.longDescription`),
     keywords,
-    images: assertStringList(record.images, `${path}.images`, /^[A-Za-z0-9._-]+\.svg$/),
+    images: assertStringList(record.images, `${path}.images`, /^[A-Za-z0-9._-]+\.(svg|png|jpe?g|webp)$/),
   };
 }
 

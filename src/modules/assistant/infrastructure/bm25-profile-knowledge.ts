@@ -119,13 +119,43 @@ export class FileProfileStore {
   }
 }
 
-const shared = new FileProfileStore(path.join(process.cwd(), "content", "rag"));
+const stores = new Map<string, FileProfileStore>();
+
+function storeFor(directory: string): FileProfileStore {
+  const existing = stores.get(directory);
+  if (existing) {
+    return existing;
+  }
+  const created = new FileProfileStore(directory);
+  stores.set(directory, created);
+  return created;
+}
+
+function corpusDirectory(env: Record<string, string | undefined>): string {
+  const configured = env.CONTENT_DIR?.trim() ?? "";
+  if (configured.length === 0) {
+    return path.join(process.cwd(), "content", "rag");
+  }
+  if (!path.isAbsolute(configured)) {
+    throw new ProfileStoreError("CONTENT_DIR moet een absoluut pad zijn.");
+  }
+  let resolved: string;
+  try {
+    resolved = realpathSync(/*turbopackIgnore: true*/ configured);
+  } catch {
+    throw new ProfileStoreError("CONTENT_DIR is niet beschikbaar.");
+  }
+  if (!statSync(/*turbopackIgnore: true*/ resolved).isDirectory()) {
+    throw new ProfileStoreError("CONTENT_DIR moet een map zijn.");
+  }
+  return path.join(resolved, "rag");
+}
 
 export function createProfileKnowledge(env: Record<string, string | undefined> = process.env): ProfileKnowledge {
   return {
     async search(query: string) {
       try {
-        return await shared.search(query, selectedDocument(env));
+        return await storeFor(corpusDirectory(env)).search(query, selectedDocument(env));
       } catch (error) {
         return { found: false, fragments: [], note: noteFor(error) };
       }

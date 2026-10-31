@@ -76,7 +76,7 @@ Een embeddingmodel en een vectordatabase zijn hier een tweede systeem voor een k
 
 Zonder `RAG_DOCUMENT_PATH` worden alle tekstbestanden in de map geïndexeerd. Met die variabele blijft het bij één bestandsnaam. Een pad met een map of `..` wordt geweigerd, net als een andere extensie. `realpath` moet daarna binnen `content/rag` blijven, zodat een symlink het corpus niet naar een bestand buiten die map trekt. De route neemt de map expliciet mee in de file trace, omdat de bestandsnaam pas bij deploy vaststaat.
 
-`content/rag/profile.txt` en `content/rag/werk.txt` beschrijven dezelfde demopersona. Vervang die bestanden, of leg er andere teksten naast, bij het deployen.
+`content/rag/profile.txt` en `content/rag/werk.txt` beschrijven dezelfde demopersona. Echte content hoort niet in de repo. Zet `CONTENT_DIR` op een absolute map buiten de checkout. Die map heeft dezelfde JSON-bestanden en `rag/` als `content/`, plus `images/` in de vorm van `public/images`. De pagina en de chat lezen die map bij elk verzoek. Een deploy vervangt de code en laat de map staan. Ontbreekt `CONTENT_DIR`, dan geldt de demo in de checkout.
 
 ## Naden
 
@@ -144,6 +144,6 @@ De JSON in `content/` is democontent over Noor Linden, een verzonnen frontend de
 - `content/skills.json` — `category` is `skills`, `framework` of `other`.
 - `content/projects.json` — de id is de volgorde in het bestand plus één.
 - `content/banners.json` — paden onder `/images/`.
-- `content/rag/` — de tekst die de chat mag gebruiken. `profile.txt` is de persoon, `werk.txt` de projecten. Beide zijn democontent. Andere `.txt`-, `.md`- of `.markdown`-bestanden in die map tellen mee, tenzij `RAG_DOCUMENT_PATH` er één van aanwijst. Vervangen bij deploy. De balk in de header en de regel in de voettekst horen bij deze demo; haal die weg als de JSON een echt profiel wordt.
+- `content/rag/` — de tekst die de chat mag gebruiken. `profile.txt` is de persoon, `werk.txt` de projecten. Beide zijn democontent. Andere `.txt`-, `.md`- of `.markdown`-bestanden in die map tellen mee, tenzij `RAG_DOCUMENT_PATH` er één van aanwijst. Op de server staat deze map onder `CONTENT_DIR`, niet in git. De balk in de header en de regel in de voettekst horen bij deze demo; die zinnen staan in de code, niet in de JSON.
 
 Beelden staan in `public/images/`.
