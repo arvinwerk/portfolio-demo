@@ -1,9 +1,54 @@
+# TransIP VPS: Caddy on 80/443, the app only on the host loopback.
+# Secrets are read from .env when the containers start.
+
+name: portfolio
+
 services:
   portfolio:
     build: .
-    ports:
-      - "127.0.0.1:3000:3000"
+    image: portfolio:local
+    container_name: portfolio
     env_file:
       - path: .env
-        required: false
+        required: true
+    volumes:
+      - ./content:/app/content:ro
+    ports:
+      - "127.0.0.1:3000:3000"
     restart: unless-stopped
+    init: true
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  caddy:
+    image: caddy:2-alpine
+    container_name: portfolio-caddy
+    depends_on:
+      - portfolio
+    environment:
+      SITE_ADDRESS: "${SITE_ADDRESS:-:80}"
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"
+    volumes:
+      - ./deploy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy-data:/data
+      - caddy-config:/config
+    restart: unless-stopped
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+volumes:
+  caddy-data:
+  caddy-config:

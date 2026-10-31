@@ -1,0 +1,27 @@
+# SITE_ADDRESS comes from .env.
+# :80 serves plain HTTP on the VPS IP. A hostname turns on Let's Encrypt
+# and redirects HTTP to HTTPS. Several names are comma-separated.
+#
+# Certificate expiry mail is optional. Uncomment and set an address you read:
+# {
+#	email beheerder@example.nl
+# }
+
+{$SITE_ADDRESS::80} {
+	# The chat is a stream. Compression and response buffering hold the
+	# tokens until the model is finished.
+	@chat path /api/chat /api/chat/*
+	handle @chat {
+		reverse_proxy portfolio:3000 {
+			header_up X-Real-IP {remote_host}
+			flush_interval -1
+		}
+	}
+
+	handle {
+		encode gzip zstd
+		reverse_proxy portfolio:3000 {
+			header_up X-Real-IP {remote_host}
+		}
+	}
+}

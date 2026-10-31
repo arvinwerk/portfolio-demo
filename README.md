@@ -127,14 +127,31 @@ Zonder die twee variabelen werkt de pagina. De chat antwoordt dan dat model en s
 
 ## Container
 
-`output: "standalone"` levert één Node-server zonder de volledige `node_modules`. De Dockerfile kopieert daarnaast `public/`, `.next/static/` en `content/`. De pagina en de chat lezen `content/` bij het verzoek van schijf, dus die map staat in de image.
+`output: "standalone"` levert één Node-server zonder de volledige `node_modules`. De Dockerfile kopieert daarnaast `public/`, `.next/static/` en `content/`. De pagina en de chat lezen `content/` bij het verzoek van schijf. In Compose is die map ook gemount, zodat een tekst of JSON op de VPS meteen meetelt. `public/images/` zit in de image.
+
+`AI_MODEL` en `AI_API_KEY` komen uit `.env` bij het starten. Ze worden niet in de image gebakken.
+
+Caddy staat voor de app. Die luistert op 80 en 443. Een hostnaam in `SITE_ADDRESS` zet Let's Encrypt aan en stuurt HTTP door naar HTTPS. `SITE_ADDRESS=:80` blijft HTTP op het IP, tot het DNS-record klopt. Caddy zet het bezoekersadres in `X-Real-IP`. De app publiceert poort 3000 alleen op `127.0.0.1`, zodat een bezoeker dat adres niet zelf kan invullen. `/api/chat` gaat zonder compressie door, anders komt de stream pas binnen als het model klaar is.
+
+### TransIP-VPS
+
+Ubuntu of Debian. In het controlepaneel wijst het DNS-record rechtstreeks naar het IP van de VPS: een A-record, en een AAAA-record als de VPS IPv6 heeft. Doorsturen vanuit het controlepaneel laat de certificaataanvraag en de chatstream mislukken. De VPS-firewall laat 22, 80 en 443 door. Het Linux-profiel doet dat al. Docker-poorten omzeilen ufw op de machine zelf. De firewall in het controlepaneel is de grens.
 
 ```bash
+sudo bash deploy/bootstrap-vps.sh
 cp .env.example .env
-docker compose up -d --build
+bash deploy/up.sh
 ```
 
-De site luistert op `127.0.0.1:3000`. Een proxy ervoor zet HTTPS en `X-Real-IP`. Die proxy mag `/api/chat` niet bufferen, anders komt de stream pas binnen als het model klaar is. `AI_MODEL` en `AI_API_KEY` komen uit `.env` bij het starten van de container. Ze worden niet in de image gebakken.
+`bootstrap-vps.sh` installeert Docker Engine en het Compose-plugin. Onder 4 GB geheugen legt het 2 GB swap aan, anders kan `next build` de VPS stilleggen. `up.sh` bouwt de image en start de twee containers. Certificaten blijven in een volume. `docker compose down -v` gooit dat volume weg.
+
+```bash
+docker compose ps
+docker compose logs -f caddy
+docker compose logs -f portfolio
+```
+
+Een wijziging aan de pagina of de dependencies vraagt `bash deploy/up.sh` opnieuw. Een wijziging in `content/` niet: het volgende verzoek leest de map van de VPS.
 
 ## Content vervangen
 
