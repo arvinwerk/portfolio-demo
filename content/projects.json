@@ -2,40 +2,40 @@
   {
     "company": "Festival Noordlicht",
     "title": "Lichtarrangementen",
-    "shortDescription": "Verzonnen campagnesite voor een lichtfestival, met een zwaar visuele voorkant.",
-    "longDescription": "De pagina brengt sfeer en aanmelding samen in herbruikbare blokken, zodat een volgende editie de structuur kan houden. Angular en TypeScript delen dezelfde inhoud op laptop en telefoon.\n\nOpdrachtgever, festival en aanmeldingen zijn verzonnen. De banner hierboven is het scherm van deze campagne.",
+    "shortDescription": "Campagnesite voor een lichtfestival. Sfeer en aanmelding staan in dezelfde blokken, op laptop en op telefoon.",
+    "longDescription": "Een volgende editie houdt de structuur en wisselt het beeld. Angular en TypeScript delen de inhoud.\n\nHet festival is verzonnen. De banner hierboven is het scherm van deze campagne.",
     "keywords": ["Angular", "TypeScript"],
     "images": ["noordlicht.svg"]
   },
   {
     "company": "Circuit Meridiaan",
     "title": "Baan VIP",
-    "shortDescription": "VIP-ervaring rond een verzonnen racereeks, van de landing tot de aanmelding.",
-    "longDescription": "Bezoekers zien het arrangement op een laptop en op een telefoon, in dezelfde campagne. Angular levert het scherm, Laravel de aanmelding.\n\nCircuit Meridiaan bestaat niet. Het merkteken op de kaart is een demo, geen logo van een renstal of een biermerk.",
+    "shortDescription": "Het VIP-arrangement van een racereeks, van de landing tot de aanmelding.",
+    "longDescription": "De bezoeker ziet hetzelfde arrangement op een laptop en op een telefoon. Angular levert het scherm, Laravel de aanmelding.\n\nCircuit Meridiaan bestaat niet. Het merkteken op de kaart is een voorbeeld, geen logo van een renstal.",
     "keywords": ["Angular", "Laravel"],
     "images": ["meridiaan.svg"]
   },
   {
     "company": "Studio Noord",
     "title": "Componentbibliotheek",
-    "shortDescription": "Verzonnen bibliotheek, zodat het filter React, TypeScript en Next.js laat zien.",
-    "longDescription": "Filters, lijsten en balken delen één model. Een visuele wijziging kan de interactie niet stilletjes veranderen.\n\nElke staat van zo'n onderdeel heeft een test. Studio Noord is geen bestaand bureau.",
+    "shortDescription": "Filters, lijsten en balken uit één model. Een visuele wijziging kan de interactie niet stilletjes veranderen.",
+    "longDescription": "Elke staat van een onderdeel heeft een test. Gemaakt met React, TypeScript en Next.js.\n\nStudio Noord is geen bestaand bureau.",
     "keywords": ["React", "TypeScript", "Next.js"],
     "images": ["ui.svg"]
   },
   {
     "company": "Haven & Co",
     "title": "Content-API",
-    "shortDescription": "Verzonnen API, zodat het filter Laravel en Node.js laat zien.",
-    "longDescription": "De pagina krijgt persoonsgegevens, vaardigheden en projecten als props.\n\nHet filter staat in de URL. Dezelfde selectie is deelbaar, en Next.js past hem toe voordat de HTML vertrekt. Haven & Co is een verzonnen opdrachtgever.",
+    "shortDescription": "De pagina krijgt naam, vaardigheden en projecten als inhoud. Het filter staat in de URL en is te delen.",
+    "longDescription": "Laravel levert de inhoud, Node.js staat op de achtergrond. Dezelfde selectie geldt voor de volgende bezoeker.\n\nHaven & Co is een verzonnen opdrachtgever.",
     "keywords": ["Laravel", "Node.js"],
     "images": ["api.svg"]
   },
   {
     "company": "Atelier Linden",
     "title": "Deze demopagina",
-    "shortDescription": "Het portfolio zelf, als laatste kaart: React en Next.js lezen de JSON op de server.",
-    "longDescription": "Persoonsgegevens, vaardigheden, projecten en banners komen uit bestanden. De browser haalt die JSON niet op.\n\nAtelier Linden is de verzonnen studiowanaam van Noor. De kaart laat zien dat de pagina een project in dezelfde lijst kan zijn.",
+    "shortDescription": "De pagina die je nu leest. Naam, werk en banners komen uit JSON, en de browser haalt die bestanden niet op.",
+    "longDescription": "React en Next.js zetten het profiel op de server in elkaar. De kaart laat zien dat de pagina zelf een project in de lijst kan zijn.\n\nAtelier Linden is de studiowanaam van Noor.",
     "keywords": ["React", "Next.js"],
     "images": ["atelier.svg"]
   }

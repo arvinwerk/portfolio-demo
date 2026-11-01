@@ -1,12 +1,12 @@
 [
   {
-    "title": "Festival Noordlicht — Lichtarrangementen",
+    "title": "Lichtarrangementen",
     "bgImage": { "src": "/images/banners/noordlicht-bg.svg" },
     "laptopImage": { "src": "/images/banners/noordlicht-laptop.svg" },
     "mobileImage": { "src": "/images/banners/noordlicht-mobile.svg" }
   },
   {
-    "title": "Circuit Meridiaan — Baan VIP",
+    "title": "Baan VIP",
     "bgImage": { "src": "/images/banners/meridiaan-bg.svg" },
     "laptopImage": { "src": "/images/banners/meridiaan-laptop.svg" },
     "mobileImage": { "src": "/images/banners/meridiaan-mobile.svg" }

@@ -115,7 +115,7 @@ describe("POST /api/chat", () => {
     vi.stubEnv("AI_MODEL", "test-model");
     vi.stubEnv("AI_API_KEY", "test-sleutel");
     const welcome =
-      "Hoi. Dit is democontent over Noor Linden, een verzonnen frontend developer. Vraag gerust naar werk, opleiding of contact.";
+      "Hoi, ik ben Noor Linden. Vraag naar een project, mijn opleiding of hoe je me bereikt. Ik ben een verzonnen developer; de feiten komen uit dit profiel.";
 
     const response = await post({
       messages: [
@@ -128,7 +128,7 @@ describe("POST /api/chat", () => {
     expect(response.status).toBe(200);
     const call = streamText.mock.calls[0]?.[0] as { messages?: unknown };
     const history = JSON.stringify(call?.messages);
-    expect(history).toContain("democontent over Noor Linden");
+    expect(history).toContain("Hoi, ik ben Noor Linden");
     expect(history).not.toContain("iemand anders");
   });
 

@@ -16,7 +16,7 @@ describe("JsonPortfolioRepository", () => {
       function: "Frontend developer",
       email: "noor.linden@example.com",
       education: "Informatica, Voorbeeld Hogeschool",
-      location: "Kadewijk (verzonnen)",
+      location: "Kadewijk",
       linkedIn: "https://example.com/demo/noor-linden/linkedin",
       github: "https://example.com/demo/noor-linden/code",
       portfolioUrl: "https://example.com/demo/noor-linden",
@@ -29,8 +29,8 @@ describe("JsonPortfolioRepository", () => {
     expect(portfolio.profile.statements.disclaimer).toContain("verzonnen");
     expect(portfolio.profile.statements.footerNote).toContain("Geen echt cv");
     expect(portfolio.banners.map((banner) => banner.title)).toEqual([
-      "Festival Noordlicht — Lichtarrangementen",
-      "Circuit Meridiaan — Baan VIP",
+      "Lichtarrangementen",
+      "Baan VIP",
     ]);
   });
 
