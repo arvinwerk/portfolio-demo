@@ -9,23 +9,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 22
-      - name: Install and build
-        run: |
-          corepack enable
-          corepack prepare pnpm@10.33.4 --activate
-          pnpm install --frozen-lockfile
-          pnpm build
-      - name: Pack release
-        run: |
-          mkdir -p release/.next
-          cp -a .next/standalone/. release/
-          cp -a .next/static release/.next/static
-          cp -a public release/public
-          cp -a content release/content
-          tar -C release -cJf portfolio.tar.xz .
+      - uses: ./.github/actions/pack
       - name: Deploy
         env:
           DEPLOY_SSH_KEY: ${{ secrets.DEPLOY_SSH_KEY }}

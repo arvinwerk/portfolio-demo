@@ -1,0 +1,51 @@
+name: Preview
+
+on:
+  push:
+    branches-ignore:
+      - master
+  delete:
+
+concurrency:
+  group: preview-${{ github.event_name == 'delete' && github.event.ref || github.ref_name }}
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    if: github.event_name == 'push'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/pack
+      - id: preview
+        uses: ./.github/actions/preview-remote
+        with:
+          command: preview
+          branch: ${{ github.ref_name }}
+          ssh_key: ${{ secrets.DEPLOY_SSH_KEY }}
+      - name: Write summary
+        run: |
+          {
+            echo "### Preview"
+            echo
+            echo "${{ steps.preview.outputs.url }}"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+  remove:
+    if: github.event_name == 'delete' && github.event.ref_type == 'branch' && github.event.ref != 'master'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Install
+        run: |
+          corepack enable
+          corepack prepare pnpm@10.33.4 --activate
+          pnpm install --frozen-lockfile
+      - uses: ./.github/actions/preview-remote
+        with:
+          command: preview-remove
+          branch: ${{ github.event.ref }}
+          ssh_key: ${{ secrets.DEPLOY_SSH_KEY }}

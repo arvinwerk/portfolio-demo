@@ -19,6 +19,9 @@
 # echte sitedata, buiten de demo in content/
 /data/
 
+# preview host scripts compiled for the VM
+/deploy/dist/
+
 # misc
 .DS_Store
 *.log

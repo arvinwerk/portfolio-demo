@@ -136,6 +136,18 @@ docker compose up -d --build
 
 De site luistert op `127.0.0.1:3000`. Een proxy ervoor zet HTTPS en `X-Real-IP`. Die proxy mag `/api/chat` niet bufferen, anders komt de stream pas binnen als het model klaar is. `AI_MODEL` en `AI_API_KEY` komen uit `.env` bij het starten van de container. Ze worden niet in de image gebakken.
 
+## Preview van een tak
+
+Een push naar een andere tak dan `master` bouwt hetzelfde archief en start het naast productie. `feature/filter` wordt `https://feature-filter.<PREVIEW_DOMAIN>`. Verwijderen van de tak stopt dat proces. Standaard staan er hoogstens vijf previews; de oudste gaat eraf. `master` blijft de site op de gewone host.
+
+De app blijft op `/` staan. Filter, beelden en `/api/chat` veranderen niet. Een router op `127.0.0.1:3080` kiest het proces op de hostnaam en stuurt de stream door zonder te bufferen.
+
+Eenmalig op de VM, als `~/.config/portfolio/preview.env`. Het voorbeeld staat in `deploy/preview.env.example`. `chmod 600` op dat bestand. `PREVIEW_DOMAIN` is de hostnaam achter het eerste label. Staat `AI_API_KEY` erin, dan is `PREVIEW_BASIC_AUTH` verplicht: de browser vraagt om die gebruiker en dat wachtwoord, en dezelfde oorsprong stuurt ze mee naar `/api/chat`. `CONTENT_DIR` mag dezelfde map zijn als productie.
+
+DNS wijst `*.<PREVIEW_DOMAIN>` naar dezelfde host. De bestaande proxy stuurt die namen naar `127.0.0.1:3080`, zet `X-Real-IP`, en buffert `/api/chat` niet. `deploy/caddy-preview.caddy` en `deploy/nginx-preview.conf` zijn die vhost. Een wildcard-certificaat hoort daarbij.
+
+De workflow zet de scripts uit `deploy/` in `~/.local/lib/portfolio-preview` en het commando `preview` naast `run`. Is die map niet schrijfbaar, dan komt het commando in `~/.local/bin`. Op de VM staat Node 22 op het PATH. Het wachtwoord komt niet in de log.
+
 ## Content vervangen
 
 De JSON in `content/` is democontent over Noor Linden, een verzonnen frontend developer. Het vak en de stack lijken op een echte frontendpraktijk. De naam, de plaats Kadewijk, de opdrachtgevers en de campagnes zijn verzonnen, en volledig genoeg om filter, banners, vaardigheden en chat te gebruiken. De balk bovenin en de voettekst zeggen dat het geen echt cv is. De twee banners zijn fictieve campagnes, Festival Noordlicht en Circuit Meridiaan.
