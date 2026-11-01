@@ -19,7 +19,7 @@ export async function replyToVisitor<T>(input: {
   now?: number;
 }): Promise<ReplyPlan<T>> {
   const turns = restoreConversation(input.messages, {
-    verifyAssistant: (id, text, signature) => input.seal.matches(id, text, signature),
+    verifyAssistant: (id, text, context, signature) => input.seal.matches(id, text, context, signature),
   });
   const decision = input.gate.consume(input.address, input.now);
   if (!decision.allowed) {

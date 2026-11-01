@@ -62,6 +62,9 @@ describe("parseContent", () => {
     ["een pad buiten /images", (input: ReturnType<typeof validInput>) => {
       input.banners[0].bgImage.src = "/assets/geheim.svg";
     }],
+    ["een pad dat uit de css-url breekt", (input: ReturnType<typeof validInput>) => {
+      input.banners[0].bgImage.src = '/images/x.svg"),url(https://evil.test/a.png)';
+    }],
     ["een relatief logopad", (input: ReturnType<typeof validInput>) => {
       input.projects[0].images = ["../etc/passwd.svg"];
     }],

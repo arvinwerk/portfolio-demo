@@ -106,9 +106,11 @@ function assertStringList(value: unknown, path: string, pattern?: RegExp): strin
   return items;
 }
 
+const IMAGE_SRC = /^\/images\/(?:[A-Za-z0-9_-]+\/)*[A-Za-z0-9_-]+\.(?:svg|png|jpe?g|webp)$/;
+
 function assertImageSrc(value: unknown, path: string): string {
   const text = assertString(value, path);
-  if (!text.startsWith("/images/") || text.includes("..")) {
+  if (!IMAGE_SRC.test(text)) {
     throw new ContentError(`${path} moet een pad onder /images/ zijn.`);
   }
   return text;

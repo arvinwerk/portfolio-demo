@@ -4,7 +4,7 @@ export function Banner({ banner }: { banner: BannerModel }) {
   return (
     <section
       className="device-stage"
-      style={{ backgroundImage: `url(${banner.bgImage.src})` }}
+      style={{ backgroundImage: `url("${banner.bgImage.src}")` }}
       aria-label={banner.title}
     >
       <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-black/60 via-black/15 to-black/45" aria-hidden="true" />

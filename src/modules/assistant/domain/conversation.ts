@@ -1,3 +1,4 @@
+import { transcriptContext } from "./transcript-seal";
 import { WELCOME_TEXT } from "./welcome";
 
 const MAX_MESSAGES = 24;
@@ -29,7 +30,7 @@ export function asUiTurn(turn: TranscriptTurn): {
 export function restoreConversation(
   value: unknown,
   options?: {
-    verifyAssistant?: (id: string, text: string, signature: string | undefined) => boolean;
+    verifyAssistant?: (id: string, text: string, context: string, signature: string | undefined) => boolean;
   },
 ): TranscriptTurn[] {
   if (!Array.isArray(value) || value.length === 0) {
@@ -66,8 +67,10 @@ export function restoreConversation(
 
     const id = messageId(record.id);
     if (role === "assistant") {
+      const context = transcriptContext(turns);
       const welcome = turns.length === 0 && text === WELCOME_TEXT;
-      const signed = id !== undefined && (options?.verifyAssistant?.(id, text, signatureOf(record.metadata)) ?? false);
+      const signed =
+        id !== undefined && (options?.verifyAssistant?.(id, text, context, signatureOf(record.metadata)) ?? false);
       if (!welcome && !signed) {
         continue;
       }

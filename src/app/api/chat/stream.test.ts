@@ -2,7 +2,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 
 vi.mock("server-only", () => ({}));
 
-import { signAssistantTurn } from "@/modules/assistant/server";
+import { signAssistantTurn, transcriptContext } from "@/modules/assistant/server";
 import { POST } from "./route";
 
 function event(payload: unknown) {
@@ -68,6 +68,7 @@ describe("streaming via de Anthropic-provider", () => {
     const response = await POST(
       new Request("http://localhost/api/chat", {
         method: "POST",
+        headers: { "content-type": "application/json" },
         body: JSON.stringify({
           messages: [{ id: "1", role: "user", parts: [{ type: "text", text: "Hoi" }] }],
         }),
@@ -75,6 +76,7 @@ describe("streaming via de Anthropic-provider", () => {
     );
 
     expect(response.headers.get("content-type")).toContain("text/event-stream");
+    expect(response.headers.get("cache-control")).toBe("no-store");
     const text = await response.text();
     expect(text).toContain("Hallo");
     expect(text).toContain("daar");
@@ -87,6 +89,7 @@ describe("streaming via de Anthropic-provider", () => {
     });
     const messageId = events.find((event) => event.type === "start")?.messageId;
     const signature = events.find((event) => event.type === "finish")?.messageMetadata?.signature;
-    expect(signature).toBe(signAssistantTurn(messageId ?? "", "Hallo daar", "test-sleutel"));
+    const context = transcriptContext([{ id: "1", role: "user", text: "Hoi" }]);
+    expect(signature).toBe(signAssistantTurn(messageId ?? "", "Hallo daar", context, "test-sleutel"));
   });
 });

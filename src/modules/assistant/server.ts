@@ -7,10 +7,11 @@ import { createHmacSeal, signAssistantTurn } from "./infrastructure/hmac-transcr
 import { MemoryVisitorGate } from "./infrastructure/memory-visitor-gate";
 import { respondToVisitor } from "./interface/respond-to-visitor";
 import { CHAT_ADDRESS_LIMIT } from "./domain/rate-policy";
+import { transcriptContext } from "./domain/transcript-seal";
 
 const gate = new MemoryVisitorGate();
 
-export { CHAT_ADDRESS_LIMIT, signAssistantTurn };
+export { CHAT_ADDRESS_LIMIT, signAssistantTurn, transcriptContext };
 
 export function handleVisitorChat(request: Request): Promise<Response> {
   return respondToVisitor(request, {

@@ -11,6 +11,10 @@ export async function GET(_request: Request, { params }: { params: Promise<{ pat
     headers: {
       "content-type": image.contentType,
       "cache-control": "public, max-age=60",
+      "x-content-type-options": "nosniff",
+      "content-security-policy":
+        "default-src 'none'; style-src 'unsafe-inline'; sandbox; base-uri 'none'; form-action 'none'; frame-ancestors 'none'",
+      "cross-origin-resource-policy": "same-origin",
     },
   });
 }

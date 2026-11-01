@@ -1,14 +1,12 @@
 import "server-only";
 
-import { readFileSync } from "node:fs";
-import path from "node:path";
 import type { PortfolioRepository } from "../application/ports";
 import { assemblePortfolio, type Portfolio } from "../domain/portfolio";
-import { contentDirectory } from "./content-directory";
+import { contentDirectory, readContentDocument } from "./content-directory";
 import { parseContent } from "./portfolio-document";
 
 function readJson(directory: string, name: string): unknown {
-  return JSON.parse(readFileSync(path.join(directory, name), "utf8")) as unknown;
+  return JSON.parse(readContentDocument(directory, name)) as unknown;
 }
 
 export class JsonPortfolioRepository implements PortfolioRepository {

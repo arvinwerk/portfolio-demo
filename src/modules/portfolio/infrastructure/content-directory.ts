@@ -1,4 +1,4 @@
-import { realpathSync, statSync } from "node:fs";
+import { readFileSync, realpathSync, statSync } from "node:fs";
 import path from "node:path";
 
 export class ContentDirectoryError extends Error {
@@ -27,4 +27,41 @@ export function contentDirectory(env: Record<string, string | undefined> = proce
     throw new ContentDirectoryError("CONTENT_DIR moet een map zijn.");
   }
   return resolved;
+}
+
+export function readContentDocument(directory: string, name: string): string {
+  if (name !== path.basename(name)) {
+    throw new ContentDirectoryError("Een contentbestand moet in de contentmap blijven.");
+  }
+
+  let root: string;
+  try {
+    root = realpathSync(/*turbopackIgnore: true*/ directory);
+  } catch (error) {
+    if (isMissing(error)) {
+      throw error;
+    }
+    throw new ContentDirectoryError("Een contentbestand is niet beschikbaar.");
+  }
+
+  let file: string;
+  try {
+    file = realpathSync(/*turbopackIgnore: true*/ path.join(root, name));
+  } catch (error) {
+    if (isMissing(error)) {
+      throw error;
+    }
+    throw new ContentDirectoryError("Een contentbestand is niet beschikbaar.");
+  }
+
+  const relative = path.relative(root, file);
+  if (relative === "" || relative === ".." || relative.startsWith(`..${path.sep}`) || path.isAbsolute(relative)) {
+    throw new ContentDirectoryError("Een contentbestand moet in de contentmap blijven.");
+  }
+
+  return readFileSync(/*turbopackIgnore: true*/ file, "utf8");
+}
+
+function isMissing(error: unknown): boolean {
+  return typeof error === "object" && error !== null && "code" in error && (error as { code: unknown }).code === "ENOENT";
 }
