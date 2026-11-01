@@ -1,0 +1,27 @@
+name: Deploy development
+
+on:
+  push:
+    branches: [development]
+
+concurrency:
+  group: development
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/pack
+      - id: development
+        uses: ./.github/actions/deploy-development
+        with:
+          ssh_key: ${{ secrets.DEPLOY_SSH_KEY }}
+      - name: Write summary
+        run: |
+          {
+            echo "### Development"
+            echo
+            echo "${{ steps.development.outputs.url }}"
+          } >> "$GITHUB_STEP_SUMMARY"

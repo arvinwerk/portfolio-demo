@@ -1,0 +1,14 @@
+# Eenmalig op de bestaande proxy. Vervang de hostnaam door DEVELOPMENT_DOMAIN.
+# Development luistert op 127.0.0.1:3001. /api/chat mag niet gebufferd worden.
+# Zet basic_auth aan zolang de chat-sleutel dezelfde is als productie.
+
+development.example.nl {
+	# basic_auth {
+	# 	bezoeker <hash>
+	# }
+	reverse_proxy 127.0.0.1:3001 {
+		flush_interval -1
+		header_up Host {host}
+		header_up X-Real-IP {remote_host}
+	}
+}

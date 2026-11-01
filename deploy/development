@@ -1,0 +1,165 @@
+#!/bin/sh
+# Publish the development branch next to production. The archive is a
+# Next.js standalone server on stdin. The process listens on 127.0.0.1 only.
+set -eu
+
+root=${PORTFOLIO_DEVELOPMENT_ROOT:-$HOME/.local/share/portfolio-development}
+env_file=${PORTFOLIO_DEVELOPMENT_ENV:-$HOME/.config/portfolio/development.env}
+port=${PORTFOLIO_DEVELOPMENT_PORT:-3001}
+domain=
+ai_model=
+ai_key=
+content_dir=
+rag=
+
+if ! command -v node >/dev/null 2>&1; then
+  echo "node staat niet op het PATH." >&2
+  exit 1
+fi
+major=$(node -p "process.versions.node.split('.')[0]")
+if [ "$major" -lt 22 ]; then
+  echo "Node 22 of nieuwer is nodig voor development." >&2
+  exit 1
+fi
+
+if [ -f "$env_file" ]; then
+  while IFS= read -r line || [ -n "$line" ]; do
+    case "$line" in
+      '' | \#*) continue ;;
+    esac
+    key=${line%%=*}
+    value=${line#*=}
+    key=$(printf '%s' "$key" | tr -d '[:space:]')
+    case "$value" in
+      \"*\") value=${value#\"}; value=${value%\"} ;;
+      \'*\') value=${value#\'}; value=${value%\'} ;;
+    esac
+    case "$key" in
+      PORT) port=$value ;;
+      DEVELOPMENT_DOMAIN) domain=$value ;;
+      AI_MODEL) ai_model=$value ;;
+      AI_API_KEY) ai_key=$value ;;
+      CONTENT_DIR) content_dir=$value ;;
+      RAG_DOCUMENT_PATH) rag=$value ;;
+    esac
+  done < "$env_file"
+fi
+
+case "$port" in
+  '' | *[!0-9]*) echo "PORT moet een geheel getal zijn." >&2; exit 1 ;;
+esac
+if [ "$port" -lt 1 ] || [ "$port" -gt 65535 ]; then
+  echo "PORT moet tussen 1 en 65535 liggen." >&2
+  exit 1
+fi
+if [ -n "$domain" ]; then
+  case "$domain" in
+    *[!A-Za-z0-9.-]*) echo "DEVELOPMENT_DOMAIN moet een hostnaam zijn, zonder schema of poort." >&2; exit 1 ;;
+  esac
+fi
+if [ -n "$content_dir" ]; then
+  case "$content_dir" in
+    /*) ;;
+    *) echo "CONTENT_DIR moet een absoluut pad zijn." >&2; exit 1 ;;
+  esac
+  if [ ! -d "$content_dir" ]; then
+    echo "CONTENT_DIR is niet beschikbaar." >&2
+    exit 1
+  fi
+fi
+
+archive=$(mktemp)
+trap 'rm -f "$archive"' EXIT
+cat > "$archive"
+if ! tar -tJf "$archive" >/dev/null 2>&1; then
+  echo "Het archief is niet leesbaar." >&2
+  exit 1
+fi
+if tar -tJf "$archive" | grep -E '(^|/)\.\.(/|$)|^/|^[A-Za-z]:'; then
+  echo "Het archief bevat een pad buiten de uitpakmap." >&2
+  exit 1
+fi
+if ! tar -tJf "$archive" | grep -Eq '(^|/)server\.js$'; then
+  echo "Het archief is geen standalone server." >&2
+  exit 1
+fi
+
+mkdir -p "$root"
+lock=$root/.lock
+if ! mkdir "$lock" 2>/dev/null; then
+  if [ -f "$lock/pid" ] && kill -0 "$(cat "$lock/pid")" 2>/dev/null; then
+    echo "Er loopt al een development-deploy." >&2
+    exit 1
+  fi
+  rm -rf "$lock"
+  mkdir "$lock"
+fi
+echo $$ > "$lock/pid"
+cleanup() {
+  rm -f "$archive"
+  rm -rf "$lock"
+}
+trap cleanup EXIT
+
+pidfile=$root/pid
+if [ -f "$pidfile" ]; then
+  old=$(cat "$pidfile" 2>/dev/null || true)
+  if [ -n "$old" ]; then
+    kill "$old" 2>/dev/null || true
+    i=0
+    while kill -0 "$old" 2>/dev/null && [ "$i" -lt 50 ]; do
+      sleep 0.1
+      i=$((i + 1))
+    done
+    kill -9 "$old" 2>/dev/null || true
+  fi
+fi
+
+staging=$root/staging
+rm -rf "$staging" "$root/app"
+mkdir -p "$staging"
+tar -C "$staging" -xJf "$archive"
+mv "$staging" "$root/app"
+
+log=$root/server.log
+cd "$root/app"
+NODE_ENV=production
+HOSTNAME=127.0.0.1
+PORT=$port
+export NODE_ENV HOSTNAME PORT
+if [ -n "$ai_model" ]; then AI_MODEL=$ai_model; export AI_MODEL; fi
+if [ -n "$ai_key" ]; then AI_API_KEY=$ai_key; export AI_API_KEY; fi
+if [ -n "$content_dir" ]; then CONTENT_DIR=$content_dir; export CONTENT_DIR; fi
+if [ -n "$rag" ]; then RAG_DOCUMENT_PATH=$rag; export RAG_DOCUMENT_PATH; fi
+# A new session survives the SSH connection that started this deploy.
+setsid node server.js >> "$log" 2>&1 < /dev/null &
+echo $! > "$pidfile"
+
+ready=0
+i=0
+while [ "$i" -lt 150 ]; do
+  if node -e 'const net=require("node:net"); const socket=net.connect({port:Number(process.argv[1]), host:"127.0.0.1"}, ()=>{socket.end(); process.exit(0)}); socket.on("error", ()=>process.exit(1));' "$port"; then
+    ready=1
+    break
+  fi
+  if ! kill -0 "$(cat "$pidfile")" 2>/dev/null; then
+    break
+  fi
+  i=$((i + 1))
+  sleep 0.2
+done
+
+if [ "$ready" -ne 1 ]; then
+  echo "Development startte niet." >&2
+  if [ -f "$log" ]; then
+    tail -n 40 "$log" >&2 || true
+  fi
+  exit 1
+fi
+
+if [ -n "$domain" ]; then
+  printf 'development-url=https://%s\n' "$domain"
+else
+  printf 'development-url=http://127.0.0.1:%s\n' "$port"
+  echo "Zet DEVELOPMENT_DOMAIN in $env_file." >&2
+fi

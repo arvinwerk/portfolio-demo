@@ -1,0 +1,60 @@
+name: Deploy development
+description: Publish the development branch beside production
+inputs:
+  ssh_key:
+    description: Deploy key
+    required: true
+  archive:
+    description: Path to the standalone archive
+    required: false
+    default: portfolio.tar.xz
+outputs:
+  url:
+    description: Development URL
+    value: ${{ steps.run.outputs.url }}
+runs:
+  using: composite
+  steps:
+    - id: run
+      shell: bash
+      env:
+        DEPLOY_SSH_KEY: ${{ inputs.ssh_key }}
+        DEPLOY_ARCHIVE: ${{ inputs.archive }}
+      run: |
+        set -euo pipefail
+        install -d -m 700 ~/.ssh
+        printf '%s\n' "$DEPLOY_SSH_KEY" > ~/.ssh/deploy_key
+        chmod 600 ~/.ssh/deploy_key
+        printf '%s\n' '136.144.146.87 ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIBBQ4SiFeHJWTIqwr34Cw6jJPoK7J/lYapT/zXb12tf/' >> ~/.ssh/known_hosts
+        remote() {
+          ssh -T -i ~/.ssh/deploy_key -o IdentitiesOnly=yes -o BatchMode=yes -o LogLevel=ERROR arvinwerk@136.144.146.87 "$@"
+        }
+
+        probe_err=$(mktemp)
+        if ! probe_out=$(remote bootstrap-probe 2>"$probe_err"); then
+          cat "$probe_err" >&2
+          if grep -q "archive empty" "$probe_err"; then
+            echo "De deploy-sleutel start alleen het bestaande commando run. Productie is niet aangeraakt." >&2
+            echo "Zet eenmalig deploy/run ervoor, zoals in README.md onder Development." >&2
+          fi
+          rm -f "$probe_err"
+          exit 1
+        fi
+        rm -f "$probe_err"
+        if [ "$probe_out" != "probe-ok" ]; then
+          echo "Onverwacht antwoord van de VM." >&2
+          printf '%s\n' "$probe_out" >&2
+          exit 1
+        fi
+
+        tar -C deploy -cJf development-host.tar.xz run development
+        remote bootstrap < development-host.tar.xz
+        output=$(remote development < "$DEPLOY_ARCHIVE")
+        url=$(printf '%s\n' "$output" | sed -n 's/^development-url=//p' | tail -n 1)
+        if [ -z "$url" ]; then
+          printf '%s\n' "$output" >&2
+          echo "Development gaf geen URL terug." >&2
+          exit 1
+        fi
+        printf '%s\n' "$url"
+        echo "url=$url" >> "$GITHUB_OUTPUT"

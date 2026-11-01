@@ -136,31 +136,29 @@ docker compose up -d --build
 
 De site luistert op `127.0.0.1:3000`. Een proxy ervoor zet HTTPS en `X-Real-IP`. Die proxy mag `/api/chat` niet bufferen, anders komt de stream pas binnen als het model klaar is. `AI_MODEL` en `AI_API_KEY` komen uit `.env` bij het starten van de container. Ze worden niet in de image gebakken.
 
-## Preview van een tak
+## Development
 
-Een push naar een andere tak dan `master` bouwt hetzelfde archief en start het naast productie. `feature/filter` wordt `https://feature-filter.<PREVIEW_DOMAIN>`. Verwijderen van de tak stopt dat proces. Standaard staan er hoogstens vijf previews; de oudste gaat eraf. `master` blijft de site op de gewone host.
+GitFlow met twee langlevende takken. `master` is productie. `development` is de testomgeving, op één subdomein. Feature branches worden niet gedeployed. Die merge je in `development`. Staat de testomgeving goed, dan merge je `development` naar `master`.
 
-De app blijft op `/` staan. Filter, beelden en `/api/chat` veranderen niet. Een router op `127.0.0.1:3080` kiest het proces op de hostnaam en stuurt de stream door zonder te bufferen.
+De app blijft op `/` staan. Filter, beelden en `/api/chat` veranderen niet. Development luistert op `127.0.0.1:3001`, naast productie op poort 3000.
 
-De deploy-sleutel start alleen het commando `run`. Eenmalig op de VM, in deze volgorde, zodat productie het oude script houdt:
+De deploy-sleutel start alleen het commando `run`. Eenmalig op de VM, in deze volgorde, zodat productie het oude script houdt. Draai dit vanuit een checkout, of kopieer `deploy/run` eerst naar de VM.
 
 ```bash
 target=$(command -v run)
-mkdir -p ~/.local/lib/portfolio-preview
-cp "$target" ~/.local/lib/portfolio-preview/run-production
-chmod 755 ~/.local/lib/portfolio-preview/run-production
-install -m 755 deploy/run ~/.local/lib/portfolio-preview/run
-printf '%s\n' '#!/bin/sh' 'exec "$HOME/.local/lib/portfolio-preview/run"' > "$target"
+mkdir -p ~/.local/lib/portfolio
+cp "$target" ~/.local/lib/portfolio/run-production
+chmod 755 ~/.local/lib/portfolio/run-production
+install -m 755 deploy/run ~/.local/lib/portfolio/run
+printf '%s\n' '#!/bin/sh' 'exec "$HOME/.local/lib/portfolio/run"' > "$target"
 chmod 755 "$target"
 ```
 
-Staat in `~/.ssh/authorized_keys` een `command=` met een pad, dan is dat pad `target`. Daarna stuurt een push de scripts en het archief. `run` zonder meer blijft de productiedeploy.
+Staat in `~/.ssh/authorized_keys` een `command=` met een pad, dan is dat pad `target`. Daarna maakt `git push -u origin development` de tak aan vanaf `master`. Elke push naar `development` publiceert de site. `run` zonder meer blijft de productiedeploy.
 
-Daarnaast `~/.config/portfolio/preview.env`, naar `deploy/preview.env.example`, met `chmod 600`. `PREVIEW_DOMAIN` is de hostnaam achter het eerste label. Staat `AI_API_KEY` erin, dan is `PREVIEW_BASIC_AUTH` verplicht: de browser vraagt om die gebruiker en dat wachtwoord, en dezelfde oorsprong stuurt ze mee naar `/api/chat`. `CONTENT_DIR` mag dezelfde map zijn als productie.
+`~/.config/portfolio/development.env` volgt `deploy/development.env.example`, met `chmod 600`. `DEVELOPMENT_DOMAIN` is de hostnaam. `CONTENT_DIR` mag dezelfde map zijn als productie. Op de VM staat Node 22 op het PATH.
 
-DNS wijst `*.<PREVIEW_DOMAIN>` naar dezelfde host. De bestaande proxy stuurt die namen naar `127.0.0.1:3080`, zet `X-Real-IP`, en buffert `/api/chat` niet. `deploy/caddy-preview.caddy` en `deploy/nginx-preview.conf` zijn die vhost. Een wildcard-certificaat hoort daarbij.
-
-De workflow stuurt de scripts daarna naar `~/.local/lib/portfolio-preview`. Draai het eenmalige commando vanuit een checkout, of kopieer `deploy/run` eerst naar de VM. Op de VM staat Node 22 op het PATH. Het wachtwoord komt niet in de log.
+DNS wijst die hostnaam naar dezelfde machine. De bestaande proxy stuurt haar naar `127.0.0.1:3001`, zet `X-Real-IP`, en buffert `/api/chat` niet. `deploy/caddy-development.caddy` en `deploy/nginx-development.conf` zijn die vhost. Zet daar basic auth op zolang de chat-sleutel dezelfde is als productie.
 
 ## Content vervangen
 
