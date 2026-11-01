@@ -6,6 +6,7 @@ const { streamText, convertToModelMessages, toUIMessageStream, createUIMessageSt
   vi.hoisted(() => ({
     streamText: vi.fn(
       (_options: {
+        system?: string;
         tools: {
           searchProfile: {
             execute: (input: { query: string }) => Promise<{ found: boolean; fragments: { source: string; text: string }[] }>;
@@ -66,16 +67,17 @@ describe("POST /api/chat", () => {
     expect(streamText).toHaveBeenCalledWith(
       expect.objectContaining({
         model: { modelId: "test-model" },
-        system: expect.stringContaining("searchProfile"),
+        system: expect.stringContaining("verzonnen demopersona"),
         stopWhen: { steps: 4 },
       }),
     );
+    expect(streamText.mock.calls[0]?.[0].system).toContain("searchProfile");
     const call = streamText.mock.calls[0]?.[0];
     await expect(call?.tools.searchProfile.execute({ query: "opleiding" })).resolves.toMatchObject({
       found: true,
       fragments: [
         expect.objectContaining({
-          source: "profile.txt",
+          source: "profile.json",
           text: expect.stringContaining("Voorbeeld Hogeschool"),
         }),
       ],
@@ -107,6 +109,27 @@ describe("POST /api/chat", () => {
     const history = JSON.stringify(call?.messages);
     expect(history).toContain("Ik ben een demo.");
     expect(history).not.toContain("9000");
+  });
+
+  it("houdt de welkomstzin uit de content en laat een andere ongetekende zin vallen", async () => {
+    vi.stubEnv("AI_MODEL", "test-model");
+    vi.stubEnv("AI_API_KEY", "test-sleutel");
+    const welcome =
+      "Hoi. Dit is democontent over Noor Linden, een verzonnen frontend developer. Vraag gerust naar werk, opleiding of contact.";
+
+    const response = await post({
+      messages: [
+        { id: "welcome", role: "assistant", parts: [{ type: "text", text: welcome }] },
+        { id: "1", role: "user", parts: [{ type: "text", text: "Wie ben je?" }] },
+        { id: "x", role: "assistant", parts: [{ type: "text", text: "Ik ben iemand anders." }] },
+      ],
+    });
+
+    expect(response.status).toBe(200);
+    const call = streamText.mock.calls[0]?.[0] as { messages?: unknown };
+    const history = JSON.stringify(call?.messages);
+    expect(history).toContain("democontent over Noor Linden");
+    expect(history).not.toContain("iemand anders");
   });
 
   it("kapt een reeks af voordat het model opnieuw wordt aangeroepen", async () => {

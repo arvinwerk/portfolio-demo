@@ -20,7 +20,7 @@ test("zet taal, titel en een niet-geïndexeerde omschrijving", async ({ page }) 
   await expect(page).toHaveTitle(`${personal.fullName} — ${personal.function}`);
   await expect(page.locator('meta[name="description"]')).toHaveAttribute(
     "content",
-    `Demoportfolio van ${personal.fullName}, een verzonnen ${personal.function.toLowerCase()}. Werk, vaardigheden en een chat over het profiel.`,
+    personal.statements.metaDescription,
   );
   await expect(page.locator('meta[name="robots"]')).toHaveAttribute("content", /noindex/);
 });
@@ -187,7 +187,7 @@ test("de sectielinks en de naam gaan naar het juiste anker", async ({ page }) =>
 test("de footer herhaalt naam en contact", async ({ page }) => {
   const footer = page.getByRole("contentinfo");
   await expect(footer.getByText(personal.fullName, { exact: true })).toBeVisible();
-  await expect(footer.getByText(`Demopagina over ${personal.fullName}. Geen echt cv.`)).toBeVisible();
+  await expect(footer.getByText(personal.statements.footerNote)).toBeVisible();
   await expect(footer.getByRole("link", { name: personal.email })).toHaveAttribute("href", `mailto:${personal.email}`);
   await expect(footer.getByRole("link", { name: "LinkedIn" })).toHaveAttribute("href", personal.linkedIn);
   await expect(footer.getByRole("link", { name: "GitHub" })).toHaveAttribute("href", personal.github);

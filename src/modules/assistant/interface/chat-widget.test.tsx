@@ -1,6 +1,7 @@
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { WELCOME_TEXT } from "../domain/welcome";
+
+const WELCOME_TEXT = "Hoi. Welkom.";
 
 const chat = vi.hoisted(() => ({
   sendMessage: vi.fn(),
@@ -47,7 +48,7 @@ describe("ChatWidget", () => {
   });
 
   it("opent het dialoog en stuurt een bericht", () => {
-    render(<ChatWidget />);
+    render(<ChatWidget welcome={WELCOME_TEXT} />);
 
     expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
     fireEvent.click(screen.getByRole("button", { name: "Chat openen" }));
@@ -71,7 +72,7 @@ describe("ChatWidget", () => {
       },
     ];
 
-    render(<ChatWidget />);
+    render(<ChatWidget welcome={WELCOME_TEXT} />);
     fireEvent.click(screen.getByRole("button", { name: "Chat openen" }));
 
     expect(screen.getByText("Ik zoek in het profiel.")).toBeInTheDocument();
@@ -84,7 +85,7 @@ describe("ChatWidget", () => {
       { id: "answer", role: "assistant", parts: [{ type: "text", text: "Ik ben" }] },
     ];
 
-    render(<ChatWidget />);
+    render(<ChatWidget welcome={WELCOME_TEXT} />);
     fireEvent.click(screen.getByRole("button", { name: "Chat openen" }));
 
     expect(screen.getByText("Ik ben")).toBeInTheDocument();

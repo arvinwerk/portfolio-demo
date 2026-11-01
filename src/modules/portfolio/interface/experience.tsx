@@ -6,7 +6,7 @@ import { useEffect, useRef, useState, type ReactNode } from "react";
 import type { PortfolioPage } from "../application/compose-portfolio-page";
 import { knownScenario, type ArchitectureScenarioId } from "../domain/architecture-atlas";
 import { isCuriosity, type Curiosity } from "../domain/curiosity";
-import { minuteCopy, minuteNeighbour, minuteTradeOff, proofProject, type MinuteBeat } from "../domain/minute";
+import { minuteKicker, minuteNeighbour, minuteTradeOff, proofProject, type MinuteBeat } from "../domain/minute";
 import type { PersonalProfile } from "../domain/model";
 import { parseKeywords } from "../domain/projects";
 import { About } from "./about";
@@ -227,8 +227,8 @@ export function Experience({
     const resolved = minuteNext || next !== "thinking" ? null : scenario;
     const lensNext = minuteNext ? "portrait" : next;
     if (minuteNext !== minuteRef.current || (!minuteNext && lensNext !== lensRef.current)) {
-      const from = minuteRef.current ? minuteCopy(minuteRef.current, { years: 0, projects: 0 }).kicker : LENS_LABEL[lensRef.current];
-      const to = minuteNext ? minuteCopy(minuteNext, { years: 0, projects: 0 }).kicker : LENS_LABEL[lensNext];
+      const from = minuteRef.current ? minuteKicker(minuteRef.current) : LENS_LABEL[lensRef.current];
+      const to = minuteNext ? minuteKicker(minuteNext) : LENS_LABEL[lensNext];
       setTransitions((current) => [{ id: crypto.randomUUID(), detail: `${from} → ${to}` }, ...current].slice(0, 6));
     }
     if (!options?.keepNote) {
@@ -265,6 +265,7 @@ export function Experience({
     <>
       <SiteHeader
         name={model.profile.fullName}
+        disclaimer={model.profile.statements.disclaimer}
         action={chatAction}
         onMinute={minute ? undefined : () => commit("portrait", null, "", { minute: "wie" })}
         onSection={lens === "portrait" || minute ? undefined : (id) => commit("portrait", null, `#${id}`)}
@@ -330,6 +331,7 @@ export function Experience({
         email={model.profile.email}
         linkedIn={model.profile.linkedIn}
         github={model.profile.github}
+        note={model.profile.statements.footerNote}
       />
       {xray ? (
         <XRayPanel transitions={transitions} requests={requests} boundaries={boundaries} onClose={() => setXray(false)} />

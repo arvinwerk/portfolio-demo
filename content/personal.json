@@ -10,5 +10,14 @@
   "foreword": "Noor Linden is een verzonnen frontend developer. Het vak lijkt op een echt beroep, het cv niet. In deze demo is Noor ${age} en bouwt ${yearsAsDeveloper} jaar aan interfaces.\n\nDe teksten, de projecten en de chat zijn compleet genoeg om de pagina te gebruiken. Leeftijd en jaren komen uit de datums in content/personal.json. Er staat geen echte persoon achter de naam.",
   "dateOfBirth": "1993-04-18",
   "github": "https://example.com/demo/noor-linden/code",
-  "githubDescription": "De knop wijst naar een voorbeeldadres op example.com. Er staat geen repository en geen account achter.\n\nDe pagina haalt die content niet op in de browser. Next.js leest de JSON op de server, en de chat zoekt alleen in de tekstbestanden onder content/rag."
+  "githubDescription": "De knop wijst naar een voorbeeldadres op example.com. Er staat geen repository en geen account achter.\n\nDe pagina haalt die content niet op in de browser. Next.js leest de JSON op de server, en de chat zoekt alleen in de JSON-documenten onder content/rag.",
+  "statements": {
+    "disclaimer": "Democontent. Noor Linden is een verzonnen developer. Projecten, teksten en de chat horen bij niemand.",
+    "footerNote": "Demopagina over Noor Linden. Geen echt cv.",
+    "metaDescription": "Demoportfolio van Noor Linden, een verzonnen frontend developer. Werk, vaardigheden en een chat over het profiel.",
+    "chatWelcome": "Hoi. Dit is democontent over Noor Linden, een verzonnen frontend developer. Vraag gerust naar werk, opleiding of contact.",
+    "chatHonesty": "De persoon in het profiel is een verzonnen demopersona. Zeg dat als iemand vraagt of de persoon of de projecten echt zijn.",
+    "minuteWho": "${years} jaar interfaces. ${projects} ${projectWord} op deze pagina. De persoon is verzonnen, de grens niet.",
+    "minuteDoor": "Een mail is genoeg. LinkedIn en GitHub op deze demo wijzen naar example.com."
+  }
 }

@@ -3,6 +3,7 @@ import {
   SKILL_CATEGORIES,
   type Banner,
   type PersonalProfile,
+  type PersonalStatements,
   type ProjectDraft,
   type Skill,
 } from "../domain/model";
@@ -127,7 +128,33 @@ const PERSONAL_KEYS = [
   "dateOfBirth",
   "github",
   "githubDescription",
+  "statements",
 ];
+
+const STATEMENT_KEYS = [
+  "disclaimer",
+  "footerNote",
+  "metaDescription",
+  "chatWelcome",
+  "chatHonesty",
+  "minuteWho",
+  "minuteDoor",
+];
+
+function parseStatements(value: unknown): PersonalStatements {
+  const record = assertRecord(value, "personal.statements");
+  assertExactKeys(record, STATEMENT_KEYS, "personal.statements");
+
+  return {
+    disclaimer: assertString(record.disclaimer, "personal.statements.disclaimer"),
+    footerNote: assertString(record.footerNote, "personal.statements.footerNote"),
+    metaDescription: assertString(record.metaDescription, "personal.statements.metaDescription"),
+    chatWelcome: assertString(record.chatWelcome, "personal.statements.chatWelcome"),
+    chatHonesty: assertString(record.chatHonesty, "personal.statements.chatHonesty"),
+    minuteWho: assertString(record.minuteWho, "personal.statements.minuteWho"),
+    minuteDoor: assertString(record.minuteDoor, "personal.statements.minuteDoor"),
+  };
+}
 
 function parsePersonal(value: unknown): PersonalProfile {
   const record = assertRecord(value, "personal");
@@ -146,6 +173,7 @@ function parsePersonal(value: unknown): PersonalProfile {
     dateOfBirth: assertDate(record.dateOfBirth, "personal.dateOfBirth"),
     github: assertUrl(record.github, "personal.github"),
     githubDescription: assertString(record.githubDescription, "personal.githubDescription"),
+    statements: parseStatements(record.statements),
   };
 }
 

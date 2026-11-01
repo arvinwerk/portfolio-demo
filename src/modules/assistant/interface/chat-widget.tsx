@@ -3,16 +3,9 @@
 import { useChat } from "@ai-sdk/react";
 import { DefaultChatTransport, type UIMessage } from "ai";
 import { useEffect, useId, useMemo, useRef, useState, type FormEvent } from "react";
-import { WELCOME_TEXT } from "../domain/welcome";
 import { readableChatError } from "./client-error";
 
-const welcome: UIMessage = {
-  id: "welcome",
-  role: "assistant",
-  parts: [{ type: "text", text: WELCOME_TEXT }],
-};
-
-export function ChatWidget() {
+export function ChatWidget({ welcome }: { welcome: string }) {
   const [open, setOpen] = useState(false);
   const [input, setInput] = useState("");
   const titleId = useId();
@@ -25,7 +18,11 @@ export function ChatWidget() {
       }),
     [],
   );
-  const { messages, sendMessage, stop, status, error } = useChat({ messages: [welcome], transport });
+  const opening = useMemo<UIMessage>(
+    () => ({ id: "welcome", role: "assistant", parts: [{ type: "text", text: welcome }] }),
+    [welcome],
+  );
+  const { messages, sendMessage, stop, status, error } = useChat({ messages: [opening], transport });
   const busy = status === "submitted" || status === "streaming";
 
   useEffect(() => {

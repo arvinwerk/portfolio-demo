@@ -44,6 +44,15 @@ const profile: PersonalProfile = {
   dateOfBirth: "1994-06-20",
   github: "https://example.com/github",
   githubDescription: "Bron.",
+  statements: {
+    disclaimer: "Balk van de fixture.",
+    footerNote: "Voet van de fixture.",
+    metaDescription: "Beschrijving.",
+    chatWelcome: "Hoi.",
+    chatHonesty: "Verzonnen.",
+    minuteWho: "${years} jaar in de fixture. ${projects} ${projectWord}.",
+    minuteDoor: "De deur van de fixture.",
+  },
 };
 
 const skills: Skill[] = [{ name: "React", percentage: 80, category: "framework" }];
@@ -79,6 +88,8 @@ describe("Experience", () => {
     render(<Experience model={model()} />);
 
     expect(screen.getByRole("heading", { level: 1, name: "Noor Linden" })).toBeVisible();
+    expect(screen.getByRole("note")).toHaveTextContent("Balk van de fixture.");
+    expect(screen.getByText("Voet van de fixture.")).toBeVisible();
     fireEvent.click(screen.getByRole("button", { name: /Hoe ik denk/ }));
 
     expect(push).toHaveBeenCalledWith("/?lens=thinking", { scroll: false });
@@ -93,6 +104,7 @@ describe("Experience", () => {
 
     expect(push).toHaveBeenCalledWith("/?minuut=wie", { scroll: false });
     expect(screen.getByRole("heading", { name: "Eerst het vak" })).toBeVisible();
+    expect(screen.getByText("10 jaar in de fixture. 1 project.")).toBeVisible();
     fireEvent.click(screen.getByRole("button", { name: "Volgende" }));
 
     expect(push).toHaveBeenCalledWith("/?minuut=bewijs", { scroll: false });

@@ -19,11 +19,18 @@ describe("minuteNeighbour", () => {
   });
 });
 
+const voice = {
+  who: "${years} jaar interfaces. ${projects} ${projectWord} op deze pagina. De persoon is verzonnen, de grens niet.",
+  door: "De deur noemt ${projects} ${projectWord}.",
+};
+
 describe("minuteCopy", () => {
-  it("noemt de echte aantallen", () => {
-    expect(minuteCopy("wie", { years: 10, projects: 1 }).line).toContain("10 jaar");
-    expect(minuteCopy("wie", { years: 10, projects: 1 }).line).toContain("1 project");
-    expect(minuteCopy("wie", { years: 10, projects: 2 }).line).toContain("2 projecten");
+  it("vult de persoonlijke zin en houdt de uitleg van de pagina", () => {
+    expect(minuteCopy("wie", { years: 10, projects: 1 }, voice).line).toContain("10 jaar");
+    expect(minuteCopy("wie", { years: 10, projects: 1 }, voice).line).toContain("1 project");
+    expect(minuteCopy("wie", { years: 10, projects: 2 }, voice).line).toContain("2 projecten");
+    expect(minuteCopy("deur", { years: 10, projects: 2 }, voice).line).toBe("De deur noemt 2 projecten.");
+    expect(minuteCopy("bewijs", { years: 10, projects: 2 }, voice).line).toContain("meeste trefwoorden");
   });
 });
 

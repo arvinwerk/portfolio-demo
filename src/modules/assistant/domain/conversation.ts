@@ -1,5 +1,3 @@
-import { WELCOME_TEXT } from "./welcome";
-
 const MAX_MESSAGES = 24;
 const MAX_USER_TEXT = 2_000;
 const MAX_ASSISTANT_TEXT = 8_000;
@@ -30,6 +28,7 @@ export function restoreConversation(
   value: unknown,
   options?: {
     verifyAssistant?: (id: string, text: string, signature: string | undefined) => boolean;
+    welcome?: string;
   },
 ): TranscriptTurn[] {
   if (!Array.isArray(value) || value.length === 0) {
@@ -66,7 +65,7 @@ export function restoreConversation(
 
     const id = messageId(record.id);
     if (role === "assistant") {
-      const welcome = turns.length === 0 && text === WELCOME_TEXT;
+      const welcome = turns.length === 0 && options?.welcome !== undefined && text === options.welcome;
       const signed = id !== undefined && (options?.verifyAssistant?.(id, text, signatureOf(record.metadata)) ?? false);
       if (!welcome && !signed) {
         continue;

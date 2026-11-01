@@ -16,6 +16,15 @@ function validInput() {
       dateOfBirth: "1993-04-18",
       github: "https://example.com/demo/noor-linden/code",
       githubDescription: "Code",
+      statements: {
+        disclaimer: "Democontent.",
+        footerNote: "Geen cv.",
+        metaDescription: "Beschrijving.",
+        chatWelcome: "Hoi.",
+        chatHonesty: "Verzonnen.",
+        minuteWho: "${years} jaar.",
+        minuteDoor: "Mail.",
+      },
     },
     skills: [{ name: "React", percentage: 80, category: "framework" }],
     projects: [
@@ -44,6 +53,7 @@ describe("parseContent", () => {
     const content = parseContent(validInput());
     expect(content.projects[0].longDescription).toBeNull();
     expect(content.skills[0].category).toBe("framework");
+    expect(content.personal.statements.disclaimer).toBe("Democontent.");
   });
 
   it("accepteert een rasterlogo", () => {

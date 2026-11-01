@@ -16,6 +16,7 @@ export type VisitorChatDeps = {
   sealFor(apiKey: string): TranscriptSeal;
   gate: VisitorGate;
   knowledge: ProfileKnowledge;
+  welcome: string;
   openSession(config: AssistantCredentials, knowledge: ProfileKnowledge): AssistantSession<{ stream: ModelStream }>;
 };
 
@@ -54,6 +55,7 @@ export async function respondToVisitor(request: Request, deps: VisitorChatDeps):
       address: clientAddress(request),
       seal,
       gate: deps.gate,
+      welcome: deps.welcome,
       session: deps.openSession(config, deps.knowledge),
     });
 

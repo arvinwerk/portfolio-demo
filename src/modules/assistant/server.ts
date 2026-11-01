@@ -20,13 +20,14 @@ const knowledge = createProfileKnowledge();
 
 export { CHAT_ADDRESS_LIMIT, signAssistantTurn };
 
-export function handleVisitorChat(request: Request): Promise<Response> {
+export function handleVisitorChat(request: Request, voice: { welcome: string; honesty: string }): Promise<Response> {
   return respondToVisitor(request, {
     readConfig: () => readAssistantConfig(),
     sealFor: createHmacSeal,
     gate,
     knowledge: createProfileKnowledge(),
-    openSession: createAnthropicSession,
+    welcome: voice.welcome,
+    openSession: (config, knowledge) => createAnthropicSession(config, knowledge, voice.honesty),
   });
 }
 

@@ -1,6 +1,8 @@
 import { expect, type Page, type Route } from "@playwright/test";
 
-export { WELCOME_TEXT } from "../../src/modules/assistant/domain/welcome";
+import { portfolio } from "./content";
+
+export const WELCOME_TEXT = portfolio.personal.statements.chatWelcome;
 
 export const STREAM_HEADERS = {
   "content-type": "text/event-stream; charset=utf-8",

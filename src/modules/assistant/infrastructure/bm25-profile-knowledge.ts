@@ -10,7 +10,7 @@ import type { ProfileFragment, ProfileKnowledge, ProfileSearch } from "../domain
 export const MAX_PROFILE_BYTES = 64 * 1024;
 
 const TOP_K = 3;
-const TEXT_EXTENSIONS = new Set([".txt", ".md", ".markdown"]);
+const DOCUMENT_EXTENSIONS = new Set([".json", ".txt", ".md", ".markdown"]);
 
 const splitter = new RecursiveCharacterTextSplitter({
   chunkSize: 500,
@@ -85,7 +85,7 @@ export class FileProfileStore {
     const documents = stats.map(
       (item) =>
         new Document({
-          pageContent: readFileSync(/*turbopackIgnore: true*/ item.file, "utf8"),
+          pageContent: documentBody(item.name, readFileSync(/*turbopackIgnore: true*/ item.file, "utf8")),
           metadata: { source: item.name },
         }),
     );
@@ -110,10 +110,10 @@ export class FileProfileStore {
     }
 
     const names = readdirSync(/*turbopackIgnore: true*/ this.directory)
-      .filter((name) => TEXT_EXTENSIONS.has(path.extname(name).toLowerCase()))
+      .filter((name) => DOCUMENT_EXTENSIONS.has(path.extname(name).toLowerCase()))
       .sort();
     if (names.length === 0) {
-      throw new ProfileStoreError("Er staan geen tekstdocumenten in content/rag.");
+      throw new ProfileStoreError("Er staan geen profieldocumenten in content/rag.");
     }
     return names;
   }
@@ -176,8 +176,8 @@ function assertTextFileName(name: string): void {
   if (name !== path.basename(name)) {
     throw new ProfileStoreError("RAG_DOCUMENT_PATH moet een bestandsnaam in content/rag zijn.");
   }
-  if (!TEXT_EXTENSIONS.has(path.extname(name).toLowerCase())) {
-    throw new ProfileStoreError("Het corpus bestaat uit tekstbestanden (.txt of .md).");
+  if (!DOCUMENT_EXTENSIONS.has(path.extname(name).toLowerCase())) {
+    throw new ProfileStoreError("Het corpus bestaat uit JSON, tekst of markdown (.json, .txt, .md of .markdown).");
   }
 }
 
@@ -197,6 +197,31 @@ function resolveInside(directory: string, name: string): string {
   }
 
   return resolved;
+}
+
+function documentBody(name: string, raw: string): string {
+  if (path.extname(name).toLowerCase() !== ".json") {
+    return raw;
+  }
+
+  let parsed: unknown;
+  try {
+    parsed = JSON.parse(raw) as unknown;
+  } catch {
+    throw new ProfileStoreError(`${name} is geen geldige JSON.`);
+  }
+
+  if (typeof parsed !== "object" || parsed === null || Array.isArray(parsed)) {
+    throw new ProfileStoreError(`${name} moet een object zijn met een tekstveld text.`);
+  }
+
+  const record = parsed as Record<string, unknown>;
+  const keys = Object.keys(record);
+  if (keys.length !== 1 || keys[0] !== "text" || typeof record.text !== "string" || record.text.trim().length === 0) {
+    throw new ProfileStoreError(`${name} moet een object zijn met een tekstveld text.`);
+  }
+
+  return record.text;
 }
 
 function tokenize(value: string): string[] {

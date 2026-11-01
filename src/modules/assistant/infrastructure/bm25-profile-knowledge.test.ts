@@ -44,7 +44,8 @@ describe("FileProfileStore", () => {
     const store = new FileProfileStore(directory);
     write(directory, "contact.txt", "Het contactadres is naam@example.com.\n");
     write(directory, "opleiding.md", "Opleiding: [opleiding].\n");
-    write(directory, "geheim.json", "Dit json-bestand hoort niet in de index.\n");
+    write(directory, "notities.json", JSON.stringify({ text: "In het json-document staat een kade." }));
+    write(directory, "geheim.bin", "Dit bin-bestand hoort niet in de index.\n");
 
     const education = await store.search("welke opleiding");
     expect(education.fragments).toEqual([
@@ -53,7 +54,28 @@ describe("FileProfileStore", () => {
 
     const contact = await store.search("contactadres");
     expect(contact.fragments[0]?.source).toBe("contact.txt");
-    expect(await store.search("json-bestand")).toEqual({ found: false, fragments: [] });
+    const notes = await store.search("json-document");
+    expect(notes.fragments[0]?.source).toBe("notities.json");
+    expect(await store.search("bin-bestand")).toEqual({ found: false, fragments: [] });
+  });
+
+  it("weigert ongeldige JSON en een document zonder tekst", async () => {
+    const directory = tempCorpus();
+    const store = new FileProfileStore(directory);
+    write(directory, "kapot.json", "{");
+
+    expect(await store.search("werk")).toEqual({
+      found: false,
+      fragments: [],
+      note: "kapot.json is geen geldige JSON.",
+    });
+
+    write(directory, "kapot.json", "{}\n");
+    expect(await store.search("werk")).toEqual({
+      found: false,
+      fragments: [],
+      note: "kapot.json moet een object zijn met een tekstveld text.",
+    });
   });
 
   it("weigert een bestand dat groter is dan de grens", async () => {
@@ -82,15 +104,15 @@ describe("FileProfileStore", () => {
     });
   });
 
-  it("zegt het als de map geen tekstbestanden bevat", async () => {
+  it("zegt het als de map geen profieldocumenten bevat", async () => {
     const directory = tempCorpus();
-    write(directory, "personal.json", "{}\n");
+    write(directory, "plaatje.png", "pixels\n");
     const store = new FileProfileStore(directory);
 
     expect(await store.search("werk")).toEqual({
       found: false,
       fragments: [],
-      note: "Er staan geen tekstdocumenten in content/rag.",
+      note: "Er staan geen profieldocumenten in content/rag.",
     });
   });
 
@@ -136,10 +158,10 @@ describe("createProfileKnowledge", () => {
       fragments: [],
       note: "RAG_DOCUMENT_PATH moet een bestandsnaam in content/rag zijn.",
     });
-    expect(await createProfileKnowledge({ RAG_DOCUMENT_PATH: "personal.json" }).search("werk")).toEqual({
+    expect(await createProfileKnowledge({ RAG_DOCUMENT_PATH: "archief.zip" }).search("werk")).toEqual({
       found: false,
       fragments: [],
-      note: "Het corpus bestaat uit tekstbestanden (.txt of .md).",
+      note: "Het corpus bestaat uit JSON, tekst of markdown (.json, .txt, .md of .markdown).",
     });
   });
 });

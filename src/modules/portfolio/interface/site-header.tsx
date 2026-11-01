@@ -2,12 +2,14 @@ import type { MouseEvent, ReactNode } from "react";
 
 export function SiteHeader({
   name,
+  disclaimer,
   action,
   onSection,
   onMinute,
   xray,
 }: {
   name: string;
+  disclaimer: string;
   action?: ReactNode;
   onSection?: (id: string) => void;
   onMinute?: () => void;
@@ -18,7 +20,7 @@ export function SiteHeader({
       <div id="top" className="h-0" />
       <header className="sticky top-0 z-30 border-b border-black/5 bg-paper/90 backdrop-blur-md" data-boundary="kop">
         <p className="bg-ink px-4 py-2 text-center text-sm text-white" role="note">
-          Democontent. {name} is een verzonnen developer. Projecten, teksten en de chat horen bij niemand.
+          {disclaimer}
         </p>
         <div className="mx-auto flex min-h-16 max-w-5xl flex-wrap items-center justify-between gap-x-4 gap-y-2 px-4 py-3">
           <a

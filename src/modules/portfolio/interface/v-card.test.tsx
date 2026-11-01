@@ -16,6 +16,15 @@ const profile: PersonalProfile = {
   dateOfBirth: "1994-06-20",
   github: "https://example.com/github",
   githubDescription: "Code",
+  statements: {
+    disclaimer: "Democontent.",
+    footerNote: "Geen cv.",
+    metaDescription: "Beschrijving.",
+    chatWelcome: "Hoi.",
+    chatHonesty: "Verzonnen.",
+    minuteWho: "${years} jaar.",
+    minuteDoor: "Mail.",
+  },
 };
 
 describe("VCard", () => {

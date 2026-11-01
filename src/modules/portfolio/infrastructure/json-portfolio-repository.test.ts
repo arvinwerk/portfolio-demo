@@ -23,9 +23,11 @@ describe("JsonPortfolioRepository", () => {
     });
     expect(portfolio.profile.foreword).toContain("${age}");
     expect(portfolio.profile.foreword).toContain("${yearsAsDeveloper}");
-    const profile = readFileSync(path.join(process.cwd(), "content/rag/profile.txt"), "utf8");
-    expect(profile).toContain("Noor Linden");
-    expect(profile).toContain("Voorbeeld Hogeschool");
+    const profile = JSON.parse(readFileSync(path.join(process.cwd(), "content/rag/profile.json"), "utf8")) as { text: string };
+    expect(profile.text).toContain("Noor Linden");
+    expect(profile.text).toContain("Voorbeeld Hogeschool");
+    expect(portfolio.profile.statements.disclaimer).toContain("verzonnen");
+    expect(portfolio.profile.statements.footerNote).toContain("Geen echt cv");
     expect(portfolio.banners.map((banner) => banner.title)).toEqual([
       "Festival Noordlicht — Lichtarrangementen",
       "Circuit Meridiaan — Baan VIP",

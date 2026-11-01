@@ -3,11 +3,13 @@ export function SiteFooter({
   email,
   linkedIn,
   github,
+  note,
 }: {
   name: string;
   email: string;
   linkedIn: string;
   github: string;
+  note: string;
 }) {
   return (
     <footer id="contact" className="bg-primary text-white" data-boundary="voet">
@@ -35,7 +37,7 @@ export function SiteFooter({
         </ul>
       </div>
       <p className="border-t border-white/15 px-4 pt-4 pr-24 pb-24 text-center text-sm text-white/75">
-        Demopagina over {name}. Geen echt cv.
+        {note}
       </p>
     </footer>
   );

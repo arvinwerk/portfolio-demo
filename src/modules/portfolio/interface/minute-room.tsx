@@ -1,6 +1,6 @@
 import type { TradeOff } from "../domain/architecture-atlas";
 import type { PersonalProfile, Project } from "../domain/model";
-import { MINUTE_BEATS, minuteCopy, minuteNeighbour, type MinuteBeat, type MinuteFacts } from "../domain/minute";
+import { MINUTE_BEATS, minuteCopy, minuteKicker, minuteNeighbour, type MinuteBeat, type MinuteFacts } from "../domain/minute";
 import { paragraphs } from "../domain/prose";
 import { VCard } from "./v-card";
 
@@ -27,7 +27,7 @@ export function MinuteRoom({
   onLeave: () => void;
   onProjects: () => void;
 }) {
-  const copy = minuteCopy(beat, facts);
+  const copy = minuteCopy(beat, facts, { who: profile.statements.minuteWho, door: profile.statements.minuteDoor });
   const previous = minuteNeighbour(beat, -1);
   const next = minuteNeighbour(beat, 1);
 
@@ -46,7 +46,7 @@ export function MinuteRoom({
                 }`}
                 onClick={() => onBeat(id)}
               >
-                {index + 1}. {minuteCopy(id, facts).kicker}
+                {index + 1}. {minuteKicker(id)}
               </button>
             </li>
           ))}

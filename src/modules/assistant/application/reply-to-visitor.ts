@@ -16,9 +16,11 @@ export async function replyToVisitor<T>(input: {
   seal: TranscriptSeal;
   gate: VisitorGate;
   session: AssistantSession<T>;
+  welcome: string;
   now?: number;
 }): Promise<ReplyPlan<T>> {
   const turns = restoreConversation(input.messages, {
+    welcome: input.welcome,
     verifyAssistant: (id, text, signature) => input.seal.matches(id, text, signature),
   });
   const decision = input.gate.consume(input.address, input.now);

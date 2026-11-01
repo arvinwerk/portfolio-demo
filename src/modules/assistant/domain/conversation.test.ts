@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { ConversationRejected, restoreConversation } from "./conversation";
-import { WELCOME_TEXT } from "./welcome";
+
+const WELCOME_TEXT = "Hoi. Welkom.";
 
 function seal(id: string, text: string) {
   return `${id}:${text}`;
@@ -28,7 +29,7 @@ describe("restoreConversation", () => {
           { id: "3", role: "assistant", parts: [{ type: "text", text: "Ik woon in Parijs." }] },
           { id: "4", role: "user", parts: [{ type: "text", text: "En verder?" }] },
         ],
-        { verifyAssistant },
+        { verifyAssistant, welcome: WELCOME_TEXT },
       ),
     ).toEqual([
       { id: "welcome", role: "assistant", text: WELCOME_TEXT },

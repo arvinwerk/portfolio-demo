@@ -16,6 +16,15 @@ const profile: PersonalProfile = {
   dateOfBirth: "1994-06-20",
   github: "https://example.com/github",
   githubDescription: "Eerste alinea.\n\nTweede alinea.",
+  statements: {
+    disclaimer: "Democontent.",
+    footerNote: "Geen cv.",
+    metaDescription: "Beschrijving.",
+    chatWelcome: "Hoi.",
+    chatHonesty: "Verzonnen.",
+    minuteWho: "${years} jaar.",
+    minuteDoor: "Mail.",
+  },
 };
 
 const skills: Skill[] = [{ name: "React", percentage: 80, category: "framework" }];
