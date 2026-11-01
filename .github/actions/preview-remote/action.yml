@@ -65,19 +65,8 @@ runs:
           mode=dispatcher
         elif grep -q "archive empty" "$probe_err"; then
           cat "$probe_err" >&2
-          cat <<'EOF' >&2
-De deploy-sleutel start alleen het bestaande commando run. Productie is niet aangeraakt.
-Eenmalig op de VM, in deze volgorde:
-  target=$(command -v run)
-  mkdir -p ~/.local/lib/portfolio-preview
-  cp "$target" ~/.local/lib/portfolio-preview/run-production
-  chmod 755 ~/.local/lib/portfolio-preview/run-production
-  # deploy/run uit deze repository:
-  install -m 755 deploy/run ~/.local/lib/portfolio-preview/run
-  printf '%s\n' '#!/bin/sh' 'exec "$HOME/.local/lib/portfolio-preview/run"' > "$target"
-  chmod 755 "$target"
-Staat in ~/.ssh/authorized_keys een command= met een pad, gebruik dat pad als target.
-EOF
+          echo "De deploy-sleutel start alleen het bestaande commando run. Productie is niet aangeraakt." >&2
+          echo "Zet eenmalig deploy/run ervoor, zoals in README.md onder Preview van een tak." >&2
           exit 1
         elif grep -Eq "Permission denied|Connection refused|Could not resolve" "$probe_err"; then
           cat "$probe_err" >&2
