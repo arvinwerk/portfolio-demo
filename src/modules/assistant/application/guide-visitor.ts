@@ -31,6 +31,7 @@ export async function guideVisitor(input: {
         focus: reading.focus,
         explanation: reading.explanation,
         origin: "catalog",
+        lead: reading.lead,
       },
     };
   }
@@ -42,7 +43,7 @@ export async function guideVisitor(input: {
 
   try {
     const parsed = parseModelGuidance(await input.interpreter.interpret(text));
-    return { kind: "ready", guidance: { ...parsed, origin: "model" } };
+    return { kind: "ready", guidance: { ...parsed, origin: "model", lead: false } };
   } catch {
     return {
       kind: "ready",
@@ -51,6 +52,7 @@ export async function guideVisitor(input: {
         focus: reading.focus,
         explanation: reading.explanation,
         origin: "catalog",
+        lead: false,
       },
     };
   }

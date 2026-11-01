@@ -6,11 +6,13 @@ import { useEffect, useRef, useState, type ReactNode } from "react";
 import type { PortfolioPage } from "../application/compose-portfolio-page";
 import { knownScenario, type ArchitectureScenarioId } from "../domain/architecture-atlas";
 import { isCuriosity, type Curiosity } from "../domain/curiosity";
+import { minuteCopy, minuteNeighbour, minuteTradeOff, proofProject, type MinuteBeat } from "../domain/minute";
 import type { PersonalProfile } from "../domain/model";
 import { parseKeywords } from "../domain/projects";
 import { About } from "./about";
 import { Banner } from "./banner";
 import { CuriosityBand } from "./curiosity-band";
+import { MinuteRoom } from "./minute-room";
 import { sceneRegistry } from "./scenes";
 import { SiteFooter } from "./site-footer";
 import { SiteHeader } from "./site-header";
@@ -44,6 +46,7 @@ export function Experience({
   const [motionReady, setMotionReady] = useState(false);
   const [lens, setLens] = useState(model.lens);
   const [focus, setFocus] = useState<ArchitectureScenarioId | null>(model.scenario);
+  const [minute, setMinute] = useState<MinuteBeat | null>(model.minute);
   const [note, setNote] = useState<string | null>(null);
   const [origin, setOrigin] = useState<"catalog" | "model" | null>(null);
   const [xray, setXray] = useState(false);
@@ -56,16 +59,20 @@ export function Experience({
       next: Curiosity,
       scenario: ArchitectureScenarioId | null,
       hash: string,
-      options?: { note?: string | null; origin?: "catalog" | "model" | null; keepNote?: boolean },
+      options?: { note?: string | null; origin?: "catalog" | "model" | null; keepNote?: boolean; minute?: MinuteBeat | null },
     ) => void
   >(() => undefined);
   const pendingHash = useRef<string | null>(null);
   const lensRef = useRef(lens);
   const workspaceRef = useRef<HTMLElement>(null);
   const sawLens = useRef(false);
-  const serverKey = `${model.lens}|${model.scenario ?? ""}`;
+  const serverKey = `${model.lens}|${model.scenario ?? ""}|${model.minute ?? ""}`;
+  const minuteRef = useRef<MinuteBeat | null>(minute);
+  const xrayRef = useRef(xray);
   const calm = motionReady && reduce;
   lensRef.current = lens;
+  minuteRef.current = minute;
+  xrayRef.current = xray;
 
   useEffect(() => {
     setMotionReady(true);
@@ -78,7 +85,8 @@ export function Experience({
     pending.current = null;
     setLens(model.lens);
     setFocus(model.scenario);
-  }, [serverKey, model.lens, model.scenario]);
+    setMinute(model.minute);
+  }, [serverKey, model.lens, model.scenario, model.minute]);
 
   useEffect(() => {
     const onPop = () => {
@@ -92,6 +100,10 @@ export function Experience({
     const onGuide = (event: Event) => {
       const detail = readGuide((event as CustomEvent<unknown>).detail);
       if (!detail) {
+        return;
+      }
+      if (detail.lead) {
+        commitRef.current("portrait", null, "", { minute: "wie" });
         return;
       }
       commitRef.current(detail.surface, detail.focus, "", { note: detail.explanation, origin: detail.origin });
@@ -112,8 +124,30 @@ export function Experience({
       if (event.key === "x" || event.key === "X") {
         event.preventDefault();
         setXray((value) => !value);
-      } else if (event.key === "Escape") {
-        setXray(false);
+        return;
+      }
+      if (event.key === "Escape") {
+        if (xrayRef.current) {
+          setXray(false);
+          return;
+        }
+        if (minuteRef.current) {
+          event.preventDefault();
+          commitRef.current("portrait", null, "");
+        }
+        return;
+      }
+      if (!minuteRef.current) {
+        return;
+      }
+      if (event.key === "ArrowRight" || event.key === "ArrowLeft") {
+        const direction = event.key === "ArrowRight" ? 1 : -1;
+        const beat = minuteNeighbour(minuteRef.current, direction);
+        if (!beat) {
+          return;
+        }
+        event.preventDefault();
+        commitRef.current("portrait", null, "", { minute: beat });
       }
     };
     window.addEventListener("keydown", onKey);
@@ -163,47 +197,53 @@ export function Experience({
   }, [xray, lens]);
 
   useEffect(() => {
-    if (!pendingHash.current || lens !== "portrait") {
+    if (!pendingHash.current || lens !== "portrait" || minute) {
       return;
     }
     const id = pendingHash.current.replace("#", "");
     pendingHash.current = null;
     document.getElementById(id)?.scrollIntoView({ behavior: calm ? "auto" : "smooth" });
-  }, [lens, calm]);
+  }, [lens, minute, calm]);
 
   useEffect(() => {
     if (!sawLens.current) {
       sawLens.current = true;
       return;
     }
+    if (minuteRef.current) {
+      document.getElementById("minuut")?.focus();
+      return;
+    }
     workspaceRef.current?.focus();
-  }, [lens]);
+  }, [lens, minute]);
 
   function commit(
     next: Curiosity,
     scenario: ArchitectureScenarioId | null,
     hash: string,
-    options?: { note?: string | null; origin?: "catalog" | "model" | null; keepNote?: boolean },
+    options?: { note?: string | null; origin?: "catalog" | "model" | null; keepNote?: boolean; minute?: MinuteBeat | null },
   ) {
-    const resolved = next === "thinking" ? scenario : null;
-    if (next !== lensRef.current) {
-      const from = lensRef.current;
-      setTransitions((current) =>
-        [{ id: crypto.randomUUID(), detail: `${LENS_LABEL[from]} → ${LENS_LABEL[next]}` }, ...current].slice(0, 6),
-      );
+    const minuteNext = options?.minute ?? null;
+    const resolved = minuteNext || next !== "thinking" ? null : scenario;
+    const lensNext = minuteNext ? "portrait" : next;
+    if (minuteNext !== minuteRef.current || (!minuteNext && lensNext !== lensRef.current)) {
+      const from = minuteRef.current ? minuteCopy(minuteRef.current, { years: 0, projects: 0 }).kicker : LENS_LABEL[lensRef.current];
+      const to = minuteNext ? minuteCopy(minuteNext, { years: 0, projects: 0 }).kicker : LENS_LABEL[lensNext];
+      setTransitions((current) => [{ id: crypto.randomUUID(), detail: `${from} → ${to}` }, ...current].slice(0, 6));
     }
     if (!options?.keepNote) {
       setNote(options?.note ?? null);
       setOrigin(options?.origin ?? null);
     }
-    pending.current = `${next}|${resolved ?? ""}`;
-    setLens(next);
+    pending.current = `${lensNext}|${resolved ?? ""}|${minuteNext ?? ""}`;
+    setLens(lensNext);
+    setMinute(minuteNext);
     setFocus(resolved);
     if (hash) {
       pendingHash.current = hash;
     }
     const keywords = parseKeywords(new URLSearchParams(window.location.search).getAll("keywords"));
-    router.push(workspaceHref({ keywords, lens: next, scenario: resolved, hash }), { scroll: false });
+    router.push(workspaceHref({ keywords, lens: minuteNext ? undefined : lensNext, scenario: resolved, minute: minuteNext, hash }), { scroll: false });
   }
 
   commitRef.current = commit;
@@ -226,7 +266,8 @@ export function Experience({
       <SiteHeader
         name={model.profile.fullName}
         action={chatAction}
-        onSection={lens === "portrait" ? undefined : (id) => commit("portrait", null, `#${id}`)}
+        onMinute={minute ? undefined : () => commit("portrait", null, "", { minute: "wie" })}
+        onSection={lens === "portrait" || minute ? undefined : (id) => commit("portrait", null, `#${id}`)}
         xray={{ pressed: xray, onToggle: () => setXray((value) => !value) }}
       />
       <main id="inhoud" className="pb-24">
@@ -235,14 +276,27 @@ export function Experience({
         </p>
         <AnimatePresence initial={false}>
           <motion.div
-            key={lens}
+            key={minute ?? lens}
             initial={calm ? false : { opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
             exit={calm ? undefined : { opacity: 0, y: -8 }}
             transition={{ duration: calm ? 0 : 0.32, ease: [0.22, 1, 0.36, 1] }}
           >
-            {lens === "portrait" ? (
-              <Portrait model={model} onSelect={(id) => commit(id, null, "")} />
+            {minute ? (
+              <MinuteRoom
+                beat={minute}
+                facts={{ years: model.yearsAsDeveloper, projects: model.allProjects.length }}
+                project={proofProject(model.allProjects)}
+                tradeOff={minuteTradeOff()}
+                profile={model.profile}
+                yearsAsDeveloper={model.yearsAsDeveloper}
+                skillCount={skillCount}
+                onBeat={(beat) => commit("portrait", null, "", { minute: beat })}
+                onLeave={() => commit("portrait", null, "")}
+                onProjects={() => commit("portrait", null, "#werk")}
+              />
+            ) : lens === "portrait" ? (
+              <Portrait model={model} onMinute={() => commit("portrait", null, "", { minute: "wie" })} onSelect={(id) => commit(id, null, "")} />
             ) : (
               <section
                 ref={workspaceRef}
@@ -284,7 +338,15 @@ export function Experience({
   );
 }
 
-function Portrait({ model, onSelect }: { model: PortfolioPage; onSelect: (lens: Exclude<Curiosity, "portrait">) => void }) {
+function Portrait({
+  model,
+  onSelect,
+  onMinute,
+}: {
+  model: PortfolioPage;
+  onSelect: (lens: Exclude<Curiosity, "portrait">) => void;
+  onMinute: () => void;
+}) {
   const [firstBanner, secondBanner] = model.banners;
   const skillCount = model.skillGroups.reduce((total, group) => total + group.skills.length, 0);
 
@@ -296,7 +358,7 @@ function Portrait({ model, onSelect }: { model: PortfolioPage; onSelect: (lens: 
         projectCount={model.allProjects.length}
         skillCount={skillCount}
       />
-      <CuriosityBand current="portrait" variant="stage" onSelect={onSelect} />
+      <CuriosityBand current="portrait" variant="stage" onSelect={onSelect} onMinute={onMinute} />
       <About foreword={model.forewordParagraphs} github={model.profile.github} githubDescription={model.githubParagraphs} />
       <Skills groups={model.skillGroups} />
       {firstBanner ? <Banner banner={firstBanner} /> : null}
@@ -354,6 +416,7 @@ function readGuide(value: unknown): {
   focus: ArchitectureScenarioId | null;
   explanation: string;
   origin: "catalog" | "model";
+  lead: boolean;
 } | null {
   if (!value || typeof value !== "object") {
     return null;
@@ -374,5 +437,6 @@ function readGuide(value: unknown): {
     focus: knownScenario(record.focus),
     explanation,
     origin: record.origin,
+    lead: record.lead === true,
   };
 }

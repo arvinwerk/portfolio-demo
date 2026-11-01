@@ -2,6 +2,7 @@ const BOUNDARY_LABELS: Record<string, string> = {
   kop: "Kop van de pagina",
   identiteit: "Profiel",
   verkenning: "Ingangen",
+  minuut: "Minuut",
   werkruimte: "Werkruimte",
   architectuur: "Architectuurkaart",
   opdracht: "Ontwerpopdracht",

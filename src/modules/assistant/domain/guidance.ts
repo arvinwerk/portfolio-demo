@@ -16,6 +16,7 @@ export type Guidance = {
   focus: GuidanceFocus | null;
   explanation: string;
   origin: "catalog" | "model";
+  lead: boolean;
 };
 
 export type CatalogReading = {
@@ -23,6 +24,7 @@ export type CatalogReading = {
   surface: Surface;
   focus: GuidanceFocus | null;
   explanation: string;
+  lead: boolean;
 };
 
 export class GuidanceRejected extends Error {
@@ -40,9 +42,17 @@ type Rule = {
   focus: GuidanceFocus | null;
   phrases: string[];
   explanation: string;
+  lead?: boolean;
 };
 
 const RULES: Rule[] = [
+  {
+    surface: "portrait",
+    focus: null,
+    lead: true,
+    phrases: ["geef me een minuut", "eerste minuut", "zestig seconden", "give me a minute", "one-minute"],
+    explanation: "Vier stappen. Jij klikt verder: wie, één bewijs, één grens, en de deur.",
+  },
   {
     surface: "challenge",
     focus: "scalable-assistant",
@@ -149,6 +159,7 @@ export function interpretRequest(text: string): CatalogReading {
       matched: false,
       surface: "portrait",
       focus: null,
+      lead: false,
       explanation: "Die vraag valt buiten de verkenningen. Vraag naar werk, architectuur, experimenten of een ontwerp.",
     };
   }
@@ -157,11 +168,12 @@ export function interpretRequest(text: string): CatalogReading {
     matched: true,
     surface: best.rule.surface,
     focus: best.rule.focus,
+    lead: best.rule.lead === true,
     explanation: best.rule.explanation,
   };
 }
 
-export function parseModelGuidance(value: unknown): Omit<Guidance, "origin"> {
+export function parseModelGuidance(value: unknown): Omit<Guidance, "origin" | "lead"> {
   const record = recordOf(value);
   const surface = record.surface;
   if (!isSurface(surface)) {
@@ -185,7 +197,8 @@ export function parseGuidance(value: unknown): Guidance {
   if (record.origin !== "catalog" && record.origin !== "model") {
     throw new GuidanceRejected();
   }
-  return { ...guidance, origin: record.origin };
+  const lead = record.origin === "catalog" && record.lead === true;
+  return { ...guidance, origin: record.origin, lead };
 }
 
 function recordOf(value: unknown): Record<string, unknown> {

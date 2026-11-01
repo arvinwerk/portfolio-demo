@@ -4,11 +4,13 @@ export function SiteHeader({
   name,
   action,
   onSection,
+  onMinute,
   xray,
 }: {
   name: string;
   action?: ReactNode;
   onSection?: (id: string) => void;
+  onMinute?: () => void;
   xray?: { pressed: boolean; onToggle: () => void };
 }) {
   return (
@@ -39,6 +41,11 @@ export function SiteHeader({
             <a className="text-ink no-underline hover:text-primary" href="#contact" onClick={onSection ? (event) => followSection(event, onSection, "contact") : undefined}>
               Contact
             </a>
+            {onMinute ? (
+              <button type="button" className="text-ink hover:text-primary" onClick={onMinute}>
+                Een minuut
+              </button>
+            ) : null}
             {action}
             {xray ? (
               <button

@@ -87,6 +87,19 @@ describe("Experience", () => {
     expect(screen.getByRole("button", { name: "Hele pagina" })).toBeVisible();
   });
 
+  it("loopt de minuut van het vak naar één project", () => {
+    render(<Experience model={model()} />);
+    fireEvent.click(screen.getByRole("button", { name: "Begin de minuut" }));
+
+    expect(push).toHaveBeenCalledWith("/?minuut=wie", { scroll: false });
+    expect(screen.getByRole("heading", { name: "Eerst het vak" })).toBeVisible();
+    fireEvent.click(screen.getByRole("button", { name: "Volgende" }));
+
+    expect(push).toHaveBeenCalledWith("/?minuut=bewijs", { scroll: false });
+    expect(screen.getByRole("heading", { name: "Eén project" })).toBeVisible();
+    expect(screen.getByRole("heading", { name: "Componentbibliotheek" })).toBeVisible();
+  });
+
   it("laat een gids de werkruimte en de toelichting openen", () => {
     render(<Experience model={model()} />);
     act(() => {

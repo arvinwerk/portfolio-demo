@@ -1,5 +1,6 @@
 import { knownScenario, type ArchitectureScenarioId } from "../domain/architecture-atlas";
 import { parseCuriosity, type Curiosity } from "../domain/curiosity";
+import { parseMinute, type MinuteBeat } from "../domain/minute";
 import type { Banner, PersonalProfile, Project, SkillGroup } from "../domain/model";
 import type { Portfolio } from "../domain/portfolio";
 import { timelineAt } from "../domain/portfolio";
@@ -19,6 +20,7 @@ export type PortfolioPage = {
   projects: Project[];
   lens: Curiosity;
   scenario: ArchitectureScenarioId | null;
+  minute: MinuteBeat | null;
 };
 
 export function composePortfolioPage(
@@ -28,6 +30,7 @@ export function composePortfolioPage(
     keywords?: string | string[] | undefined;
     lens?: string | string[] | undefined;
     scenario?: string | string[] | undefined;
+    minute?: string | string[] | undefined;
   },
 ): PortfolioPage {
   const now = options.now;
@@ -46,5 +49,6 @@ export function composePortfolioPage(
     projects: filterProjects(portfolio.projects, selected),
     lens: parseCuriosity(options.lens),
     scenario: knownScenario(options.scenario),
+    minute: parseMinute(options.minute),
   };
 }

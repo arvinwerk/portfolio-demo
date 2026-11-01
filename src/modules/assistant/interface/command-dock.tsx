@@ -4,10 +4,10 @@ import { useEffect, useId, useRef, useState, type FormEvent } from "react";
 import { parseGuidance } from "../domain/guidance";
 
 const SUGGESTIONS = [
+  "Geef me een minuut.",
   "Leg je architectuurkeuzes uit.",
   "Laat je AI-experimenten zien.",
   "Verken je projecten.",
-  "Hoe ontwerp je een schaalbaar AI-platform?",
 ] as const;
 
 export function CommandDock() {

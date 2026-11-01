@@ -10,12 +10,13 @@ export { readSiteImage };
 export function loadPortfolioPage(
   keywords: string | string[] | undefined,
   now = new Date(),
-  selection?: { lens?: string | string[]; scenario?: string | string[] },
+  selection?: { lens?: string | string[]; scenario?: string | string[]; minute?: string | string[] },
 ): PortfolioPage {
   return composePortfolioPage(new JsonPortfolioRepository(contentDirectory()).load(), {
     keywords,
     now,
     lens: selection?.lens,
     scenario: selection?.scenario,
+    minute: selection?.minute,
   });
 }

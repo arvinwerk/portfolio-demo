@@ -9,6 +9,7 @@ export type KeywordLink = {
 export type WorkspaceQuery = {
   lens?: string;
   scenario?: string | null;
+  minute?: string | null;
 };
 
 export function keywordsToHref(keywords: string[], workspace?: WorkspaceQuery): string {
@@ -19,13 +20,16 @@ export function workspaceHref(input: {
   keywords: string[];
   lens?: string;
   scenario?: string | null;
+  minute?: string | null;
   hash?: string;
 }): string {
   const params = new URLSearchParams();
-  if (input.lens && input.lens !== "portrait") {
+  if (input.minute) {
+    params.set("minuut", input.minute);
+  } else if (input.lens && input.lens !== "portrait") {
     params.set("lens", input.lens);
   }
-  if (input.lens === "thinking" && input.scenario) {
+  if (!input.minute && input.lens === "thinking" && input.scenario) {
     params.set("scenario", input.scenario);
   }
   for (const keyword of input.keywords) {

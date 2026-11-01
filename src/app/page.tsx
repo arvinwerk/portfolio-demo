@@ -17,9 +17,13 @@ export async function generateMetadata(): Promise<Metadata> {
 export default async function HomePage({
   searchParams,
 }: {
-  searchParams: Promise<{ keywords?: string | string[]; lens?: string | string[]; scenario?: string | string[] }>;
+  searchParams: Promise<{ keywords?: string | string[]; lens?: string | string[]; scenario?: string | string[]; minuut?: string | string[] }>;
 }) {
   const params = await searchParams;
-  const model = loadPortfolioPage(params.keywords, new Date(), { lens: params.lens, scenario: params.scenario });
+  const model = loadPortfolioPage(params.keywords, new Date(), {
+    lens: params.lens,
+    scenario: params.scenario,
+    minute: params.minuut,
+  });
   return <PortfolioView model={model} chatAction={<ChatLauncher />} studyBench={<StudyBench />} />;
 }

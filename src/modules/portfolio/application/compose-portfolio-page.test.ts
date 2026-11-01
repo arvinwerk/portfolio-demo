@@ -64,6 +64,7 @@ describe("composePortfolioPage", () => {
     expect(model.projects.map((project) => project.id)).toEqual([1, 2]);
     expect(model.lens).toBe("portrait");
     expect(model.scenario).toBeNull();
+    expect(model.minute).toBeNull();
   });
 
   it("leest een bekende ingang en laat een onbekend scenario vallen", () => {
@@ -82,6 +83,13 @@ describe("composePortfolioPage", () => {
     });
     expect(ignored.lens).toBe("portrait");
     expect(ignored.scenario).toBeNull();
+    expect(ignored.minute).toBeNull();
+
+    const minute = composePortfolioPage(assemblePortfolio({ profile, skills, projects, banners }), {
+      now,
+      minute: "bewijs",
+    });
+    expect(minute.minute).toBe("bewijs");
   });
 
   it("filtert op bekende trefwoorden en negeert onbekende", () => {

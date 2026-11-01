@@ -27,6 +27,7 @@ describe("interpretRequest", () => {
       focus: "scalable-assistant",
     });
     expect(interpretRequest("Laat je AI-experimenten zien.")).toMatchObject({ surface: "experiments" });
+    expect(interpretRequest("Geef me een minuut.")).toMatchObject({ surface: "portrait", lead: true, matched: true });
   });
 
   it("kiest de langste passende zin en laat de rest buiten de catalogus", () => {
@@ -58,6 +59,12 @@ describe("parseGuidance", () => {
       surface: "work",
       focus: null,
     });
+    expect(parseGuidance({ surface: "portrait", focus: null, explanation: "Vier stappen.", origin: "catalog", lead: true }).lead).toBe(
+      true,
+    );
+    expect(parseGuidance({ surface: "portrait", focus: null, explanation: "Vier stappen.", origin: "model", lead: true }).lead).toBe(
+      false,
+    );
     expect(() => parseGuidance({ surface: "script", focus: null, explanation: "x", origin: "model" })).toThrow(
       GuidanceRejected,
     );

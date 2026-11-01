@@ -6,24 +6,38 @@ export function VCard({
   yearsAsDeveloper,
   projectCount,
   skillCount,
+  framed = false,
 }: {
   profile: PersonalProfile;
   yearsAsDeveloper?: number;
   projectCount?: number;
   skillCount?: number;
+  framed?: boolean;
 }) {
   const showFacts = yearsAsDeveloper != null && projectCount != null && skillCount != null;
 
   return (
     <section
-      className="flex min-h-[calc(100dvh-4.5rem)] flex-col justify-center px-4 py-10 sm:py-14"
+      className={
+        framed
+          ? "px-0 py-2"
+          : "flex min-h-[calc(100dvh-4.5rem)] flex-col justify-center px-4 py-10 sm:py-14"
+      }
       aria-label="Profiel"
       data-boundary="identiteit"
     >
-      <div className="mx-auto grid max-w-5xl items-center gap-10 md:grid-cols-[minmax(0,1.2fr)_minmax(240px,0.8fr)] md:gap-16">
+      <div
+        className={`mx-auto grid max-w-5xl gap-10 md:grid-cols-[minmax(0,1.2fr)_minmax(240px,0.8fr)] md:gap-16 ${
+          framed ? "items-start" : "items-center"
+        }`}
+      >
         <div>
           <p className="font-ui text-xs font-medium tracking-[0.22em] text-primary uppercase">{profile.function}</p>
-          <h1 className="mt-3 font-display text-[3.1rem] leading-[0.92] font-semibold tracking-tight text-ink sm:text-7xl">
+          <h1
+            className={`mt-3 font-display leading-[0.92] font-semibold tracking-tight text-ink ${
+              framed ? "text-5xl sm:text-6xl" : "text-[3.1rem] sm:text-7xl"
+            }`}
+          >
             {profile.fullName}
           </h1>
           <p className="mt-5 max-w-xl text-lg text-muted">
@@ -38,6 +52,7 @@ export function VCard({
               <Fact value={skillCount} label={skillCount === 1 ? "vaardigheid" : "vaardigheden"} />
             </dl>
           ) : null}
+          {framed ? null : (
           <ul className="mt-8 flex flex-col gap-3 text-sm sm:flex-row sm:flex-wrap sm:items-center">
             <li>
               <a
@@ -63,8 +78,9 @@ export function VCard({
               </a>
             </li>
           </ul>
+          )}
         </div>
-        <figure className="relative mx-auto w-full max-w-sm md:mx-0 md:justify-self-end">
+        <figure className={`relative mx-auto w-full md:mx-0 md:justify-self-end ${framed ? "max-w-[220px]" : "max-w-sm"}`}>
           <div className="absolute top-4 left-4 h-full w-full bg-primary" aria-hidden="true" />
           <img
             className="relative aspect-[4/5] w-full object-cover"

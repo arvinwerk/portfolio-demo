@@ -27,11 +27,13 @@ export function CuriosityBand({
   current,
   onSelect,
   onPortrait,
+  onMinute,
   variant,
 }: {
   current: Curiosity;
   onSelect: (lens: Exclude<Curiosity, "portrait">) => void;
   onPortrait?: () => void;
+  onMinute?: () => void;
   variant: "stage" | "rail";
 }) {
   if (variant === "rail") {
@@ -70,8 +72,24 @@ export function CuriosityBand({
         Waar ben je nieuwsgierig naar?
       </h2>
       <p className="mt-4 max-w-2xl text-lg text-muted">
-        Kies een ingang. De pagina houdt dezelfde vorm en wordt een werkruimte.
+        Een minuut voor wie weinig tijd heeft. Of een ingang, als je zelf wilt kijken.
       </p>
+      {onMinute ? (
+        <div className="mt-8 flex flex-col gap-4 bg-white p-6 shadow-card sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <p className="font-ui text-xs font-medium tracking-[0.22em] text-primary uppercase">Ongeveer een minuut</p>
+            <p className="mt-2 font-display text-2xl font-semibold tracking-tight text-ink">Wie, één bewijs, één grens, de deur.</p>
+            <p className="mt-2 text-muted">Jij klikt verder. Er loopt geen timer.</p>
+          </div>
+          <button
+            type="button"
+            className="shrink-0 bg-primary px-4 py-2.5 font-medium text-white shadow-material hover:bg-primary-dark"
+            onClick={onMinute}
+          >
+            Begin de minuut
+          </button>
+        </div>
+      ) : null}
       <div className="mt-8 grid gap-4 sm:grid-cols-2" role="group" aria-label="Ingangen">
         {ENTRIES.map((entry) => (
           <button
