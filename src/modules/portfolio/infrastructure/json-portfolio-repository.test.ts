@@ -12,19 +12,19 @@ describe("JsonPortfolioRepository", () => {
 
   it("houdt de demopersona en de twee verzonnen campagnes", () => {
     expect(portfolio.profile).toMatchObject({
-      fullName: "Noor Linden",
+      fullName: "Daan Linden",
       function: "Frontend developer",
-      email: "noor.linden@example.com",
+      email: "daan.linden@example.com",
       education: "Informatica, Voorbeeld Hogeschool",
       location: "Kadewijk",
-      linkedIn: "https://example.com/demo/noor-linden/linkedin",
-      github: "https://example.com/demo/noor-linden/code",
-      portfolioUrl: "https://example.com/demo/noor-linden",
+      linkedIn: "https://example.com/demo/daan-linden/linkedin",
+      github: "https://example.com/demo/daan-linden/code",
+      portfolioUrl: "https://example.com/demo/daan-linden",
     });
     expect(portfolio.profile.foreword).toContain("${age}");
     expect(portfolio.profile.foreword).toContain("${yearsAsDeveloper}");
     const profile = JSON.parse(readFileSync(path.join(process.cwd(), "content/rag/profile.json"), "utf8")) as { text: string };
-    expect(profile.text).toContain("Noor Linden");
+    expect(profile.text).toContain("Daan Linden");
     expect(profile.text).toContain("Voorbeeld Hogeschool");
     expect(portfolio.profile.statements.disclaimer).toContain("verzonnen");
     expect(portfolio.profile.statements.footerNote).toContain("Geen echt cv");

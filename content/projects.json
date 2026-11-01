@@ -35,7 +35,7 @@
     "company": "Atelier Linden",
     "title": "Deze demopagina",
     "shortDescription": "De pagina die je nu leest. Naam, werk en banners komen uit JSON, en de browser haalt die bestanden niet op.",
-    "longDescription": "React en Next.js zetten het profiel op de server in elkaar. De kaart laat zien dat de pagina zelf een project in de lijst kan zijn.\n\nAtelier Linden is de studiowanaam van Noor.",
+    "longDescription": "React en Next.js zetten het profiel op de server in elkaar. De kaart laat zien dat de pagina zelf een project in de lijst kan zijn.\n\nAtelier Linden is de studiowanaam van Daan.",
     "keywords": ["React", "Next.js"],
     "images": ["atelier.svg"]
   }

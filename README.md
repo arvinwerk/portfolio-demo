@@ -138,11 +138,11 @@ De site luistert op `127.0.0.1:3000`. Een proxy ervoor zet HTTPS en `X-Real-IP`.
 
 ## Content vervangen
 
-De JSON in `content/` is democontent over Noor Linden, een verzonnen frontend developer. Het vak en de stack lijken op een echte frontendpraktijk. De naam, de plaats Kadewijk, de opdrachtgevers en de campagnes zijn verzonnen, en volledig genoeg om filter, banners, vaardigheden en chat te gebruiken. De balk bovenin en de voettekst zeggen dat het geen echt cv is. De twee banners zijn fictieve campagnes, Festival Noordlicht en Circuit Meridiaan.
+De JSON in `content/` is democontent over Daan Linden, een verzonnen frontend developer. Het vak en de stack lijken op een echte frontendpraktijk. De naam, de plaats Kadewijk, de opdrachtgevers en de campagnes zijn verzonnen, en volledig genoeg om filter, banners, vaardigheden en chat te gebruiken. De balk bovenin en de voettekst zeggen dat het geen echt cv is. De twee banners zijn fictieve campagnes, Festival Noordlicht en Circuit Meridiaan.
 
 Persoonlijke informatie staat in `content/` en moet vervangen worden. Vaste labels blijven in de broncode: navigatie, knoppen, foutzinnen, de namen van de stappen, en de uitleg van deze codebase (de architectuurkaart, de ontwerpuitdaging en de studiobank).
 
-- `content/personal.json` — feiten van Noor Linden, plus `statements`: de zinnen die over deze persoon gaan. Dat zijn de balk, de voettekst, de metabeschrijving, de welkomstzin van de chat, de zin voor het model als iemand vraagt of de persoon echt is, en de twee zinnen in de minuut die over de persoon gaan (`minuteWho`, `minuteDoor`). `${age}` en `${yearsAsDeveloper}` in `foreword` worden op de server ingevuld vanuit `dateOfBirth` en `developingStartDate`. In `minuteWho` en `minuteDoor` worden `${years}`, `${projects}` en `${projectWord}` ingevuld.
+- `content/personal.json` — feiten van Daan Linden, plus `statements`: de zinnen die over deze persoon gaan. Dat zijn de balk, de voettekst, de metabeschrijving, de welkomstzin van de chat, de zin voor het model als iemand vraagt of de persoon echt is, en de twee zinnen in de minuut die over de persoon gaan (`minuteWho`, `minuteDoor`). `${age}` en `${yearsAsDeveloper}` in `foreword` worden op de server ingevuld vanuit `dateOfBirth` en `developingStartDate`. In `minuteWho` en `minuteDoor` worden `${years}`, `${projects}` en `${projectWord}` ingevuld.
 - `content/skills.json` — `category` is `skills`, `framework` of `other`. De zichtbare groepsnamen Professional, Frameworks en Other zijn vaste labels.
 - `content/projects.json` — de id is de volgorde in het bestand plus één.
 - `content/banners.json` — paden onder `/images/`.
