@@ -38,8 +38,8 @@ runs:
         corepack prepare pnpm@10.33.4 --activate
         pnpm exec tsc -p deploy/tsconfig.json
         cp deploy/host-package.json deploy/dist/package.json
-        cp deploy/preview deploy/preview-remove deploy/dist/
-        chmod 755 deploy/dist/preview deploy/dist/preview-remove
+        cp deploy/run deploy/preview deploy/preview-remove deploy/dist/
+        chmod 755 deploy/dist/run deploy/dist/preview deploy/dist/preview-remove
         slug=$(node deploy/dist/preview-cli.js slug "$PREVIEW_BRANCH")
         if ! printf '%s' "$slug" | grep -Eq '^[a-z0-9]([a-z0-9-]{0,61}[a-z0-9])?$'; then
           echo "Ongeldige slug." >&2
@@ -54,26 +54,65 @@ runs:
           ssh -T -i ~/.ssh/deploy_key -o IdentitiesOnly=yes -o BatchMode=yes -o LogLevel=ERROR arvinwerk@136.144.146.87 "$@"
         }
 
-        lib=$(remote 'printf %s "$HOME/.local/lib/portfolio-preview"')
-        case "$lib" in
-          *[!/A-Za-z0-9._-]*) echo "Onverwacht installatiepad." >&2; exit 1 ;;
-          *.local/lib/portfolio-preview) ;;
-          *) echo "Onverwacht installatiepad." >&2; exit 1 ;;
-        esac
-        tar -C deploy/dist -cJf preview-host.tar.xz \
-          package.json preview preview-remove preview-cli.js slug.js env-file.js archive.js routes.js store.js proxy.js supervise.js errors.js
-        remote "mkdir -p '$lib' && tar -C '$lib' -xJf - && chmod 755 '$lib/preview' '$lib/preview-remove'" < preview-host.tar.xz
+        probe_err=$(mktemp)
+        mode=direct
+        if probe_out=$(remote bootstrap-probe 2>"$probe_err"); then
+          if [ "$probe_out" != "probe-ok" ]; then
+            echo "Onverwacht antwoord van de VM." >&2
+            printf '%s\n' "$probe_out" >&2
+            exit 1
+          fi
+          mode=dispatcher
+        elif grep -q "archive empty" "$probe_err"; then
+          cat "$probe_err" >&2
+          cat <<'EOF' >&2
+De deploy-sleutel start alleen het bestaande commando run. Productie is niet aangeraakt.
+Eenmalig op de VM, in deze volgorde:
+  target=$(command -v run)
+  mkdir -p ~/.local/lib/portfolio-preview
+  cp "$target" ~/.local/lib/portfolio-preview/run-production
+  chmod 755 ~/.local/lib/portfolio-preview/run-production
+  # deploy/run uit deze repository:
+  install -m 755 deploy/run ~/.local/lib/portfolio-preview/run
+  printf '%s\n' '#!/bin/sh' 'exec "$HOME/.local/lib/portfolio-preview/run"' > "$target"
+  chmod 755 "$target"
+Staat in ~/.ssh/authorized_keys een command= met een pad, gebruik dat pad als target.
+EOF
+          exit 1
+        elif grep -Eq "Permission denied|Connection refused|Could not resolve" "$probe_err"; then
+          cat "$probe_err" >&2
+          exit 1
+        fi
+        rm -f "$probe_err"
 
-        bindir=$(remote 'if dir=$(dirname "$(command -v run 2>/dev/null)") && [ -n "$dir" ] && [ -w "$dir" ]; then case "$dir" in /*) printf %s "$dir"; exit 0 ;; esac; fi; mkdir -p "$HOME/.local/bin"; printf %s "$HOME/.local/bin"')
-        case "$bindir" in
-          *[!/A-Za-z0-9._-]*) echo "Onverwacht bin-pad." >&2; exit 1 ;;
-          /*) ;;
-          *) echo "Onverwacht bin-pad." >&2; exit 1 ;;
-        esac
-        remote "printf '%s\n' '#!/bin/sh' 'exec \"$lib/preview\" \"\$@\"' > '$bindir/preview' && printf '%s\n' '#!/bin/sh' 'exec \"$lib/preview-remove\" \"\$@\"' > '$bindir/preview-remove' && chmod 755 '$bindir/preview' '$bindir/preview-remove'"
+        tar -C deploy/dist -cJf preview-host.tar.xz \
+          package.json run preview preview-remove preview-cli.js slug.js env-file.js archive.js routes.js store.js proxy.js supervise.js errors.js
+
+        if [ "$mode" = "dispatcher" ]; then
+          remote bootstrap < preview-host.tar.xz
+          if [ "$PREVIEW_COMMAND" = "preview" ]; then
+            output=$(remote "preview $slug" < "$PREVIEW_ARCHIVE")
+          else
+            remote "preview-remove $slug"
+            output=
+          fi
+        else
+          lib=$(remote 'printf %s "$HOME/.local/lib/portfolio-preview"')
+          case "$lib" in
+            *[!/A-Za-z0-9._-]*) echo "Onverwacht installatiepad." >&2; exit 1 ;;
+            *.local/lib/portfolio-preview) ;;
+            *) echo "Onverwacht installatiepad." >&2; exit 1 ;;
+          esac
+          remote "mkdir -p '$lib' && tar -C '$lib' -xJf - && chmod 755 '$lib/preview' '$lib/preview-remove' '$lib/run'" < preview-host.tar.xz
+          if [ "$PREVIEW_COMMAND" = "preview" ]; then
+            output=$(remote "$lib/preview" "$slug" < "$PREVIEW_ARCHIVE")
+          else
+            remote "$lib/preview-remove" "$slug"
+            output=
+          fi
+        fi
 
         if [ "$PREVIEW_COMMAND" = "preview" ]; then
-          output=$(remote "$lib/preview" "$slug" < "$PREVIEW_ARCHIVE")
           url=$(printf '%s\n' "$output" | sed -n 's/^preview-url=//p' | tail -n 1)
           if [ -z "$url" ]; then
             printf '%s\n' "$output" >&2
@@ -83,6 +122,5 @@ runs:
           printf '%s\n' "$url"
           echo "url=$url" >> "$GITHUB_OUTPUT"
         else
-          remote "$lib/preview-remove" "$slug"
           echo "url=" >> "$GITHUB_OUTPUT"
         fi

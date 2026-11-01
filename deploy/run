@@ -1,0 +1,34 @@
+#!/bin/sh
+# Forced command for the deploy key. The previous production script stays
+# next to this file as run-production. SSH_ORIGINAL_COMMAND selects the action.
+set -eu
+lib=${PORTFOLIO_PREVIEW_LIB:-$HOME/.local/lib/portfolio-preview}
+production=${PORTFOLIO_PRODUCTION_RUN:-$lib/run-production}
+original=${SSH_ORIGINAL_COMMAND:-run}
+action=${original%% *}
+rest=${original#"$action"}
+rest=${rest# }
+
+case "$action" in
+  bootstrap-probe)
+    printf '%s\n' probe-ok
+    ;;
+  bootstrap)
+    mkdir -p "$lib"
+    tar -C "$lib" -xJf -
+    chmod 755 "$lib/preview" "$lib/preview-remove" "$lib/run"
+    ;;
+  preview)
+    exec "$lib/preview" "$rest"
+    ;;
+  preview-remove)
+    exec "$lib/preview-remove" "$rest"
+    ;;
+  run)
+    exec "$production"
+    ;;
+  *)
+    echo "Onbekend commando: $action" >&2
+    exit 1
+    ;;
+esac

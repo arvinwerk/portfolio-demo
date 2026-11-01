@@ -142,11 +142,25 @@ Een push naar een andere tak dan `master` bouwt hetzelfde archief en start het n
 
 De app blijft op `/` staan. Filter, beelden en `/api/chat` veranderen niet. Een router op `127.0.0.1:3080` kiest het proces op de hostnaam en stuurt de stream door zonder te bufferen.
 
-Eenmalig op de VM, als `~/.config/portfolio/preview.env`. Het voorbeeld staat in `deploy/preview.env.example`. `chmod 600` op dat bestand. `PREVIEW_DOMAIN` is de hostnaam achter het eerste label. Staat `AI_API_KEY` erin, dan is `PREVIEW_BASIC_AUTH` verplicht: de browser vraagt om die gebruiker en dat wachtwoord, en dezelfde oorsprong stuurt ze mee naar `/api/chat`. `CONTENT_DIR` mag dezelfde map zijn als productie.
+De deploy-sleutel start alleen het commando `run`. Eenmalig op de VM, in deze volgorde, zodat productie het oude script houdt:
+
+```bash
+target=$(command -v run)
+mkdir -p ~/.local/lib/portfolio-preview
+cp "$target" ~/.local/lib/portfolio-preview/run-production
+chmod 755 ~/.local/lib/portfolio-preview/run-production
+install -m 755 deploy/run ~/.local/lib/portfolio-preview/run
+printf '%s\n' '#!/bin/sh' 'exec "$HOME/.local/lib/portfolio-preview/run"' > "$target"
+chmod 755 "$target"
+```
+
+Staat in `~/.ssh/authorized_keys` een `command=` met een pad, dan is dat pad `target`. Daarna stuurt een push de scripts en het archief. `run` zonder meer blijft de productiedeploy.
+
+Daarnaast `~/.config/portfolio/preview.env`, naar `deploy/preview.env.example`, met `chmod 600`. `PREVIEW_DOMAIN` is de hostnaam achter het eerste label. Staat `AI_API_KEY` erin, dan is `PREVIEW_BASIC_AUTH` verplicht: de browser vraagt om die gebruiker en dat wachtwoord, en dezelfde oorsprong stuurt ze mee naar `/api/chat`. `CONTENT_DIR` mag dezelfde map zijn als productie.
 
 DNS wijst `*.<PREVIEW_DOMAIN>` naar dezelfde host. De bestaande proxy stuurt die namen naar `127.0.0.1:3080`, zet `X-Real-IP`, en buffert `/api/chat` niet. `deploy/caddy-preview.caddy` en `deploy/nginx-preview.conf` zijn die vhost. Een wildcard-certificaat hoort daarbij.
 
-De workflow zet de scripts uit `deploy/` in `~/.local/lib/portfolio-preview` en het commando `preview` naast `run`. Is die map niet schrijfbaar, dan komt het commando in `~/.local/bin`. Op de VM staat Node 22 op het PATH. Het wachtwoord komt niet in de log.
+De workflow stuurt de scripts daarna naar `~/.local/lib/portfolio-preview`. Draai het eenmalige commando vanuit een checkout, of kopieer `deploy/run` eerst naar de VM. Op de VM staat Node 22 op het PATH. Het wachtwoord komt niet in de log.
 
 ## Content vervangen
 
