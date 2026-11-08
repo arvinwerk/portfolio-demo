@@ -1,3 +1,6 @@
+import { mkdtempSync, readFileSync, rmSync } from "node:fs";
+import os from "node:os";
+import path from "node:path";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 vi.mock("server-only", () => ({}));
@@ -5,79 +8,41 @@ vi.mock("server-only", () => ({}));
 import { signAssistantTurn } from "@/modules/assistant/server";
 import { POST } from "./route";
 
-function event(payload: unknown) {
-  return `event: ${(payload as { type: string }).type}\ndata: ${JSON.stringify(payload)}\n\n`;
-}
+describe("het recruiterantwoord in de stream", () => {
+  const directories: string[] = [];
 
-describe("streaming via de Anthropic-provider", () => {
   afterEach(() => {
     vi.unstubAllGlobals();
     vi.unstubAllEnvs();
+    for (const directory of directories.splice(0)) {
+      rmSync(directory, { recursive: true, force: true });
+    }
   });
 
-  it("stuurt modeltekst als een stream naar de browser", async () => {
+  it("stuurt de zin uit het blad, ondertekend, zonder een modelverzoek", async () => {
+    const logDirectory = mkdtempSync(path.join(os.tmpdir(), "chat-log-"));
+    directories.push(logDirectory);
     vi.stubEnv("AI_MODEL", "test-model");
     vi.stubEnv("AI_API_KEY", "test-sleutel");
-    vi.stubGlobal(
-      "fetch",
-      vi.fn(async (_input: RequestInfo | URL, init?: RequestInit) => {
-        const headers = new Headers(init?.headers);
-        expect(headers.get("x-api-key")).toBe("test-sleutel");
-        const body = JSON.parse(String(init?.body)) as { model: string };
-        expect(body.model).toBe("test-model");
-
-        return new Response(
-          [
-            event({
-              type: "message_start",
-              message: {
-                id: "msg_1",
-                model: "test-model",
-                role: "assistant",
-                usage: { input_tokens: 12 },
-              },
-            }),
-            event({
-              type: "content_block_start",
-              index: 0,
-              content_block: { type: "text", text: "" },
-            }),
-            event({
-              type: "content_block_delta",
-              index: 0,
-              delta: { type: "text_delta", text: "Hallo" },
-            }),
-            event({
-              type: "content_block_delta",
-              index: 0,
-              delta: { type: "text_delta", text: " daar" },
-            }),
-            event({ type: "content_block_stop", index: 0 }),
-            event({
-              type: "message_delta",
-              delta: { stop_reason: "end_turn", stop_sequence: null },
-              usage: { output_tokens: 2 },
-            }),
-            event({ type: "message_stop" }),
-          ].join(""),
-          { status: 200, headers: { "content-type": "text/event-stream" } },
-        );
-      }),
-    );
+    vi.stubEnv("AI_BASE_URL", "");
+    vi.stubEnv("CHAT_LOG_DIR", logDirectory);
+    const fetchMock = vi.fn();
+    vi.stubGlobal("fetch", fetchMock);
 
     const response = await POST(
       new Request("http://localhost/api/chat", {
         method: "POST",
         body: JSON.stringify({
-          messages: [{ id: "1", role: "user", parts: [{ type: "text", text: "Hoi" }] }],
+          messages: [{ id: "1", role: "user", parts: [{ type: "text", text: "Wat is je opleiding?" }] }],
         }),
       }),
     );
 
     expect(response.headers.get("content-type")).toContain("text/event-stream");
+    expect(fetchMock).not.toHaveBeenCalled();
     const text = await response.text();
-    expect(text).toContain("Hallo");
-    expect(text).toContain("daar");
+    const answer = "Mijn opleiding is informatica aan de Voorbeeld Hogeschool, afgerond in 2015.";
+    expect(text).toContain(answer);
     expect(text).not.toContain("test-sleutel");
     const events = text.split("\n").flatMap((line) => {
       if (!line.startsWith("data: ") || line.slice(6) === "[DONE]") {
@@ -87,6 +52,12 @@ describe("streaming via de Anthropic-provider", () => {
     });
     const messageId = events.find((event) => event.type === "start")?.messageId;
     const signature = events.find((event) => event.type === "finish")?.messageMetadata?.signature;
-    expect(signature).toBe(signAssistantTurn(messageId ?? "", "Hallo daar", "test-sleutel"));
+    expect(signature).toBe(signAssistantTurn(messageId ?? "", answer, "test-sleutel"));
+
+    const log = readFileSync(path.join(logDirectory, "1.txt"), "utf8");
+    expect(log).toContain("gesprek: 1");
+    expect(log).toContain("bezoeker\nWat is je opleiding?");
+    expect(log).toContain(`assistent\n${answer}`);
+    expect(log).not.toContain("test-sleutel");
   });
 });

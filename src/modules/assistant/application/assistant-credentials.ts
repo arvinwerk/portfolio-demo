@@ -8,4 +8,5 @@ export class AssistantNotConfigured extends Error {
 export type AssistantCredentials = {
   model: string;
   apiKey: string;
+  baseUrl: string;
 };

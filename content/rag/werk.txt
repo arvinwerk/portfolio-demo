@@ -8,4 +8,4 @@ Studio Noord, componentbibliotheek. Filters, lijsten en balken delen één model
 
 Haven & Co, content-API. De pagina krijgt persoonsgegevens, vaardigheden en projecten als props. Het filter staat in de URL. Laravel levert de inhoud, Node.js staat op de achtergrond van deze demo.
 
-Atelier Linden, deze demopagina. De site die je nu bekijkt, als laatste project in de lijst. React en Next.js lezen de JSON op de server. De chat zoekt in deze tekstbestanden en verzint geen extra opdrachtgevers.
+Atelier Linden, deze demopagina. De site die je nu bekijkt, als laatste project in de lijst. React en Next.js lezen de JSON op de server. De chat antwoordt vanuit recruiter.txt en verzint geen extra opdrachtgevers.

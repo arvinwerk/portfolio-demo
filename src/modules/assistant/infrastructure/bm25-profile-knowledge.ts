@@ -6,6 +6,7 @@ import { Document } from "@langchain/core/documents";
 import { RecursiveCharacterTextSplitter } from "@langchain/textsplitters";
 import BM25, { type BMDocument } from "okapibm25";
 import type { ProfileFragment, ProfileKnowledge, ProfileSearch } from "../domain/profile-knowledge";
+import { parseRecruiterSheet } from "./recruiter-sheet";
 
 export const MAX_PROFILE_BYTES = 64 * 1024;
 
@@ -159,6 +160,15 @@ export function createProfileKnowledge(env: Record<string, string | undefined> =
       } catch (error) {
         return { found: false, fragments: [], note: noteFor(error) };
       }
+    },
+    async facts() {
+      const directory = corpusDirectory(env);
+      const file = resolveInside(directory, "recruiter.txt");
+      const stat = statSync(/*turbopackIgnore: true*/ file);
+      if (!stat.isFile() || stat.size > MAX_PROFILE_BYTES) {
+        throw new ProfileStoreError("Het recruiterblad is niet beschikbaar.");
+      }
+      return parseRecruiterSheet(readFileSync(/*turbopackIgnore: true*/ file, "utf8"));
     },
   };
 }

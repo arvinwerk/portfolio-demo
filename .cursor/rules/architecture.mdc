@@ -79,7 +79,7 @@ Een test staat naast het bestand dat hij beschermt. Hij boot de app niet om een 
 | Scherm of HTTP-antwoord | DTO, geen entity met gedrag |
 | Publieke ingang van een module | Facade: `index.ts` en `server.ts` |
 
-Geen DI-container, geen generic `Repository<T>`, geen event sourcing, geen tweede deployable, geen gedeelde utils-map. Die keuzes horen in een ADR, niet in een pull request die een scherm wijzigt.
+Geen DI-container, geen generic `Repository<T>`, geen event sourcing, geen gedeelde utils-map. Een tweede proces alleen voor het lokale model uit `docs/adr/0001-lokaal-qwen.md`. Andere van dit soort keuzes horen in een ADR, niet in een pull request die een scherm wijzigt.
 
 ## Kwaliteitslat
 

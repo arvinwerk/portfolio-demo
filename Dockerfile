@@ -1,4 +1,4 @@
-# Image for one Hetzner VM. The API key stays out of the image.
+# Image for one Hetzner VM. The seal key and the Qwen weights stay out of the image.
 # On the server, next to this repo:
 #   cp .env.example .env
 #   docker compose up -d --build

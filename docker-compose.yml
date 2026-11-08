@@ -1,4 +1,25 @@
 services:
+  qwen:
+    image: ollama/ollama:0.40.15
+    volumes:
+      - qwen:/root/.ollama
+      - ./qwen:/opt/qwen:ro
+    entrypoint: ["/bin/sh", "/opt/qwen/start.sh"]
+    environment:
+      OLLAMA_HOST: 0.0.0.0:11434
+      OLLAMA_MAX_LOADED_MODELS: 1
+      OLLAMA_NUM_PARALLEL: 1
+      OLLAMA_KEEP_ALIVE: 10m
+    ports:
+      - "127.0.0.1:11434:11434"
+    healthcheck:
+      test: ["CMD-SHELL", "OLLAMA_HOST=127.0.0.1:11434 ollama show qwen"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 600s
+    restart: unless-stopped
+
   portfolio:
     build: .
     ports:
@@ -6,4 +27,12 @@ services:
     env_file:
       - path: .env
         required: false
+    environment:
+      AI_MODEL: qwen
+      AI_BASE_URL: http://qwen:11434/v1
+    depends_on:
+      - qwen
     restart: unless-stopped
+
+volumes:
+  qwen:
