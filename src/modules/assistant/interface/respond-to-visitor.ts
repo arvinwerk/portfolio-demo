@@ -1,7 +1,9 @@
 import { createUIMessageStreamResponse, toUIMessageStream, type UIMessage } from "ai";
 import { AssistantNotConfigured, type AssistantCredentials } from "../application/assistant-credentials";
+import type { ChatLog } from "../application/chat-log";
 import { replyToVisitor, type AssistantSession } from "../application/reply-to-visitor";
 import type { VisitorGate } from "../application/visitor-gate";
+import { chatTranscript } from "../domain/chat-transcript";
 import { asUiTurn, ConversationRejected } from "../domain/conversation";
 import type { ProfileKnowledge } from "../domain/profile-knowledge";
 import type { TranscriptSeal } from "../domain/transcript-seal";
@@ -17,6 +19,8 @@ export type VisitorChatDeps = {
   gate: VisitorGate;
   knowledge: ProfileKnowledge;
   openSession(config: AssistantCredentials, knowledge: ProfileKnowledge): AssistantSession<{ stream: ModelStream }>;
+  log: ChatLog;
+  now(): Date;
 };
 
 export async function respondToVisitor(request: Request, deps: VisitorChatDeps): Promise<Response> {
@@ -84,6 +88,7 @@ export async function respondToVisitor(request: Request, deps: VisitorChatDeps):
           }
           return undefined;
         },
+        onEnd: () => deps.log.save(chatTranscript(plan.turns, spoken, deps.now())).catch(() => undefined),
       }),
     });
   } catch (error) {

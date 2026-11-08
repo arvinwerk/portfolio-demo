@@ -1,3 +1,6 @@
+import { mkdtempSync, readFileSync, rmSync } from "node:fs";
+import os from "node:os";
+import path from "node:path";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 vi.mock("server-only", () => ({}));
@@ -6,15 +9,23 @@ import { signAssistantTurn } from "@/modules/assistant/server";
 import { POST } from "./route";
 
 describe("het recruiterantwoord in de stream", () => {
+  const directories: string[] = [];
+
   afterEach(() => {
     vi.unstubAllGlobals();
     vi.unstubAllEnvs();
+    for (const directory of directories.splice(0)) {
+      rmSync(directory, { recursive: true, force: true });
+    }
   });
 
   it("stuurt de zin uit het blad, ondertekend, zonder een modelverzoek", async () => {
+    const logDirectory = mkdtempSync(path.join(os.tmpdir(), "chat-log-"));
+    directories.push(logDirectory);
     vi.stubEnv("AI_MODEL", "test-model");
     vi.stubEnv("AI_API_KEY", "test-sleutel");
     vi.stubEnv("AI_BASE_URL", "");
+    vi.stubEnv("CHAT_LOG_DIR", logDirectory);
     const fetchMock = vi.fn();
     vi.stubGlobal("fetch", fetchMock);
 
@@ -42,5 +53,11 @@ describe("het recruiterantwoord in de stream", () => {
     const messageId = events.find((event) => event.type === "start")?.messageId;
     const signature = events.find((event) => event.type === "finish")?.messageMetadata?.signature;
     expect(signature).toBe(signAssistantTurn(messageId ?? "", answer, "test-sleutel"));
+
+    const log = readFileSync(path.join(logDirectory, "1.txt"), "utf8");
+    expect(log).toContain("gesprek: 1");
+    expect(log).toContain("bezoeker\nWat is je opleiding?");
+    expect(log).toContain(`assistent\n${answer}`);
+    expect(log).not.toContain("test-sleutel");
   });
 });

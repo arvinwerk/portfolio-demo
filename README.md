@@ -56,6 +56,8 @@ De bron staat in `src/`. Twee bounded contexts, `portfolio` en `assistant`, elk 
 
 Binnenkomende berichten worden gecontroleerd: alleen gebruiker en assistent, een begrensd aantal, alleen tekst, en een maximumlengte. Het lichaam van het verzoek stopt bij 96 kB. Tool-onderdelen uit de browser worden weggegooid. Een assistentbericht telt alleen mee als deze server het zelf ondertekend heeft met `AI_API_KEY`, of als het de vaste welkomstzin is. Een verzonnen antwoord komt niet in de volgende zin terecht: die zin komt alleen uit het blad. De handtekening gaat mee in de stream en komt bij de volgende beurt terug. Wisselt de sleutel, dan vervalt de oude geschiedenis.
 
+Elk gesprek landt in één tekstbestand. De eerste vraag van de bezoeker is de naam van dat gesprek; een vervolgvraag vervangt hetzelfde bestand met het hele gesprek tot dan toe. Zonder `CHAT_LOG_DIR` staat de map op `CONTENT_DIR/chat`, en zonder `CONTENT_DIR` op `data/chat` in de werkmap. Een herladen pagina begint een nieuw gesprek. De sleutel staat niet in het bestand.
+
 `/api/chat` heeft geen login. Per adres geldt een venster van 8 verzoeken per minuut. Per proces geldt daarnaast 100 verzoeken per tien minuten, ook als het adres in `x-forwarded-for` meedraait. Daarboven antwoordt de route met 429, vóórdat een antwoord wordt opgebouwd. Het plafond zit in het geheugen van dit proces. Meerdere instances delen het niet. Een fout gaat als vaste zin naar de browser, niet als ruwe fouttekst.
 
 ## Profiel voor de chat
