@@ -165,6 +165,7 @@ test("de sectielinks en de naam gaan naar het juiste anker", async ({ page }) =>
   await expect(nav.getByRole("link", { name: "Skills", exact: true })).toHaveAttribute("href", "#skills");
   await expect(nav.getByRole("link", { name: "Werk", exact: true })).toHaveAttribute("href", "#werk");
   await expect(nav.getByRole("link", { name: "Contact", exact: true })).toHaveAttribute("href", "#contact");
+  await expect(nav.getByRole("link", { name: "Agents", exact: true })).toHaveAttribute("href", "/agents");
 
   await nav.getByRole("link", { name: "Skills", exact: true }).click();
   await expect(page).toHaveURL(/#skills$/);

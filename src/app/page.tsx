@@ -21,5 +21,11 @@ export default async function HomePage({
 }) {
   const params = await searchParams;
   const model = loadPortfolioPage(params.keywords);
-  return <PortfolioView model={model} chatAction={<ChatLauncher />} />;
+  return (
+    <PortfolioView
+      model={model}
+      chatAction={<ChatLauncher />}
+      links={[{ href: "/agents", label: "Agents" }]}
+    />
+  );
 }

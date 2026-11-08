@@ -160,6 +160,18 @@ Staat in `~/.ssh/authorized_keys` een `command=` met een pad, dan is dat pad `ta
 
 DNS wijst die hostnaam naar dezelfde machine. De bestaande proxy stuurt haar naar `127.0.0.1:3001`, zet `X-Real-IP`, en buffert `/api/chat` niet. `deploy/caddy-development.caddy` en `deploy/nginx-development.conf` zijn die vhost. Zet daar basic auth op zolang de chat-sleutel dezelfde is als productie.
 
+## Agents
+
+Drie agents kijken elke dag naar de pagina en de code. De ene let op UI en gebruik, de tweede op de content, de derde op vindbaarheid. Ze lezen eerst de oudere markdownrapporten. Een run schrijft drie nieuwe bestanden onder `content/reviews/`, of onder `CONTENT_DIR/reviews` als die variabele gezet is. `/agents` toont alleen die voorstellen, elk met een score van 1 tot 10 en het gemiddelde van die dag. Sleutels, wachtwoorden, ip-adressen, e-mailadressen en absolute paden worden uit het rapport gehaald voordat het op de pagina staat.
+
+De run praat met Qwen via Ollama op `OLLAMA_URL` (standaard `http://127.0.0.1:11434`). `QWEN_MODEL` is standaard `qwen`. `REVIEW_SOURCE_DIR` is de checkout die de agents lezen. Er gaat geen API-sleutel mee.
+
+```bash
+pnpm review:daily
+```
+
+Op de machine waar Ollama draait kan dat dagelijks via de voorbeelden `deploy/review-daily.service` en `deploy/review-daily.timer`, om 07:00 Europe/Amsterdam. De timer verwacht een checkout in `~/portfolio-src`.
+
 ## Content vervangen
 
 De JSON in `content/` is democontent over Noor Linden, een verzonnen frontend developer. Het vak en de stack lijken op een echte frontendpraktijk. De naam, de plaats Kadewijk, de opdrachtgevers en de campagnes zijn verzonnen, en volledig genoeg om filter, banners, vaardigheden en chat te gebruiken. De balk bovenin en de voettekst zeggen dat het geen echt cv is. De twee banners zijn fictieve campagnes, Festival Noordlicht en Circuit Meridiaan.

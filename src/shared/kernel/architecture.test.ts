@@ -113,6 +113,8 @@ describe("afhankelijkheidsregel", () => {
               "@/modules/portfolio/server",
               "@/modules/assistant",
               "@/modules/assistant/server",
+              "@/modules/review",
+              "@/modules/review/server",
             ]);
             if (!allowed.has(specifier)) {
               violations.push(`${path.relative(sourceRoot, file)} importeert ${specifier} buiten de facade`);

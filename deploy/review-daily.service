@@ -1,0 +1,11 @@
+[Unit]
+Description=Dagelijkse review door drie agents
+
+[Service]
+Type=oneshot
+WorkingDirectory=%h/portfolio-src
+Environment=CONTENT_DIR=%h/portfolio/data
+Environment=OLLAMA_URL=http://127.0.0.1:11434
+Environment=QWEN_MODEL=qwen
+Environment=REVIEW_SOURCE_DIR=%h/portfolio-src
+ExecStart=%h/portfolio-src/deploy/review-daily

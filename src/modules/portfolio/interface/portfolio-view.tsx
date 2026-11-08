@@ -8,12 +8,20 @@ import { Skills } from "./skills";
 import { VCard } from "./v-card";
 import { WorkExplorer } from "./work-explorer";
 
-export function PortfolioView({ model, chatAction }: { model: PortfolioPage; chatAction?: ReactNode }) {
+export function PortfolioView({
+  model,
+  chatAction,
+  links,
+}: {
+  model: PortfolioPage;
+  chatAction?: ReactNode;
+  links?: readonly { href: string; label: string }[];
+}) {
   const [firstBanner, secondBanner] = model.banners;
 
   return (
     <>
-      <SiteHeader name={model.profile.fullName} action={chatAction} />
+      <SiteHeader name={model.profile.fullName} action={chatAction} links={links} />
       <main id="inhoud">
         <VCard
           profile={model.profile}

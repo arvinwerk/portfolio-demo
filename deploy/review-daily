@@ -1,0 +1,10 @@
+#!/bin/sh
+# Daily review from a checkout next to Ollama. Reports land in CONTENT_DIR/reviews.
+set -eu
+root=${REVIEW_SOURCE_DIR:-$HOME/portfolio-src}
+cd "$root"
+if [ -d "$HOME/.local/node/bin" ]; then
+  PATH="$HOME/.local/node/bin:$PATH"
+  export PATH
+fi
+exec pnpm review:daily

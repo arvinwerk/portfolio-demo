@@ -1,6 +1,14 @@
 import type { ReactNode } from "react";
 
-export function SiteHeader({ name, action }: { name: string; action?: ReactNode }) {
+export function SiteHeader({
+  name,
+  action,
+  links = [],
+}: {
+  name: string;
+  action?: ReactNode;
+  links?: readonly { href: string; label: string }[];
+}) {
   return (
     <>
       <div id="top" className="h-0" />
@@ -25,6 +33,11 @@ export function SiteHeader({ name, action }: { name: string; action?: ReactNode 
             <a className="text-ink no-underline hover:text-primary" href="#contact">
               Contact
             </a>
+            {links.map((link) => (
+              <a key={link.href} className="text-ink no-underline hover:text-primary" href={link.href}>
+                {link.label}
+              </a>
+            ))}
             {action}
           </nav>
         </div>

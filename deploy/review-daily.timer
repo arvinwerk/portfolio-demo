@@ -1,0 +1,10 @@
+[Unit]
+Description=Elke ochtend de drie review-agents
+
+[Timer]
+OnCalendar=*-*-* 07:00:00
+Timezone=Europe/Amsterdam
+Persistent=true
+
+[Install]
+WantedBy=timers.target
