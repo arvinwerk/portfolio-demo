@@ -1,18 +1,13 @@
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { WELCOME_TEXT } from "../domain/welcome";
+import { ACQUAINTANCE_QUESTION, RECRUITER_PROMPT } from "../domain/visitor-door";
 
 const chat = vi.hoisted(() => ({
   sendMessage: vi.fn(),
+  setMessages: vi.fn(),
   stop: vi.fn(),
   status: "ready" as "ready" | "streaming",
-  messages: [
-    {
-      id: "welcome",
-      role: "assistant" as const,
-      parts: [{ type: "text", state: undefined, text: "" }],
-    },
-  ] as {
+  messages: [] as {
     id: string;
     role: "assistant" | "user";
     parts: { type: string; state?: string; text: string }[];
@@ -23,6 +18,7 @@ vi.mock("@ai-sdk/react", () => ({
   useChat: () => ({
     messages: chat.messages,
     sendMessage: chat.sendMessage,
+    setMessages: chat.setMessages,
     stop: chat.stop,
     status: chat.status,
     error: undefined,
@@ -35,30 +31,59 @@ describe("ChatWidget", () => {
   beforeEach(() => {
     cleanup();
     chat.sendMessage.mockClear();
+    chat.setMessages.mockClear();
     chat.stop.mockClear();
     chat.status = "ready";
-    chat.messages = [
-      {
-        id: "welcome",
-        role: "assistant",
-        parts: [{ type: "text", text: WELCOME_TEXT }],
-      },
-    ];
+    chat.messages = [];
   });
 
-  it("opent het dialoog en stuurt een bericht", () => {
+  it("opent op drie deuren en stuurt de woorden van een recruiter", () => {
     render(<ChatWidget />);
 
     expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
     fireEvent.click(screen.getByRole("button", { name: "Chat openen" }));
 
-    expect(screen.getByRole("dialog", { name: "Chat" })).toBeInTheDocument();
-    expect(screen.getByText(WELCOME_TEXT)).toBeInTheDocument();
+    const dialog = screen.getByRole("dialog", { name: "Chat" });
+    expect(dialog).toBeInTheDocument();
+    expect(screen.getByText("Hoe kom je hier binnen?")).toBeInTheDocument();
+    expect(screen.queryByRole("textbox", { name: "Bericht" })).not.toBeInTheDocument();
 
-    fireEvent.change(screen.getByRole("textbox", { name: "Bericht" }), { target: { value: "Wie ben je?" } });
+    fireEvent.click(screen.getByRole("button", { name: "Ik zoek iemand" }));
+    expect(screen.getByText(RECRUITER_PROMPT)).toBeInTheDocument();
+
+    fireEvent.change(screen.getByRole("textbox", { name: "Bericht" }), { target: { value: "Angular" } });
     fireEvent.click(screen.getByRole("button", { name: "Verstuur" }));
 
-    expect(chat.sendMessage).toHaveBeenCalledWith({ text: "Wie ben je?" });
+    expect(chat.sendMessage).toHaveBeenCalledWith({ text: "Kun je ook Angular?" });
+  });
+
+  it("vraagt voor een bekende meteen naar het huidige werk", () => {
+    render(<ChatWidget />);
+    fireEvent.click(screen.getByRole("button", { name: "Chat openen" }));
+    fireEvent.click(screen.getByRole("button", { name: "Ik ken Noor" }));
+
+    expect(screen.getByText("Je wilt vast weten waar ik nu werk, en wat ik doe.")).toBeInTheDocument();
+    expect(chat.sendMessage).toHaveBeenCalledWith({ text: ACQUAINTANCE_QUESTION });
+  });
+
+  it("geeft een onbekende een eerste indruk zonder verzoek", () => {
+    render(<ChatWidget />);
+    fireEvent.click(screen.getByRole("button", { name: "Chat openen" }));
+    fireEvent.click(screen.getByRole("button", { name: "Ik liep binnen" }));
+
+    expect(screen.getByText(/Frontend developer/)).toBeInTheDocument();
+    expect(screen.getByText(/verzonnen/)).toBeInTheDocument();
+    expect(chat.sendMessage).not.toHaveBeenCalled();
+  });
+
+  it("zet een andere ingang terug naar de deuren", () => {
+    render(<ChatWidget />);
+    fireEvent.click(screen.getByRole("button", { name: "Chat openen" }));
+    fireEvent.click(screen.getByRole("button", { name: "Ik liep binnen" }));
+    fireEvent.click(screen.getByRole("button", { name: "Andere ingang" }));
+
+    expect(screen.getByText("Hoe kom je hier binnen?")).toBeInTheDocument();
+    expect(chat.setMessages).toHaveBeenCalledWith([]);
   });
 
   it("toont dat het profiel wordt doorzocht", () => {
@@ -73,19 +98,18 @@ describe("ChatWidget", () => {
 
     render(<ChatWidget />);
     fireEvent.click(screen.getByRole("button", { name: "Chat openen" }));
+    fireEvent.click(screen.getByRole("button", { name: "Ik liep binnen" }));
 
     expect(screen.getByText("Ik zoek in het profiel.")).toBeInTheDocument();
   });
 
   it("toont een binnenkomend antwoord en kan de stream stoppen", () => {
     chat.status = "streaming";
-    chat.messages = [
-      ...chat.messages,
-      { id: "answer", role: "assistant", parts: [{ type: "text", text: "Ik ben" }] },
-    ];
+    chat.messages = [{ id: "answer", role: "assistant", parts: [{ type: "text", text: "Ik ben" }] }];
 
     render(<ChatWidget />);
     fireEvent.click(screen.getByRole("button", { name: "Chat openen" }));
+    fireEvent.click(screen.getByRole("button", { name: "Ik liep binnen" }));
 
     expect(screen.getByText("Ik ben")).toBeInTheDocument();
     expect(screen.getByText("Het antwoord komt binnen.")).toBeInTheDocument();

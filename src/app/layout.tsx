@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import type { ReactNode } from "react";
 import { Mulish, Raleway, Roboto } from "next/font/google";
 import { ChatWidget } from "@/modules/assistant";
+import { loadPortfolioPage } from "@/modules/portfolio/server";
 import "./globals.css";
 
 const display = Raleway({
@@ -25,6 +26,8 @@ export const metadata: Metadata = {
 };
 
 export default function RootLayout({ children }: { children: ReactNode }) {
+  const name = loadPortfolioPage(undefined).profile.fullName;
+
   return (
     <html lang="nl" className={`${display.variable} ${sans.variable} ${ui.variable}`}>
       <body className="bg-paper font-sans text-ink antialiased">
@@ -35,7 +38,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
           Naar inhoud
         </a>
         {children}
-        <ChatWidget />
+        <ChatWidget name={name} />
       </body>
     </html>
   );

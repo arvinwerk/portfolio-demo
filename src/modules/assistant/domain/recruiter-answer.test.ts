@@ -54,6 +54,9 @@ describe("answerRecruiter", () => {
     expect(answer("Heb je een GitHub?")).toContain("example.com/demo/noor-linden");
     expect(answer("Heb je een GitHub?")).toContain("geen echt account");
     expect(answer("Kun je Vue?")).toBe("Nee. Vue staat niet bij de vaardigheden.");
+    expect(answer("Kun je ook Angular en een rustig team?")).toBe(
+      "Angular staat bij de vaardigheden. Rustig team staat er niet bij.",
+    );
   });
 
   it("telt een jaar pas na de verjaardag van de startdatum", () => {

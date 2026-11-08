@@ -7,9 +7,13 @@ import {
   profileAnswer,
   profileLookup,
   sendChat,
+  ACQUAINTANCE_PROMPT,
+  ACQUAINTANCE_QUESTION,
+  RECRUITER_PLACEHOLDER,
+  RECRUITER_PROMPT,
   STREAM_HEADERS,
+  strangerPrompt,
   streamError,
-  WELCOME_TEXT,
 } from "./helpers/chat";
 import { gotoPortfolio } from "./helpers/page";
 
@@ -36,18 +40,25 @@ test.describe("venster", () => {
     await gotoPortfolio(page);
   });
 
-  test("opent met de welkomstzin en sluit via knop, escape en de ronde knop", async ({ page }) => {
+  test("opent op drie deuren en sluit via knop, escape en de ronde knop", async ({ page }) => {
     const opener = page.getByRole("button", { name: "Chat openen" });
     await expect(opener).toHaveAttribute("aria-expanded", "false");
     await expect(page.getByRole("button", { name: "Chat", exact: true })).toBeHidden();
 
-    const dialog = await openChat(page);
+    await opener.click();
+    const dialog = page.getByRole("dialog", { name: "Chat" });
     await expect(dialog).toHaveAttribute("aria-modal", "true");
     await expect(dialog.getByRole("heading", { name: "Chat" })).toBeVisible();
     await expect(dialog.getByText("Antwoorden komen uit het demoprofiel.")).toBeVisible();
-    await expect(dialog.getByText(WELCOME_TEXT, { exact: true })).toBeVisible();
-    await expect(dialog.getByText(WELCOME_TEXT, { exact: true })).not.toHaveClass(/ml-auto/);
-    await expect(dialog.getByRole("textbox", { name: "Bericht" })).toHaveAttribute("placeholder", "Stel een vraag");
+    await expect(dialog.getByText("Hoe kom je hier binnen?")).toBeVisible();
+    await expect(dialog.getByRole("button", { name: "Ik zoek iemand" })).toBeVisible();
+    await expect(dialog.getByRole("button", { name: "Ik ken Noor" })).toBeVisible();
+    await expect(dialog.getByRole("button", { name: "Ik liep binnen" })).toBeVisible();
+    await expect(dialog.getByRole("textbox", { name: "Bericht" })).toHaveCount(0);
+
+    await dialog.getByRole("button", { name: "Ik zoek iemand" }).click();
+    await expect(dialog.getByText(RECRUITER_PROMPT, { exact: true })).toBeVisible();
+    await expect(dialog.getByRole("textbox", { name: "Bericht" })).toHaveAttribute("placeholder", RECRUITER_PLACEHOLDER);
     await expect(page.getByRole("button", { name: "Chat sluiten" })).toHaveAttribute("aria-expanded", "true");
 
     await dialog.getByRole("button", { name: "Sluiten" }).click();
@@ -62,6 +73,60 @@ test.describe("venster", () => {
     await expect(page.getByRole("button", { name: "Chat openen" })).toHaveAttribute("aria-expanded", "false");
   });
 
+  test("wie de persoon kent krijgt het huidige werk als voorzet", async ({ page }) => {
+    const bodies: { messages?: { parts?: { type?: string; text?: string }[] }[] }[] = [];
+    await mockChat(page, async (route) => {
+      bodies.push(route.request().postDataJSON());
+      await route.fulfill({
+        status: 200,
+        headers: STREAM_HEADERS,
+        body: assistantText("Ik werk sinds 2023 onder de naam Atelier Linden."),
+      });
+    });
+
+    await page.getByRole("button", { name: "Chat openen" }).click();
+    const dialog = page.getByRole("dialog", { name: "Chat" });
+    await dialog.getByRole("button", { name: "Ik ken Noor" }).click();
+
+    await expect(dialog.getByText(ACQUAINTANCE_PROMPT, { exact: true })).toBeVisible();
+    await expect(dialog.getByText(ACQUAINTANCE_QUESTION, { exact: true })).toBeVisible();
+    await expect(dialog.getByText(ACQUAINTANCE_QUESTION, { exact: true })).toHaveClass(/ml-auto/);
+    await expect(dialog.getByText("Ik werk sinds 2023 onder de naam Atelier Linden.", { exact: true })).toBeVisible();
+    expect(postedTexts(bodies[0] ?? {})).toEqual([ACQUAINTANCE_QUESTION]);
+  });
+
+  test("een recruiter houdt de eigen woorden als vaardigheidsvraag", async ({ page }) => {
+    const bodies: { messages?: { parts?: { type?: string; text?: string }[] }[] }[] = [];
+    await mockChat(page, async (route) => {
+      bodies.push(route.request().postDataJSON());
+      await route.fulfill({
+        status: 200,
+        headers: STREAM_HEADERS,
+        body: assistantText("Ja. Angular staat bij de vaardigheden."),
+      });
+    });
+
+    await page.getByRole("button", { name: "Chat openen" }).click();
+    const dialog = page.getByRole("dialog", { name: "Chat" });
+    await dialog.getByRole("button", { name: "Ik zoek iemand" }).click();
+    await sendChat(dialog, "Angular");
+
+    await expect(dialog.getByText("Kun je ook Angular?", { exact: true })).toBeVisible();
+    await expect(dialog.getByText("Ja. Angular staat bij de vaardigheden.", { exact: true })).toBeVisible();
+    expect(postedTexts(bodies[0] ?? {})).toEqual(["Kun je ook Angular?"]);
+  });
+
+  test("een onbekende krijgt een eerste indruk zonder verzoek", async ({ page }) => {
+    await page.getByRole("button", { name: "Chat openen" }).click();
+    const dialog = page.getByRole("dialog", { name: "Chat" });
+
+    await expectNoRequest(page, async () => {
+      await dialog.getByRole("button", { name: "Ik liep binnen" }).click();
+      await expect(dialog.getByText(/Frontend developer/)).toBeVisible();
+      await expect(dialog.getByText(/verzonnen/)).toBeVisible();
+    });
+  });
+
   test("een leeg of wit bericht gaat niet naar de server", async ({ page }) => {
     const dialog = await openChat(page);
     const field = dialog.getByRole("textbox", { name: "Bericht" });
@@ -69,7 +134,7 @@ test.describe("venster", () => {
     await expectNoRequest(page, async () => {
       await dialog.getByRole("button", { name: "Verstuur" }).click();
     });
-    await expect(dialog.getByText(WELCOME_TEXT)).toBeVisible();
+    await expect(dialog.getByText(strangerPrompt("Noor"))).toBeVisible();
 
     await field.fill("   ");
     await expectNoRequest(page, async () => {
@@ -103,7 +168,7 @@ test.describe("venster", () => {
     await expect(dialog.getByText("Zet AI_MODEL en AI_API_KEY.", { exact: true })).toBeVisible();
     await expect(dialog.getByText('{"error"')).toHaveCount(0);
     await expect(dialog.getByRole("textbox", { name: "Bericht" })).toHaveValue("");
-    await expect(dialog.getByText(WELCOME_TEXT)).toBeVisible();
+    await expect(dialog.getByText(strangerPrompt("Noor"))).toBeVisible();
 
     await sendChat(dialog, "En je opleiding?");
     await expect(dialog.getByText("En je opleiding?", { exact: true })).toBeVisible();
@@ -142,7 +207,7 @@ test.describe("venster", () => {
     await sendChat(dialog, "Tweede vraag");
     await expect(dialog.getByText("Tweede antwoord.", { exact: true })).toBeVisible();
 
-    expect(postedTexts(bodies[1] ?? {})).toEqual([WELCOME_TEXT, "Eerste vraag", "Eerste antwoord.", "Tweede vraag"]);
+    expect(postedTexts(bodies[1] ?? {})).toEqual(["Eerste vraag", "Eerste antwoord.", "Tweede vraag"]);
   });
 
   test("toont dat het profiel wordt doorzocht zolang de tool geen resultaat heeft", async ({ page }) => {
@@ -252,6 +317,7 @@ test.describe("onder de sm-grens", () => {
     await header.click();
     const dialog = page.getByRole("dialog", { name: "Chat" });
     await expect(dialog).toBeVisible();
+    await dialog.getByRole("button", { name: "Ik liep binnen" }).click();
     await expect(dialog.getByRole("textbox", { name: "Bericht" })).toBeFocused();
     await header.click();
     await expect(dialog).toBeVisible();

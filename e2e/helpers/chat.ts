@@ -1,6 +1,13 @@
 import { expect, type Page, type Route } from "@playwright/test";
 
 export { WELCOME_TEXT } from "../../src/modules/assistant/domain/welcome";
+export {
+  ACQUAINTANCE_PROMPT,
+  ACQUAINTANCE_QUESTION,
+  RECRUITER_PLACEHOLDER,
+  RECRUITER_PROMPT,
+  strangerPrompt,
+} from "../../src/modules/assistant/domain/visitor-door";
 
 export const STREAM_HEADERS = {
   "content-type": "text/event-stream; charset=utf-8",
@@ -97,9 +104,16 @@ export async function mockChat(page: Page, respond: (route: Route) => Promise<vo
 }
 
 export async function openChat(page: Page) {
-  await page.getByRole("button", { name: "Chat openen" }).click();
+  const opener = page.getByRole("button", { name: "Chat openen" });
+  if (await opener.isVisible()) {
+    await opener.click();
+  }
   const dialog = page.getByRole("dialog", { name: "Chat" });
   await expect(dialog).toBeVisible();
+  const stranger = dialog.getByRole("button", { name: "Ik liep binnen" });
+  if (await stranger.isVisible()) {
+    await stranger.click();
+  }
   await expect(dialog.getByRole("textbox", { name: "Bericht" })).toBeFocused();
   return dialog;
 }
