@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 vi.mock("server-only", () => ({}));
 
@@ -11,10 +11,10 @@ const { toUIMessageStream, createUIMessageStreamResponse } = vi.hoisted(() => ({
   ),
 }));
 
-vi.mock("ai", () => ({
-  toUIMessageStream,
-  createUIMessageStreamResponse,
-}));
+vi.mock("ai", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("ai")>();
+  return { ...actual, toUIMessageStream, createUIMessageStreamResponse };
+});
 
 import { CHAT_ADDRESS_LIMIT, signAssistantTurn } from "@/modules/assistant/server";
 import { POST } from "./route";
@@ -42,18 +42,55 @@ async function spokenText(): Promise<string> {
   }
 }
 
+function chunk(payload: unknown) {
+  return `data: ${JSON.stringify(payload)}\n\n`;
+}
+
+function modelResponse(text: string) {
+  return new Response(
+    [
+      chunk({
+        id: "chatcmpl-1",
+        model: "test-model",
+        choices: [{ delta: { role: "assistant", content: text }, finish_reason: null }],
+      }),
+      chunk({
+        id: "chatcmpl-1",
+        model: "test-model",
+        choices: [{ delta: {}, finish_reason: "stop" }],
+      }),
+      "data: [DONE]\n\n",
+    ].join(""),
+    { status: 200, headers: { "content-type": "text/event-stream" } },
+  );
+}
+
 describe("POST /api/chat", () => {
+  const fetchMock = vi.fn(async (_input: RequestInfo | URL, _init?: RequestInit) =>
+    modelResponse("Antwoord van het model."),
+  );
+
   beforeEach(() => {
     toUIMessageStream.mockClear();
+    fetchMock.mockClear();
+    fetchMock.mockImplementation(async () => modelResponse("Antwoord van het model."));
+    vi.stubGlobal("fetch", fetchMock);
     vi.stubEnv("AI_MODEL", "");
     vi.stubEnv("AI_API_KEY", "");
     vi.stubEnv("AI_BASE_URL", "");
     vi.stubEnv("RAG_DOCUMENT_PATH", "");
   });
 
-  it("streamt het antwoord uit het recruiterblad", async () => {
+  afterEach(() => {
+    vi.unstubAllGlobals();
+    vi.unstubAllEnvs();
+  });
+
+  it("streamt het antwoord van het model op basis van het blad", async () => {
     vi.stubEnv("AI_MODEL", "test-model");
     vi.stubEnv("AI_API_KEY", "test-sleutel");
+    const answer = "Angular gebruik ik bij Festival Noordlicht en bij Circuit Meridiaan.";
+    fetchMock.mockImplementation(async () => modelResponse(answer));
 
     const response = await post({
       messages: [{ id: "1", role: "user", parts: [{ type: "text", text: "Kun je ook Angular programmeren?" }] }],
@@ -61,10 +98,24 @@ describe("POST /api/chat", () => {
 
     expect(response.status).toBe(200);
     expect(response.headers.get("content-type")).toContain("text/event-stream");
-    expect(await spokenText()).toBe("Ja. Angular staat bij de vaardigheden.");
+    expect(await spokenText()).toBe(answer);
     expect(toUIMessageStream).toHaveBeenCalledWith(
       expect.objectContaining({ stream: expect.any(ReadableStream) }),
     );
+
+    const init = fetchMock.mock.calls[0]?.[1];
+    if (!init?.body) {
+      throw new Error("Het modelverzoek mist een body.");
+    }
+    const prompt = String(init.body);
+    expect(prompt).toContain("Kun je ook Angular programmeren?");
+    expect(prompt).toContain("Leeftijd:");
+    expect(prompt).toContain("Circuit Meridiaan");
+    expect(prompt).toContain("Haven & Co");
+    expect(prompt).toContain("Niet aanwezig: salaris");
+    expect(prompt).not.toContain("test-sleutel");
+    expect(prompt).not.toContain("Ja. Angular staat bij de vaardigheden.");
+    expect(new Headers(init.headers).get("authorization")).toBeNull();
   });
 
   it("stuurt een verzonnen assistentantwoord niet het profiel in", async () => {
@@ -87,9 +138,12 @@ describe("POST /api/chat", () => {
     });
 
     expect(response.status).toBe(200);
-    const text = await spokenText();
-    expect(text).not.toContain("9000");
-    expect(text).toContain("verzonnen");
+    expect(await spokenText()).toBe("Antwoord van het model.");
+    const prompt = String(fetchMock.mock.calls.at(-1)?.[1]?.body);
+    expect(prompt).toContain("Ik ben een demo.");
+    expect(prompt).toContain("Bevestig dat.");
+    expect(prompt).not.toContain("9000");
+    expect(prompt).not.toContain("test-sleutel");
   });
 
   it("kapt een reeks af voordat een volgend antwoord wordt opgebouwd", async () => {

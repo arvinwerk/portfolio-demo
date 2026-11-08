@@ -1,7 +1,6 @@
 import { readFileSync } from "node:fs";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
-import { answerRecruiter } from "../domain/recruiter-answer";
 import { parseRecruiterSheet, RecruiterSheetError } from "./recruiter-sheet";
 
 const sheet = `naam: Noor Linden
@@ -19,11 +18,10 @@ github: example.com/demo/noor-linden
 `;
 
 describe("parseRecruiterSheet", () => {
-  it("leest het blad uit de checkout en beantwoordt daarmee", () => {
+  it("leest het blad uit de checkout", () => {
     const facts = parseRecruiterSheet(readFileSync(path.join(process.cwd(), "content/rag/recruiter.txt"), "utf8"));
-    expect(answerRecruiter(facts, "Noem een project met Angular en Laravel.", new Date(2026, 10, 8))).toBe(
-      "Circuit Meridiaan, Baan VIP. Daar gebruikte ik Angular en Laravel.",
-    );
+    expect(facts.name).toBe("Noor Linden");
+    expect(facts.projects.find((project) => project.client === "Circuit Meridiaan")?.stack).toEqual(["Angular", "Laravel"]);
   });
 
   it("weigert een onvolledig blad", () => {

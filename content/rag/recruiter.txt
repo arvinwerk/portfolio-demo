@@ -1,4 +1,4 @@
-# Feiten voor recruiter vragen. De chat antwoordt vanuit dit blad.
+# Feiten voor het model. De chat antwoordt alleen vanuit dit blad.
 naam: Noor Linden
 rol: frontend developer
 woonplaats: Kadewijk

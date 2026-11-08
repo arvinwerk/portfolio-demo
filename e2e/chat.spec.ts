@@ -49,7 +49,7 @@ test.describe("venster", () => {
     const dialog = page.getByRole("dialog", { name: "Chat" });
     await expect(dialog).toHaveAttribute("aria-modal", "true");
     await expect(dialog.getByRole("heading", { name: "Chat" })).toBeVisible();
-    await expect(dialog.getByText("Antwoorden komen uit het demoprofiel.")).toBeVisible();
+    await expect(dialog.getByText("Het model antwoordt vanuit het demoprofiel.")).toBeVisible();
     await expect(dialog.getByText("Hoe kom je hier binnen?")).toBeVisible();
     await expect(dialog.getByRole("button", { name: "Ik zoek iemand" })).toBeVisible();
     await expect(dialog.getByRole("button", { name: "Ik ken Noor" })).toBeVisible();

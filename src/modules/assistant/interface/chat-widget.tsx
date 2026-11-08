@@ -168,7 +168,7 @@ function Poster({
           <h2 id={titleId} className="font-ui text-xs tracking-[0.28em] text-white uppercase">
             Chat
           </h2>
-          <p className="mt-1 text-sm text-white/70">Antwoorden komen uit het demoprofiel.</p>
+          <p className="mt-1 text-sm text-white/70">Het model antwoordt vanuit het demoprofiel.</p>
         </div>
         <button type="button" className="border border-white/40 px-4 py-2 text-sm tracking-wide text-white uppercase" onClick={onClose}>
           Sluiten
@@ -249,7 +249,7 @@ function Conversation({
           <h2 id={titleId} className="font-display text-lg font-semibold text-white">
             Chat
           </h2>
-          <p className="text-xs text-white/75">Antwoorden komen uit het demoprofiel.</p>
+          <p className="text-xs text-white/75">Het model antwoordt vanuit het demoprofiel.</p>
         </div>
         <button type="button" className="px-2 py-1 text-sm text-white" onClick={onClose}>
           Sluiten

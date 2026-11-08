@@ -2,7 +2,7 @@
 
 ## Status
 
-Aanvaard. Het antwoordpad is herzien: de chat roept het model niet meer aan.
+Aanvaard voor de runtime. Het antwoordpad is herzien in ADR 0003: de chat roept het model aan, met het recruiterblad als gegevens.
 
 ## Context
 
@@ -12,10 +12,10 @@ Dat pad is geprobeerd met `qwen2.5:3b`, omdat die grootte `searchProfile` aanrie
 
 ## Besluit
 
-De assistant beantwoordt die vragen uit `content/rag/recruiter.txt`. Het domain kiest de zin. De sessie streamt die zin en stuurt geen verzoek naar het model. Ontbreekt een feit, dan is de zin: dat staat niet in het profiel.
+Het model draait naast de site, niet in het Next-proces. Ollama en `qwen/Modelfile` blijven. `pnpm qwen` en Compose maken het model `qwen` aan, buiten de Next-image en buiten git. `AI_BASE_URL` mag alleen naar loopback, `host.docker.internal` of een hostnaam zonder punt wijzen. `AI_API_KEY` ondertekent het transcript en gaat niet mee naar het model. `AI_MODEL` zet de chat aan.
 
-Ollama en `qwen/Modelfile` blijven. `pnpm qwen` en Compose maken het model `qwen` aan, buiten de Next-image en buiten git. `AI_BASE_URL` mag alleen naar loopback, `host.docker.internal` of een hostnaam zonder punt wijzen. `AI_API_KEY` ondertekent het transcript. `AI_MODEL` zet de chat aan.
+Hoe het model het blad gebruikt, staat in ADR 0003.
 
 ## Gevolgen
 
-Een antwoord wacht niet op een model. Het blad moet op de server mee, ook als `CONTENT_DIR` buiten de checkout staat. Wisselt de ondertekeningssleutel, dan vervalt de oude geschiedenis. De gewichten blijven beschikbaar op de machine, en ze doen niet mee aan het antwoord.
+Het blad moet op de server mee, ook als `CONTENT_DIR` buiten de checkout staat. Wisselt de ondertekeningssleutel, dan vervalt de oude geschiedenis. De gewichten blijven buiten de Next-image.

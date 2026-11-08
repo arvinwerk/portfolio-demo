@@ -12,7 +12,7 @@ De pagina is een document. Persoonsgegevens, skills, projecten en banners komen 
 
 Het filter is URL-staat. `/?keywords=Angular&keywords=React#werk` is de selectie. Een lege selectie toont alles. Meerdere trefwoorden zijn een OF-filter, zoals in de oude store. Onbekende trefwoorden vallen weg. De eerste response filtert op de server. Een klik werkt de lijst bij zonder de viewport te verplaatsen: de client schrijft dezelfde URL met `scroll: false`, en de terugknop synchroniseert via `popstate`. De link wijst naar `#werk`, zodat een gewone paginaload bij de lijst uitkomt.
 
-De chat is een eiland in dezelfde app. Het venster rechtsonder praat alleen met `app/api/chat`. De sleutel blijft in de omgeving en ondertekent het gesprek. Een antwoord over de persoon komt uit `content/rag/recruiter.txt`, niet uit een model.
+De chat is een eiland in dezelfde app. Het venster rechtsonder praat alleen met `app/api/chat`. De sleutel blijft in de omgeving en ondertekent het gesprek. Een antwoord over de persoon komt van het lokale model, op basis van `content/rag/recruiter.txt`.
 
 ```mermaid
 flowchart TD
@@ -22,14 +22,15 @@ flowchart TD
   json[content JSON]
   route[app/api/chat]
   sheet[recruiter.txt]
-  corpus[content/rag]
+  model[lokaal model]
 
   browser --> page
   browser --> filter
   page --> json
   filter --> route
   route --> sheet
-  sheet --> corpus
+  sheet --> model
+  model --> route
 ```
 
 ## Eén Next.js-app
@@ -38,7 +39,7 @@ Pagina, content, chatroute en profielindex draaien in hetzelfde proces. Dat is e
 
 Een monorepo loont als pakketten een eigen release hebben of als meerdere apps dezelfde bibliotheek delen. Deze site heeft één deploy en geen tweede consument van de index. Een package boundary zou types en scripts splitsen zonder een eigenaar te geven.
 
-Het webproces blijft één Next.js-app. Ollama kan daarnaast draaien: een lokaal model heeft een eigen runtime en een eigen schijfcache, en die horen niet in het Node-proces. Die grens staat in `docs/adr/0001-lokaal-qwen.md`. De chat antwoordt uit het recruiterblad en stuurt geen verzoek naar die runtime. De browser ziet alleen `/api/chat`.
+Het webproces blijft één Next.js-app. Ollama draait daarnaast: een lokaal model heeft een eigen runtime en een eigen schijfcache, en die horen niet in het Node-proces. Die grens staat in `docs/adr/0001-lokaal-qwen.md`. De chat stuurt het gesprek naar die runtime, met het recruiterblad als gegevens. De browser ziet alleen `/api/chat`.
 
 De bron staat in `src/`. Twee bounded contexts, `portfolio` en `assistant`, elk met `domain`, `application`, `infrastructure` en `interface`. `src/app` bedraadt die modules en bevat geen beslisregels. `server-only` op adapters die bestanden lezen of de sleutel zien laat de build stuklopen als een clientcomponent ze importeert. Het domain importeert geen React, dus leeftijd, filter, id's en het gesprek zijn te testen zonder de pagina op te bouwen. De importregel wordt afgedwongen door `src/shared/kernel/architecture.test.ts`.
 
@@ -50,11 +51,11 @@ De bron staat in `src/`. Twee bounded contexts, `portfolio` en `assistant`, elk 
 
 ## Chat en streaming
 
-`ChatWidget` is het venster. `useChat` stuurt het gesprek naar de route. De route is een dunne Next-adapter op `handleVisitorChat`. Die herstelt het gesprek, controleert het tempo en opent een sessie. De sessie leest het recruiterblad en kiest daar één zin uit. Die zin gaat als stream naar de browser.
+`ChatWidget` is het venster. `useChat` stuurt het gesprek naar de route. De route is een dunne Next-adapter op `handleVisitorChat`. Die herstelt het gesprek, controleert het tempo en opent een sessie. De sessie leest het recruiterblad, zet die feiten in de prompt en streamt het antwoord van het model naar de browser.
 
-`AI_MODEL` zet de chat aan. `.env.example` zet `qwen`. De route weigert het verzoek als model of sleutel ontbreekt, en het venster toont die zin in plaats van een rauwe JSON-body. `AI_BASE_URL` blijft een lokaal adres: zonder die variabele geldt `http://127.0.0.1:11434/v1`, en een adres buiten deze machine of het Docker-netwerk wordt geweigerd. De sessie stuurt daar geen verzoek heen. `AI_API_KEY` ondertekent het gesprek.
+`AI_MODEL` zet de chat aan. `.env.example` zet `qwen`. De route weigert het verzoek als model of sleutel ontbreekt, en het venster toont die zin in plaats van een rauwe JSON-body. `AI_BASE_URL` blijft een lokaal adres: zonder die variabele geldt `http://127.0.0.1:11434/v1`, en een adres buiten deze machine of het Docker-netwerk wordt geweigerd. De sessie stuurt het gesprek daarheen. `AI_API_KEY` ondertekent het gesprek en gaat niet mee in dat verzoek.
 
-Binnenkomende berichten worden gecontroleerd: alleen gebruiker en assistent, een begrensd aantal, alleen tekst, en een maximumlengte. Het lichaam van het verzoek stopt bij 96 kB. Tool-onderdelen uit de browser worden weggegooid. Een assistentbericht telt alleen mee als deze server het zelf ondertekend heeft met `AI_API_KEY`, of als het de vaste welkomstzin is. Een verzonnen antwoord komt niet in de volgende zin terecht: die zin komt alleen uit het blad. De handtekening gaat mee in de stream en komt bij de volgende beurt terug. Wisselt de sleutel, dan vervalt de oude geschiedenis.
+Binnenkomende berichten worden gecontroleerd: alleen gebruiker en assistent, een begrensd aantal, alleen tekst, en een maximumlengte. Het lichaam van het verzoek stopt bij 96 kB. Tool-onderdelen uit de browser worden weggegooid. Een assistentbericht telt alleen mee als deze server het zelf ondertekend heeft met `AI_API_KEY`, of als het de vaste welkomstzin is. Een verzonnen antwoord komt niet in de volgende prompt terecht. De handtekening gaat mee in de stream en komt bij de volgende beurt terug. Wisselt de sleutel, dan vervalt de oude geschiedenis.
 
 Elk gesprek landt in één tekstbestand. De eerste vraag van de bezoeker is de naam van dat gesprek; een vervolgvraag vervangt hetzelfde bestand met het hele gesprek tot dan toe. Zonder `CHAT_LOG_DIR` staat de map op `CONTENT_DIR/chat`, en zonder `CONTENT_DIR` op `data/chat` in de werkmap. Een herladen pagina begint een nieuw gesprek. De sleutel staat niet in het bestand.
 
@@ -62,9 +63,9 @@ Elk gesprek landt in één tekstbestand. De eerste vraag van de bezoeker is de n
 
 ## Profiel voor de chat
 
-De chat leest `content/rag/recruiter.txt`. Dat blad noemt de persoon, de opleiding, twee datums, de vaardigheden en per project de stack. Het domain kiest daar één zin uit: een vaardigheid die er staat, een project waarvan elke gevraagde techniek op die regel staat, of de vaste zin dat het feit ontbreekt. Salaris en een startdatum staan er niet in, dus die krijgen die zin. Een vraag die geen feit zoekt, krijgt een korte voorstelling.
+De chat leest `content/rag/recruiter.txt`. Dat blad noemt de persoon, de opleiding, twee datums, de vaardigheden en per project de stack. Het domain maakt daar een briefing van, met leeftijd en jaren interfaces uitgerekend op de dag van het verzoek. Die briefing is de hele context van het model. Het model schrijft het antwoord. Staat een feit er niet, dan hoort het antwoord te zijn: dat staat niet in het profiel. Salaris en een startdatum staan er niet in.
 
-`qwen2.5:1.5b` en `qwen2.5:3b` deden dat niet betrouwbaar. Ze noemden het verkeerde project, zeiden ja tegen een vaardigheid die er niet staat, en verzonnen een startdatum. Daarom schrijft de sessie de zin zelf en stuurt ze geen verzoek naar Ollama. `pnpm qwen` en de Compose-service blijven het model `qwen` aanmaken, buiten het antwoordpad.
+Een eerdere versie liet een klein model zelf zoeken of de zin kiezen. Dat veranderde projecten, vaardigheden en datums. De briefing geeft daarom het hele blad, niet een gefilterde zin, en de datums zijn al uitgerekend. `pnpm qwen` en de Compose-service maken het model `qwen` aan. Zonder dat model komt er geen antwoord. Het besluit staat in `docs/adr/0003-model-antwoordt.md`.
 
 Het corpus is verder de map `content/rag`. Elk tekstbestand telt voor de index: `.txt`, `.md` en `.markdown`. `RecursiveCharacterTextSplitter` uit LangChain knipt de documenten op tekengrootte, met overlap. Okapi BM25 (`okapibm25`) rangschikt die stukken. De store cachet ze en bouwt ze opnieuw als een bestandsnaam, wijzigingstijd of grootte verandert. Een bestand groter dan 64 kB wordt geweigerd.
 
@@ -76,7 +77,7 @@ Zonder `RAG_DOCUMENT_PATH` worden alle tekstbestanden geïndexeerd. Met die vari
 
 Elke context houdt dezelfde volgorde aan: document of verzoek naar binnen, domain beslist, interface tekent.
 
-`src/app/api/chat/route.ts` geeft het verzoek door aan de assistant-module. De sessie zit in `createRecruiterSession`. De route importeert die niet.
+`src/app/api/chat/route.ts` geeft het verzoek door aan de assistant-module. De sessie zit in `createLocalQwenSession`. De route importeert die niet.
 
 `ProfileKnowledge` is de poort naar de feiten. `facts` leest het recruiterblad. `search` blijft de BM25-index: `FileProfileStore` leest de tekstbestanden, laat LangChain ze splitsen, rangschikt met BM25, weigert iets groters dan 64 kB, en cachet de stukken op het eigen object.
 
@@ -88,7 +89,7 @@ Het venster importeert de fouttekst die het aan de bezoeker toont, en de welkoms
 
 Domeintests dekken datums, het filter, project-id's, de contentvalidatie, het recruiterblad en de profielstore, inclusief een vervangen bestand, een map met tekst én markdown, en een pad dat buiten de map wijst. Componenttests dekken de kaart, de skills, het filter en het chatvenster.
 
-De routetest controleert dat een vraag over Angular de zin uit het blad streamt, en dat een verzonnen assistentantwoord niet in de volgende zin belandt. Een tweede test stuurt die stream door de echte SDK en controleert dat de tekst ondertekend is en dat de sleutel nergens in een verzoek staat.
+De routetest controleert dat een vraag het model bereikt met de feiten uit het blad, en dat een verzonnen assistentantwoord niet in die prompt belandt. Een tweede test stuurt de stream van het model door de echte SDK en controleert dat de tekst ondertekend is en dat de sleutel niet in het modelverzoek staat.
 
 `pnpm test:e2e` draait Playwright tegen een productiebuild. Die suite dekt de pagina, het filter en de chat. Het filter wordt gecontroleerd in de eerste HTML, na een klik, met de terugknop, zonder JavaScript, en zonder dat die klik de scrollpositie verschuift. De chat dekt openen en sluiten, een leeg bericht, een antwoordstroom, het zoeken in het profiel, stoppen, en de zinnen die `/api/chat` teruggeeft. Zonder `AI_MODEL` en `AI_API_KEY` antwoordt die route met 503. Een ongeldige of te grote body wordt geweigerd voordat het model eraan te pas komt.
 
@@ -119,7 +120,7 @@ AI_BASE_URL=http://127.0.0.1:11434/v1
 AI_API_KEY=
 ```
 
-`pnpm qwen` start Ollama als die nog niet draait, en maakt het model `qwen` uit `qwen/Modelfile`. De eerste keer downloadt dat `qwen2.5:3b`, ongeveer 1,9 GB. De chat heeft die runtime niet nodig voor een antwoord. Zet in `AI_API_KEY` een eigen geheim; die regel ondertekent het gesprek. Zonder model of sleutel werkt de pagina. De chat antwoordt dan dat model en sleutel gezet moeten worden.
+`pnpm qwen` start Ollama als die nog niet draait, en maakt het model `qwen` uit `qwen/Modelfile`. De eerste keer downloadt dat `qwen2.5:3b`, ongeveer 1,9 GB. De chat heeft die runtime nodig voor een antwoord. Zet in `AI_API_KEY` een eigen geheim; die regel ondertekent het gesprek en gaat niet mee naar het model. Zonder model of sleutel werkt de pagina. De chat antwoordt dan dat model en sleutel gezet moeten worden.
 
 ## Container
 
@@ -130,7 +131,7 @@ cp .env.example .env
 docker compose up -d --build
 ```
 
-De site luistert op `127.0.0.1:3000`. Een proxy ervoor zet HTTPS en `X-Real-IP`. Compose zet `AI_MODEL=qwen` en `AI_BASE_URL=http://qwen:11434/v1`. `AI_API_KEY` komt uit `.env` bij het starten van de site. Sleutel en gewichten worden niet in de Next-image gebakken. De service `qwen` laadt het model in volume `qwen`. De chat antwoordt zonder op die download te wachten.
+De site luistert op `127.0.0.1:3000`. Een proxy ervoor zet HTTPS en `X-Real-IP`. Compose zet `AI_MODEL=qwen` en `AI_BASE_URL=http://qwen:11434/v1`. `AI_API_KEY` komt uit `.env` bij het starten van de site. Sleutel en gewichten worden niet in de Next-image gebakken. De service `qwen` laadt het model in volume `qwen`. De chat wacht op dat model. Is het er nog niet, dan krijgt de bezoeker de zin dat het antwoord niet lukte.
 
 Op de VPS draait de site als het standalone archief uit de deploy, niet via Compose. Het archief bevat `qwen/`, zodat `sh qwen/start.sh` het model daar kan aanmaken. De chat leest `recruiter.txt` uit `CONTENT_DIR/rag` als die variabele gezet is.
 
@@ -178,6 +179,6 @@ De JSON in `content/` is democontent over Noor Linden, een verzonnen frontend de
 - `content/skills.json` — `category` is `skills`, `framework` of `other`.
 - `content/projects.json` — de id is de volgorde in het bestand plus één.
 - `content/banners.json` — paden onder `/images/`.
-- `content/rag/` — `recruiter.txt` is het blad waar de chat uit antwoordt. `profile.txt` is de persoon, `werk.txt` de projecten. Alles is democontent. Andere `.txt`-, `.md`- of `.markdown`-bestanden in die map tellen mee voor de index, tenzij `RAG_DOCUMENT_PATH` er één van aanwijst. Op de server staat deze map onder `CONTENT_DIR`, niet in git. De balk in de header en de regel in de voettekst horen bij deze demo; die zinnen staan in de code, niet in de JSON.
+- `content/rag/` — `recruiter.txt` is het blad dat het model als feiten krijgt. `profile.txt` is de persoon, `werk.txt` de projecten. Alles is democontent. Andere `.txt`-, `.md`- of `.markdown`-bestanden in die map tellen mee voor de index, tenzij `RAG_DOCUMENT_PATH` er één van aanwijst. Op de server staat deze map onder `CONTENT_DIR`, niet in git. De balk in de header en de regel in de voettekst horen bij deze demo; die zinnen staan in de code, niet in de JSON.
 
 Beelden staan in `public/images/`.

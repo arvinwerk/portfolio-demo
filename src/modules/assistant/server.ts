@@ -1,6 +1,6 @@
 import "server-only";
 
-import { createRecruiterSession } from "./infrastructure/recruiter-session";
+import { createLocalQwenSession } from "./infrastructure/local-qwen-session";
 import { readAssistantConfig } from "./infrastructure/assistant-config";
 import { createProfileKnowledge } from "./infrastructure/bm25-profile-knowledge";
 import { FileChatLog } from "./infrastructure/file-chat-log";
@@ -19,7 +19,7 @@ export function handleVisitorChat(request: Request): Promise<Response> {
     sealFor: createHmacSeal,
     gate,
     knowledge: createProfileKnowledge(),
-    openSession: (_config, knowledge) => createRecruiterSession(knowledge, new Date()),
+    openSession: (config, knowledge) => createLocalQwenSession(config, knowledge, new Date()),
     log: new FileChatLog(),
     now: () => new Date(),
   });

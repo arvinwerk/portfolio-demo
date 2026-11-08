@@ -46,6 +46,7 @@ describe("ChatWidget", () => {
     const dialog = screen.getByRole("dialog", { name: "Chat" });
     expect(dialog).toBeInTheDocument();
     expect(screen.getByText("Hoe kom je hier binnen?")).toBeInTheDocument();
+    expect(screen.getByText("Het model antwoordt vanuit het demoprofiel.")).toBeInTheDocument();
     expect(screen.getByText("Zeg de stack. Ik zeg of die erin zit.")).toBeInTheDocument();
     expect(screen.queryByRole("textbox", { name: "Bericht" })).not.toBeInTheDocument();
 
