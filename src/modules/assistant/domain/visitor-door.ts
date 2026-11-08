@@ -4,6 +4,7 @@ export type DoorOpening = {
   id: VisitorDoor;
   label: string;
   hint: string;
+  line: string;
   prompt: string;
   placeholder: string;
   question?: string;
@@ -45,6 +46,7 @@ export function visitorDoors(fullName: string): readonly DoorOpening[] {
       id: "recruiter",
       label: "Ik zoek iemand",
       hint: "Recruiter",
+      line: "Zeg de stack. Ik zeg of die erin zit.",
       prompt: RECRUITER_PROMPT,
       placeholder: RECRUITER_PLACEHOLDER,
     },
@@ -52,6 +54,7 @@ export function visitorDoors(fullName: string): readonly DoorOpening[] {
       id: "acquaintance",
       label: `Ik ken ${name}`,
       hint: "Even bijpraten",
+      line: "Waar ik nu werk, en wat ik doe.",
       prompt: ACQUAINTANCE_PROMPT,
       placeholder: "Vraag gerust verder",
       question: ACQUAINTANCE_QUESTION,
@@ -60,6 +63,7 @@ export function visitorDoors(fullName: string): readonly DoorOpening[] {
       id: "stranger",
       label: "Ik liep binnen",
       hint: "Eerste indruk",
+      line: "Eén blik. Dan ken je me.",
       prompt: strangerPrompt(name),
       placeholder: "Vraag gerust iets",
     },

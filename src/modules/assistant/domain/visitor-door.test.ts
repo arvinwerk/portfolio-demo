@@ -14,6 +14,11 @@ describe("visitorDoors", () => {
   it("zet de voornaam in de ingang van iemand die de persoon kent", () => {
     expect(givenName("Noor Linden")).toBe("Noor");
     expect(doors.map((door) => door.label)).toEqual(["Ik zoek iemand", "Ik ken Noor", "Ik liep binnen"]);
+    expect(doors.map((door) => door.line)).toEqual([
+      "Zeg de stack. Ik zeg of die erin zit.",
+      "Waar ik nu werk, en wat ik doe.",
+      "Eén blik. Dan ken je me.",
+    ]);
   });
 
   it("geeft een recruiter de voorzet en wacht op het antwoord", () => {

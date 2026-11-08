@@ -2,8 +2,8 @@
 
 import { useChat } from "@ai-sdk/react";
 import { DefaultChatTransport, type UIMessage } from "ai";
-import { useEffect, useId, useMemo, useRef, useState, type FormEvent } from "react";
-import { recruiterQuestion, visitorDoors, type VisitorDoor } from "../domain/visitor-door";
+import { useEffect, useId, useMemo, useRef, useState, type FormEvent, type RefObject } from "react";
+import { recruiterQuestion, visitorDoors, type DoorOpening, type VisitorDoor } from "../domain/visitor-door";
 import { readableChatError } from "./client-error";
 
 export function ChatWidget({ name = "Noor Linden" }: { name?: string }) {
@@ -31,6 +31,8 @@ export function ChatWidget({ name = "Noor Linden" }: { name?: string }) {
       return;
     }
 
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
     if (opening) {
       inputRef.current?.focus();
     } else {
@@ -43,7 +45,10 @@ export function ChatWidget({ name = "Noor Linden" }: { name?: string }) {
       }
     };
     window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      window.removeEventListener("keydown", onKey);
+    };
   }, [open, opening]);
 
   useEffect(() => {
@@ -87,114 +92,51 @@ export function ChatWidget({ name = "Noor Linden" }: { name?: string }) {
     setInput("");
   }
 
+  const shell = open ? "fixed inset-0 z-40" : "fixed right-4 bottom-4 z-40 sm:right-8 sm:bottom-6";
+
   return (
-    <div
-      className={`fixed right-4 bottom-4 z-40 flex flex-col gap-3 sm:right-8 sm:bottom-6 ${
-        open ? "w-[calc(100%-2rem)] max-w-md items-stretch" : "items-end"
-      }`}
-    >
+    <div className={shell}>
+      {open && opening ? <div className="absolute inset-0 bg-ink/60" aria-hidden="true" /> : null}
       {open ? (
         <section
-          className="flex h-[min(36rem,calc(100dvh-7rem))] w-full flex-col overflow-hidden rounded-3xl bg-white shadow-card ring-1 ring-black/5"
+          className={
+            opening
+              ? "absolute inset-x-3 top-3 bottom-3 z-10 flex flex-col overflow-hidden bg-paper shadow-card sm:inset-y-6 sm:right-6 sm:bottom-24 sm:left-auto sm:w-[min(36rem,calc(100%-3rem))]"
+              : "absolute inset-0 z-10 flex flex-col overflow-y-auto border-l-[12px] border-l-primary bg-ink text-white"
+          }
           role="dialog"
           aria-modal="true"
           aria-labelledby={titleId}
         >
-          <header className="flex items-center justify-between bg-primary px-4 py-3 text-white">
-            <div>
-              <h2 id={titleId} className="font-display text-lg font-semibold text-white">
-                Chat
-              </h2>
-              <p className="text-xs text-white/75">Antwoorden komen uit het demoprofiel.</p>
-            </div>
-            <button type="button" className="px-2 py-1 text-sm text-white" onClick={() => setOpen(false)}>
-              Sluiten
-            </button>
-          </header>
           {opening ? (
-            <>
-              <div className="flex flex-1 flex-col gap-3 overflow-y-auto bg-paper px-4 py-4">
-                <div className="flex items-baseline justify-between gap-3">
-                  <p className="font-ui text-[11px] tracking-[0.22em] text-primary uppercase">{opening.hint}</p>
-                  <button type="button" className="text-xs text-muted underline" onClick={otherDoor}>
-                    Andere ingang
-                  </button>
-                </div>
-                <p className="font-display text-2xl leading-tight text-ink">{opening.prompt}</p>
-                {messages.map((message) => (
-                  <Message key={message.id} message={message} busy={busy} last={message.id === messages.at(-1)?.id} />
-                ))}
-                <div ref={endRef} />
-              </div>
-              <p className="sr-only" aria-live="polite">
-                {status === "streaming" ? "Het antwoord komt binnen." : ""}
-              </p>
-              {error ? <p className="px-4 py-2 text-sm text-primary">{error.message}</p> : null}
-              <form className="flex items-end gap-2 border-t border-[#ededed] p-3" onSubmit={submit}>
-                <label className="sr-only" htmlFor="chat-bericht">
-                  Bericht
-                </label>
-                <textarea
-                  id="chat-bericht"
-                  ref={inputRef}
-                  rows={2}
-                  value={input}
-                  placeholder={opening.placeholder}
-                  className="min-h-12 flex-1 resize-none border border-[#e3dcd0] px-3 py-2 text-ink outline-none focus:border-primary"
-                  onChange={(event) => setInput(event.target.value)}
-                  onKeyDown={(event) => {
-                    if (event.key === "Enter" && !event.shiftKey) {
-                      event.preventDefault();
-                      event.currentTarget.form?.requestSubmit();
-                    }
-                  }}
-                />
-                {/* type="button" zodat Stop niet tijdens de klik in een submit-knop verandert. */}
-                {busy ? (
-                  <button type="button" className="bg-ink px-3 py-2 text-sm text-white" onClick={() => void stop()}>
-                    Stop
-                  </button>
-                ) : (
-                  <button
-                    type="button"
-                    className="bg-action px-3 py-2 text-sm font-medium text-white uppercase"
-                    onClick={(event) => event.currentTarget.form?.requestSubmit()}
-                  >
-                    Verstuur
-                  </button>
-                )}
-              </form>
-            </>
+            <Conversation
+              titleId={titleId}
+              opening={opening}
+              messages={messages}
+              busy={busy}
+              status={status}
+              error={error?.message}
+              input={input}
+              inputRef={inputRef}
+              endRef={endRef}
+              onClose={() => setOpen(false)}
+              onOtherDoor={otherDoor}
+              onInput={setInput}
+              onSubmit={submit}
+              onStop={() => void stop()}
+            />
           ) : (
-            <div className="flex flex-1 flex-col bg-ink px-5 pt-6 pb-5 text-white">
-              <p className="font-ui text-[11px] tracking-[0.28em] text-white/55 uppercase">Drie deuren</p>
-              <p className="mt-3 font-display text-4xl leading-none text-white">Hoe kom je hier binnen?</p>
-              <div className="mt-auto flex flex-col gap-2" role="group" aria-label="Hoe kom je hier binnen?">
-                {doors.map((item, index) => (
-                  <button
-                    key={item.id}
-                    ref={index === 0 ? firstDoorRef : undefined}
-                    type="button"
-                    className="group border-y border-r border-white/15 border-l-2 border-l-primary bg-white/5 px-4 py-3 text-left hover:bg-white"
-                    aria-label={item.label}
-                    onClick={() => choose(item.id)}
-                  >
-                    <span className="block font-display text-xl leading-tight text-white group-hover:text-ink">
-                      {item.label}
-                    </span>
-                    <span className="mt-0.5 block text-xs tracking-wide text-white/60 group-hover:text-muted">
-                      {item.hint}
-                    </span>
-                  </button>
-                ))}
-              </div>
-            </div>
+            <Poster titleId={titleId} doors={doors} firstDoorRef={firstDoorRef} onClose={() => setOpen(false)} onChoose={choose} />
           )}
         </section>
       ) : null}
       <button
         type="button"
-        className="hidden h-14 w-14 items-center justify-center self-end rounded-full bg-primary text-white shadow-material sm:flex"
+        className={`${
+          open && !opening ? "hidden" : "hidden sm:flex"
+        } h-14 w-14 items-center justify-center rounded-full bg-primary text-white shadow-material ${
+          opening ? "absolute right-6 bottom-6 z-50" : ""
+        }`}
         aria-expanded={open}
         aria-controls={open ? titleId : undefined}
         onClick={() => setOpen((current) => !current)}
@@ -203,6 +145,168 @@ export function ChatWidget({ name = "Noor Linden" }: { name?: string }) {
         <ChatIcon />
       </button>
     </div>
+  );
+}
+
+function Poster({
+  titleId,
+  doors,
+  firstDoorRef,
+  onClose,
+  onChoose,
+}: {
+  titleId: string;
+  doors: readonly DoorOpening[];
+  firstDoorRef: RefObject<HTMLButtonElement | null>;
+  onClose: () => void;
+  onChoose: (id: VisitorDoor) => void;
+}) {
+  return (
+    <>
+      <header className="flex items-start justify-between gap-4 px-6 pt-6 sm:px-10 sm:pt-8">
+        <div>
+          <h2 id={titleId} className="font-ui text-xs tracking-[0.28em] text-white uppercase">
+            Chat
+          </h2>
+          <p className="mt-1 text-sm text-white/70">Antwoorden komen uit het demoprofiel.</p>
+        </div>
+        <button type="button" className="border border-white/40 px-4 py-2 text-sm tracking-wide text-white uppercase" onClick={onClose}>
+          Sluiten
+        </button>
+      </header>
+      <div className="flex min-h-0 flex-1 flex-col lg:flex-row">
+        <div className="relative flex flex-col justify-end overflow-hidden px-6 py-8 sm:px-10 lg:w-[46%] lg:py-12">
+          <p className="font-ui text-[11px] tracking-[0.28em] text-primary uppercase">Drie deuren</p>
+          <p className="mt-4 font-display text-5xl leading-[0.86] text-white sm:text-7xl lg:text-8xl">
+            Hoe kom je <br /> hier binnen?
+          </p>
+        </div>
+        <div className="flex min-h-0 flex-1 flex-col border-t border-white/15 lg:border-t-0 lg:border-l" role="group" aria-label="Hoe kom je hier binnen?">
+          {doors.map((item, index) => (
+            <button
+              key={item.id}
+              ref={index === 0 ? firstDoorRef : undefined}
+              type="button"
+              className="group flex flex-1 flex-col justify-end border-t border-white/15 px-6 py-4 text-left first:border-t-0 hover:bg-white sm:px-10 sm:py-6"
+              aria-label={item.label}
+              onClick={() => onChoose(item.id)}
+            >
+              <span aria-hidden="true" className="font-display text-4xl leading-none text-primary sm:text-5xl">
+                0{index + 1}
+              </span>
+              <span className="mt-2 block font-display text-2xl leading-none text-white group-hover:text-ink sm:mt-3 sm:text-4xl">
+                {item.label}
+              </span>
+              <span className="mt-3 block max-w-sm text-base text-white/75 group-hover:text-muted">{item.line}</span>
+              <span className="mt-4 block font-ui text-[11px] tracking-[0.22em] text-white/50 uppercase group-hover:text-primary">
+                {item.hint}
+              </span>
+            </button>
+          ))}
+        </div>
+      </div>
+    </>
+  );
+}
+
+function Conversation({
+  titleId,
+  opening,
+  messages,
+  busy,
+  status,
+  error,
+  input,
+  inputRef,
+  endRef,
+  onClose,
+  onOtherDoor,
+  onInput,
+  onSubmit,
+  onStop,
+}: {
+  titleId: string;
+  opening: DoorOpening;
+  messages: UIMessage[];
+  busy: boolean;
+  status: string;
+  error: string | undefined;
+  input: string;
+  inputRef: RefObject<HTMLTextAreaElement | null>;
+  endRef: RefObject<HTMLDivElement | null>;
+  onClose: () => void;
+  onOtherDoor: () => void;
+  onInput: (value: string) => void;
+  onSubmit: (event: FormEvent<HTMLFormElement>) => void;
+  onStop: () => void;
+}) {
+  const headline = opening.id === "stranger";
+
+  return (
+    <>
+      <header className="flex items-center justify-between bg-primary px-5 py-4 text-white">
+        <div>
+          <h2 id={titleId} className="font-display text-lg font-semibold text-white">
+            Chat
+          </h2>
+          <p className="text-xs text-white/75">Antwoorden komen uit het demoprofiel.</p>
+        </div>
+        <button type="button" className="px-2 py-1 text-sm text-white" onClick={onClose}>
+          Sluiten
+        </button>
+      </header>
+      <div className="flex flex-1 flex-col gap-4 overflow-y-auto px-5 py-5">
+        <div className="flex items-center justify-between gap-3">
+          <p className="font-ui text-[11px] tracking-[0.22em] text-primary uppercase">{opening.hint}</p>
+          <button type="button" className="border border-ink/20 px-3 py-1 text-xs tracking-[0.16em] uppercase" onClick={onOtherDoor}>
+            Andere ingang
+          </button>
+        </div>
+        <p className={`font-display leading-[0.95] text-ink ${headline ? "text-3xl" : "text-5xl sm:text-6xl"}`}>{opening.prompt}</p>
+        {messages.map((message) => (
+          <Message key={message.id} message={message} busy={busy} last={message.id === messages.at(-1)?.id} />
+        ))}
+        <div ref={endRef} />
+      </div>
+      <p className="sr-only" aria-live="polite">
+        {status === "streaming" ? "Het antwoord komt binnen." : ""}
+      </p>
+      {error ? <p className="px-5 py-2 text-sm text-primary">{error}</p> : null}
+      <form className="flex items-end gap-2 border-t border-ink/10 p-4" onSubmit={onSubmit}>
+        <label className="sr-only" htmlFor="chat-bericht">
+          Bericht
+        </label>
+        <textarea
+          id="chat-bericht"
+          ref={inputRef}
+          rows={2}
+          value={input}
+          placeholder={opening.placeholder}
+          className="min-h-14 flex-1 resize-none border-2 border-ink/15 px-3 py-2 text-ink outline-none focus:border-primary"
+          onChange={(event) => onInput(event.target.value)}
+          onKeyDown={(event) => {
+            if (event.key === "Enter" && !event.shiftKey) {
+              event.preventDefault();
+              event.currentTarget.form?.requestSubmit();
+            }
+          }}
+        />
+        {/* type="button" zodat Stop niet tijdens de klik in een submit-knop verandert. */}
+        {busy ? (
+          <button type="button" className="bg-ink px-4 py-3 text-sm text-white" onClick={onStop}>
+            Stop
+          </button>
+        ) : (
+          <button
+            type="button"
+            className="bg-action px-4 py-3 text-sm font-medium text-white uppercase"
+            onClick={(event) => event.currentTarget.form?.requestSubmit()}
+          >
+            Verstuur
+          </button>
+        )}
+      </form>
+    </>
   );
 }
 

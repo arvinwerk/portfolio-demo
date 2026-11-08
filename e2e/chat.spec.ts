@@ -319,7 +319,6 @@ test.describe("onder de sm-grens", () => {
     await expect(dialog).toBeVisible();
     await dialog.getByRole("button", { name: "Ik liep binnen" }).click();
     await expect(dialog.getByRole("textbox", { name: "Bericht" })).toBeFocused();
-    await header.click();
     await expect(dialog).toBeVisible();
 
     const box = await dialog.boundingBox();
