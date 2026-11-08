@@ -1,6 +1,5 @@
-# Lokaal chatmodel voor de portfolio-assistent.
-# qwen2.5:3b roept searchProfile aan. Die grootte valt onder de Qwen Research Licence.
-# qwen2.5:1.5b en qwen2.5:7b zijn Apache-2.0; de 1.5B laat de tool liggen.
+# Lokaal model naast de site. De chat roept het niet aan: recruiterantwoorden komen uit content/rag/recruiter.txt.
+# qwen2.5:3b valt onder de Qwen Research Licence. qwen2.5:1.5b en qwen2.5:7b zijn Apache-2.0.
 FROM qwen2.5:3b
 PARAMETER num_ctx 4096
 PARAMETER temperature 0.2

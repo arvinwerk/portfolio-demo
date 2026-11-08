@@ -2,20 +2,20 @@
 
 ## Status
 
-Aanvaard.
+Aanvaard. Het antwoordpad is herzien: de chat roept het model niet meer aan.
 
 ## Context
 
-De chat liep via Anthropic. Model en sleutel stonden in de omgeving, en de Route Handler streamde vanuit hetzelfde Next-proces. Een tweede webserver was geen winst: één deploy, geen tweede consument van de pagina, geen CORS.
+De chat liep via Anthropic. Een lokaal model is geen tweede webserver. Ollama houdt de gewichten in een eigen cache en spreekt een OpenAI-compatibel pad op de eigen machine.
 
-Een lokaal model is geen tweede webserver. De gewichten en de runtime horen niet in het Node-proces. Ollama houdt die gewichten in een eigen cache en spreekt een OpenAI-compatibel pad op de eigen machine.
+Dat pad is geprobeerd met `qwen2.5:3b`, omdat die grootte `searchProfile` aanriep, en daarna met `qwen2.5:1.5b` en het profiel in de prompt. Op recruiter vragen veranderden beide de feiten: een project met Angular en Laravel werd een ander project, een vaardigheid die niet in het blad staat kreeg ja, en een startdatum werd verzonnen. De 3B is op de VPS bovendien te traag om een gesprek te dragen.
 
 ## Besluit
 
-De assistant-adapter praat met dat pad. Het model heet `qwen` en komt uit `qwen/Modelfile`, met `qwen2.5:3b` als basis. Die grootte roept `searchProfile` aan. De 3B valt onder de Qwen Research Licence. `qwen2.5:1.5b` en `qwen2.5:7b` zijn Apache-2.0; de 1.5B laat de tool liggen. `AI_BASE_URL` mag alleen naar loopback, `host.docker.internal` of een hostnaam zonder punt wijzen. Een verzoek naar een publieke provider valt zo af. `AI_API_KEY` ondertekent het transcript en gaat niet mee naar het model.
+De assistant beantwoordt die vragen uit `content/rag/recruiter.txt`. Het domain kiest de zin. De sessie streamt die zin en stuurt geen verzoek naar het model. Ontbreekt een feit, dan is de zin: dat staat niet in het profiel.
 
-`docker compose` start de runtime naast de site. `pnpm qwen` doet hetzelfde op de host. Beide maken het model `qwen` aan en houden de gewichten buiten de Next-image en buiten git.
+Ollama en `qwen/Modelfile` blijven. `pnpm qwen` en Compose maken het model `qwen` aan, buiten de Next-image en buiten git. `AI_BASE_URL` mag alleen naar loopback, `host.docker.internal` of een hostnaam zonder punt wijzen. `AI_API_KEY` ondertekent het transcript. `AI_MODEL` zet de chat aan.
 
 ## Gevolgen
 
-De eerste start downloadt het model. Antwoorden kosten CPU-tijd. Het tempoplafond blijft, zodat één bezoeker het model niet blijft bezetten. Wisselt de ondertekeningssleutel, dan vervalt de oude geschiedenis.
+Een antwoord wacht niet op een model. Het blad moet op de server mee, ook als `CONTENT_DIR` buiten de checkout staat. Wisselt de ondertekeningssleutel, dan vervalt de oude geschiedenis. De gewichten blijven beschikbaar op de machine, en ze doen niet mee aan het antwoord.

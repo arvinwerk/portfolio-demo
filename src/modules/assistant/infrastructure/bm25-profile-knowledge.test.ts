@@ -1,4 +1,4 @@
-import { mkdirSync, mkdtempSync, rmSync, symlinkSync, writeFileSync } from "node:fs";
+import { mkdirSync, mkdtempSync, readFileSync, rmSync, symlinkSync, writeFileSync } from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import { afterEach, describe, expect, it, vi } from "vitest";
@@ -123,6 +123,17 @@ describe("createProfileKnowledge", () => {
 
     const result = await createProfileKnowledge({ CONTENT_DIR: directory }).search("Kadehuis");
     expect(result.fragments[0]?.text).toContain("Kadehuis");
+  });
+
+  it("leest recruiter.txt naast de geïndexeerde tekst", async () => {
+    const directory = tempCorpus();
+    const rag = path.join(directory, "rag");
+    mkdirSync(rag);
+    write(rag, "recruiter.txt", readFileSync(path.join(process.cwd(), "content/rag/recruiter.txt")));
+
+    const facts = await createProfileKnowledge({ CONTENT_DIR: directory }).facts();
+    expect(facts.residence).toBe("Kadewijk");
+    expect(facts.projects.map((project) => project.client)).toContain("Circuit Meridiaan");
   });
 
   it("zegt het als het bestand ontbreekt, buiten de map wijst, of geen tekst is", async () => {

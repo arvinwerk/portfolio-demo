@@ -1,0 +1,24 @@
+# Feiten voor recruiter vragen. De chat antwoordt vanuit dit blad.
+naam: Noor Linden
+rol: frontend developer
+woonplaats: Kadewijk
+opleiding: informatica aan de Voorbeeld Hogeschool, afgerond in 2015
+geboren: 1993-04-18
+interfaces-sinds: 2015-08-03
+nu: sinds 2023 onder de naam Atelier Linden
+vaardigheid: TypeScript
+vaardigheid: JavaScript
+vaardigheid: Toegankelijkheid
+vaardigheid: Angular
+vaardigheid: React
+vaardigheid: Next.js
+vaardigheid: Laravel
+vaardigheid: Node.js
+vaardigheid: Testen
+project: Festival Noordlicht | Lichtarrangementen | Angular, TypeScript
+project: Circuit Meridiaan | Baan VIP | Angular, Laravel
+project: Studio Noord | componentbibliotheek | React, TypeScript, Next.js
+project: Haven & Co | content-API | Laravel, Node.js
+project: Atelier Linden | deze demopagina | React, Next.js
+contact: noor.linden@example.com
+github: example.com/demo/noor-linden
