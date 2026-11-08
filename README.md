@@ -23,7 +23,7 @@ flowchart TD
   route[app/api/chat]
   tool[searchProfile]
   corpus[content/rag tekstbestanden]
-  model[Model via Vercel AI SDK]
+  model[Lokale Qwen via Ollama]
 
   browser --> page
   browser --> filter
@@ -40,7 +40,7 @@ Pagina, content, chatroute en profielindex draaien in hetzelfde proces. Dat is e
 
 Een monorepo loont als pakketten een eigen release hebben of als meerdere apps dezelfde bibliotheek delen. Deze site heeft één deploy en geen tweede consument van de index. Een package boundary zou types en scripts splitsen zonder een eigenaar te geven.
 
-Een aparte Node-server voor het model loont als meer producten hetzelfde model gebruiken, als dat proces apart moet schalen, of als het model buiten het webproces moet blijven. Deze chat bestaat alleen voor deze pagina. Een tweede server betekent een tweede deploy, CORS, en een sleutel op nog een plek. De Vercel AI SDK streamt vanuit een Route Handler. De browser ziet alleen `/api/chat`.
+Het webproces blijft één Next.js-app. De gewichten draaien daarnaast in Ollama: een lokaal model heeft een eigen runtime en een eigen schijfcache, en die horen niet in het Node-proces. Die grens staat in `docs/adr/0001-lokaal-qwen.md`. De Vercel AI SDK streamt vanuit een Route Handler naar dat lokale pad. De browser ziet alleen `/api/chat`.
 
 De bron staat in `src/`. Twee bounded contexts, `portfolio` en `assistant`, elk met `domain`, `application`, `infrastructure` en `interface`. `src/app` bedraadt die modules en bevat geen beslisregels. `server-only` op adapters die bestanden lezen of de sleutel zien laat de build stuklopen als een clientcomponent ze importeert. Het domain importeert geen React, dus leeftijd, filter, id's en het gesprek zijn te testen zonder de pagina op te bouwen. De importregel wordt afgedwongen door `src/shared/kernel/architecture.test.ts`.
 
@@ -52,15 +52,15 @@ De bron staat in `src/`. Twee bounded contexts, `portfolio` en `assistant`, elk 
 
 ## Chat en streaming
 
-`ChatWidget` is het venster. `useChat` stuurt het gesprek naar de route. De route is een dunne Next-adapter op `handleVisitorChat`. Die herstelt het gesprek, controleert het tempo en opent een Anthropic-sessie. De sessie roept `streamText` aan en geeft de stream terug als UI-messagestream. Tokens komen binnen terwijl het model nog schrijft.
+`ChatWidget` is het venster. `useChat` stuurt het gesprek naar de route. De route is een dunne Next-adapter op `handleVisitorChat`. Die herstelt het gesprek, controleert het tempo en opent een sessie op het lokale Qwen-model. De sessie roept `streamText` aan en geeft de stream terug als UI-messagestream. Tokens komen binnen terwijl het model nog schrijft.
 
-`AI_MODEL` is het model-id. `claude-haiku-5-5` in `.env.example` is een voorbeeld, geen keuze die in de code vastzit. `AI_API_KEY` gaat naar de Anthropic-provider op de server. De route weigert het verzoek als een van beide ontbreekt, en het venster toont die zin in plaats van een rauwe JSON-body.
+`AI_MODEL` is de naam bij Ollama. `.env.example` zet `qwen`: het model dat `qwen/Modelfile` aanmaakt, op basis van `qwen2.5:3b`. Die grootte roept de zoektool aan. De 3B valt onder de Qwen Research Licence. `AI_BASE_URL` is het lokale OpenAI-compatibele pad. Zonder die variabele geldt `http://127.0.0.1:11434/v1`. Een adres buiten deze machine of het Docker-netwerk wordt geweigerd. `AI_API_KEY` ondertekent het gesprek en gaat niet naar het model. De route weigert het verzoek als model of sleutel ontbreekt, en het venster toont die zin in plaats van een rauwe JSON-body.
 
 Binnenkomende berichten worden gecontroleerd: alleen gebruiker en assistent, een begrensd aantal, alleen tekst, en een maximumlengte. Het lichaam van het verzoek stopt bij 96 kB. Tool-onderdelen uit de browser worden weggegooid. Een assistentbericht telt alleen mee als deze server het zelf ondertekend heeft met `AI_API_KEY`, of als het de vaste welkomstzin is. Een verzonnen antwoord of een verzonnen toolresultaat bereikt het model niet. De handtekening gaat mee in de stream en komt bij de volgende beurt terug. Wisselt de sleutel, dan vervalt de oude geschiedenis.
 
-`/api/chat` heeft geen login. Zonder plafond kan een bezoeker de sleutel leegtrekken. Per adres geldt een venster van 8 verzoeken per minuut. Per proces geldt daarnaast 100 verzoeken per tien minuten, ook als het adres in `x-forwarded-for` meedraait. Daarboven antwoordt de route met 429, vóórdat het model wordt aangeroepen. Het plafond zit in het geheugen van dit proces. Meerdere instances delen het niet. Een fout van de provider gaat als vaste zin naar de browser, niet als ruwe fouttekst.
+`/api/chat` heeft geen login. Zonder plafond kan een bezoeker het lokale model bezet houden. Per adres geldt een venster van 8 verzoeken per minuut. Per proces geldt daarnaast 100 verzoeken per tien minuten, ook als het adres in `x-forwarded-for` meedraait. Daarboven antwoordt de route met 429, vóórdat het model wordt aangeroepen. Het plafond zit in het geheugen van dit proces. Meerdere instances delen het niet. Een fout van het model gaat als vaste zin naar de browser, niet als ruwe fouttekst.
 
-`stopWhen: isStepCount(4)` laat het model een tool aanroepen en daarna nog antwoorden, en kapt een lus af voordat een vastgelopen gesprek de sleutel blijft gebruiken. De zoekterm uit het model is begrensd op 200 tekens.
+`stopWhen: isStepCount(4)` laat het model een tool aanroepen en daarna nog antwoorden, en kapt een lus af voordat een vastgelopen gesprek het model bezet houdt. De zoekterm uit het model is begrensd op 200 tekens.
 
 ## Profiel als RAG, zonder vectordatabase
 
@@ -82,7 +82,7 @@ Zonder `RAG_DOCUMENT_PATH` worden alle tekstbestanden in de map geïndexeerd. Me
 
 Elke context houdt dezelfde volgorde aan: document of verzoek naar binnen, domain beslist, interface tekent.
 
-`src/app/api/chat/route.ts` geeft het verzoek door aan de assistant-module. De provider zit in `createAnthropicSession`. Een andere provider vervangt die adapter. De route importeert de provider niet.
+`src/app/api/chat/route.ts` geeft het verzoek door aan de assistant-module. De provider zit in `createLocalQwenSession`. De route importeert de provider niet.
 
 `ProfileKnowledge` is de poort naar de feiten. `FileProfileStore` is de huidige adapter: hij leest de tekstbestanden, laat LangChain ze splitsen, rangschikt met BM25, weigert iets groters dan 64 kB, en cachet de stukken op het eigen object. Een latere adapter kan dezelfde poort vullen met embeddings. De tool en de route blijven staan.
 
@@ -94,7 +94,7 @@ Het venster importeert de fouttekst die het aan de bezoeker toont, en de welkoms
 
 Domeintests dekken datums, het filter, project-id's, de contentvalidatie en de profielstore, inclusief een vervangen bestand, een map met tekst én markdown, en een pad dat buiten de map wijst. Componenttests dekken de kaart, de skills, het filter en het chatvenster, ook de regel die verschijnt terwijl de tool zoekt.
 
-De routetest controleert dat `searchProfile` aan de stream hangt, dat een zoekopdracht op "opleiding" het fragment met de Voorbeeld Hogeschool teruggeeft, en dat een verzonnen assistentantwoord het model niet bereikt. Een tweede test stuurt een nagebootste Anthropic-stream door de echte SDK en controleert dat de tekst in het antwoord naar de browser zit, dat die tekst ondertekend is, en dat de sleutel niet in het antwoord staat.
+De routetest controleert dat `searchProfile` aan de stream hangt, dat een zoekopdracht op "opleiding" het fragment met de Voorbeeld Hogeschool teruggeeft, en dat een verzonnen assistentantwoord het model niet bereikt. Een tweede test stuurt een nagebootste stream van het lokale model door de echte SDK en controleert dat de tekst in het antwoord naar de browser zit, dat die tekst ondertekend is, en dat de sleutel niet in het verzoek naar het model staat.
 
 `pnpm test:e2e` draait Playwright tegen een productiebuild. Die suite dekt de pagina, het filter en de chat. Het filter wordt gecontroleerd in de eerste HTML, na een klik, met de terugknop, zonder JavaScript, en zonder dat die klik de scrollpositie verschuift. De chat dekt openen en sluiten, een leeg bericht, een antwoordstroom, het zoeken in het profiel, stoppen, en de zinnen die `/api/chat` teruggeeft. Zonder `AI_MODEL` en `AI_API_KEY` antwoordt die route met 503. Een ongeldige of te grote body wordt geweigerd voordat het model eraan te pas komt.
 
@@ -107,6 +107,7 @@ pnpm exec playwright install chromium
 ```bash
 pnpm install
 cp .env.example .env.local
+pnpm qwen
 pnpm dev
 pnpm test
 pnpm exec playwright install chromium
@@ -119,11 +120,12 @@ pnpm start
 `.env.local`:
 
 ```
-AI_MODEL=claude-haiku-5-5
+AI_MODEL=qwen
+AI_BASE_URL=http://127.0.0.1:11434/v1
 AI_API_KEY=
 ```
 
-Zonder die twee variabelen werkt de pagina. De chat antwoordt dan dat model en sleutel gezet moeten worden.
+`pnpm qwen` start Ollama als die nog niet draait, en maakt het model `qwen` uit `qwen/Modelfile`. De eerste keer downloadt dat `qwen2.5:3b`, ongeveer 1,9 GB. Zet in `AI_API_KEY` een eigen geheim; die regel ondertekent het gesprek. Zonder model of sleutel werkt de pagina. De chat antwoordt dan dat model en sleutel gezet moeten worden. Zonder draaiende Ollama komt het antwoord niet af.
 
 ## Container
 
@@ -134,7 +136,9 @@ cp .env.example .env
 docker compose up -d --build
 ```
 
-De site luistert op `127.0.0.1:3000`. Een proxy ervoor zet HTTPS en `X-Real-IP`. Die proxy mag `/api/chat` niet bufferen, anders komt de stream pas binnen als het model klaar is. `AI_MODEL` en `AI_API_KEY` komen uit `.env` bij het starten van de container. Ze worden niet in de image gebakken.
+De site luistert op `127.0.0.1:3000`. Een proxy ervoor zet HTTPS en `X-Real-IP`. Die proxy mag `/api/chat` niet bufferen, anders komt de stream pas binnen als het model klaar is. Compose zet `AI_MODEL=qwen` en `AI_BASE_URL=http://qwen:11434/v1`. `AI_API_KEY` komt uit `.env` bij het starten van de site. Sleutel en gewichten worden niet in de Next-image gebakken. De service `qwen` laadt het model in volume `qwen`. De site start meteen. Tot die download klaar is, komt een chatantwoord niet af. Daarna gaat het gesprek naar `http://qwen:11434`.
+
+Op de VPS draait de site als het standalone archief uit de deploy, niet via Compose. Die machine heeft dezelfde Ollama nodig, met `qwen` op `127.0.0.1:11434`. Het archief bevat `qwen/`, zodat `sh qwen/start.sh` het model daar kan aanmaken. Zonder dat model weigert de chat het antwoord.
 
 ## Content vervangen
 

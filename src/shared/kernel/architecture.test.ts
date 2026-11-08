@@ -81,7 +81,13 @@ function vendorBanned(layer: Place, specifier: string): string | undefined {
     }
   }
   if (layer.kind === "layer" && layer.layer === "interface") {
-    if (pkg === "node:fs" || pkg === "node:crypto" || specifier.startsWith("@langchain/") || specifier === "@ai-sdk/anthropic") {
+    if (
+      pkg === "node:fs" ||
+      pkg === "node:crypto" ||
+      specifier.startsWith("@langchain/") ||
+      specifier === "@ai-sdk/anthropic" ||
+      specifier === "@ai-sdk/openai-compatible"
+    ) {
       return specifier;
     }
   }

@@ -5,11 +5,11 @@ vi.mock("server-only", () => ({}));
 import { signAssistantTurn } from "@/modules/assistant/server";
 import { POST } from "./route";
 
-function event(payload: unknown) {
-  return `event: ${(payload as { type: string }).type}\ndata: ${JSON.stringify(payload)}\n\n`;
+function chunk(payload: unknown) {
+  return `data: ${JSON.stringify(payload)}\n\n`;
 }
 
-describe("streaming via de Anthropic-provider", () => {
+describe("streaming via het lokale Qwen-model", () => {
   afterEach(() => {
     vi.unstubAllGlobals();
     vi.unstubAllEnvs();
@@ -18,47 +18,36 @@ describe("streaming via de Anthropic-provider", () => {
   it("stuurt modeltekst als een stream naar de browser", async () => {
     vi.stubEnv("AI_MODEL", "test-model");
     vi.stubEnv("AI_API_KEY", "test-sleutel");
+    vi.stubEnv("AI_BASE_URL", "");
     vi.stubGlobal(
       "fetch",
-      vi.fn(async (_input: RequestInfo | URL, init?: RequestInit) => {
+      vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
+        const target = typeof input === "string" ? input : input instanceof URL ? input.toString() : input.url;
+        expect(target).toBe("http://127.0.0.1:11434/v1/chat/completions");
         const headers = new Headers(init?.headers);
-        expect(headers.get("x-api-key")).toBe("test-sleutel");
+        expect(headers.get("authorization")).toBeNull();
         const body = JSON.parse(String(init?.body)) as { model: string };
         expect(body.model).toBe("test-model");
+        expect(JSON.stringify(body)).not.toContain("test-sleutel");
 
         return new Response(
           [
-            event({
-              type: "message_start",
-              message: {
-                id: "msg_1",
-                model: "test-model",
-                role: "assistant",
-                usage: { input_tokens: 12 },
-              },
+            chunk({
+              id: "chatcmpl-1",
+              model: "test-model",
+              choices: [{ delta: { role: "assistant", content: "Hallo" }, finish_reason: null }],
             }),
-            event({
-              type: "content_block_start",
-              index: 0,
-              content_block: { type: "text", text: "" },
+            chunk({
+              id: "chatcmpl-1",
+              model: "test-model",
+              choices: [{ delta: { content: " daar" }, finish_reason: null }],
             }),
-            event({
-              type: "content_block_delta",
-              index: 0,
-              delta: { type: "text_delta", text: "Hallo" },
+            chunk({
+              id: "chatcmpl-1",
+              model: "test-model",
+              choices: [{ delta: {}, finish_reason: "stop" }],
             }),
-            event({
-              type: "content_block_delta",
-              index: 0,
-              delta: { type: "text_delta", text: " daar" },
-            }),
-            event({ type: "content_block_stop", index: 0 }),
-            event({
-              type: "message_delta",
-              delta: { stop_reason: "end_turn", stop_sequence: null },
-              usage: { output_tokens: 2 },
-            }),
-            event({ type: "message_stop" }),
+            "data: [DONE]\n\n",
           ].join(""),
           { status: 200, headers: { "content-type": "text/event-stream" } },
         );

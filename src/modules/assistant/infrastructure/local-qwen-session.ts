@@ -1,15 +1,18 @@
 import "server-only";
 
-import { createAnthropic } from "@ai-sdk/anthropic";
+import { createOpenAICompatible } from "@ai-sdk/openai-compatible";
 import { convertToModelMessages, isStepCount, streamText, tool } from "ai";
 import { z } from "zod";
+import type { AssistantCredentials } from "../application/assistant-credentials";
 import { ASSISTANT_CHARTER } from "../domain/charter";
 import { asUiTurn, type TranscriptTurn } from "../domain/conversation";
 import type { ProfileKnowledge } from "../domain/profile-knowledge";
-import type { AssistantCredentials } from "../application/assistant-credentials";
 
-export function createAnthropicSession(config: AssistantCredentials, knowledge: ProfileKnowledge) {
-  const model = createAnthropic({ apiKey: config.apiKey })(config.model);
+export function createLocalQwenSession(config: AssistantCredentials, knowledge: ProfileKnowledge) {
+  const model = createOpenAICompatible({
+    name: "qwen",
+    baseURL: config.baseUrl,
+  }).chatModel(config.model);
 
   return {
     async stream(turns: TranscriptTurn[]) {

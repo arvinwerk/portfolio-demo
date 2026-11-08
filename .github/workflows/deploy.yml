@@ -25,6 +25,7 @@ jobs:
           cp -a .next/static release/.next/static
           cp -a public release/public
           cp -a content release/content
+          cp -a qwen release/qwen
           tar -C release -cJf portfolio.tar.xz .
       - name: Deploy
         env:

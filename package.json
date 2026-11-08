@@ -10,14 +10,15 @@
     "start": "next start",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
-    "test:e2e": "playwright test"
+    "test:e2e": "playwright test",
+    "qwen": "sh qwen/start.sh"
   },
   "dependencies": {
-    "@ai-sdk/anthropic": "^4.0.87",
-    "@ai-sdk/react": "^4.0.156",
+    "@ai-sdk/openai-compatible": "^3.0.87",
+    "@ai-sdk/react": "^4.0.169",
     "@langchain/core": "^1.3.0",
     "@langchain/textsplitters": "^1.0.2",
-    "ai": "^7.0.152",
+    "ai": "^7.0.165",
     "next": "^16.4.3",
     "okapibm25": "^1.4.1",
     "react": "^19.3.1",

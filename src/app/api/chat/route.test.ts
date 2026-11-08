@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 vi.mock("server-only", () => ({}));
 
-const { streamText, convertToModelMessages, toUIMessageStream, createUIMessageStreamResponse, createAnthropic } =
+const { streamText, convertToModelMessages, toUIMessageStream, createUIMessageStreamResponse, createOpenAICompatible } =
   vi.hoisted(() => ({
     streamText: vi.fn(
       (_options: {
@@ -18,7 +18,9 @@ const { streamText, convertToModelMessages, toUIMessageStream, createUIMessageSt
     createUIMessageStreamResponse: vi.fn(
       () => new Response("data: hallo\n\n", { headers: { "content-type": "text/event-stream" } }),
     ),
-    createAnthropic: vi.fn(() => (modelId: string) => ({ modelId })),
+    createOpenAICompatible: vi.fn(() => ({
+      chatModel: (modelId: string) => ({ modelId }),
+    })),
   }));
 
 vi.mock("ai", () => ({
@@ -30,8 +32,8 @@ vi.mock("ai", () => ({
   isStepCount: (steps: number) => ({ steps }),
 }));
 
-vi.mock("@ai-sdk/anthropic", () => ({
-  createAnthropic,
+vi.mock("@ai-sdk/openai-compatible", () => ({
+  createOpenAICompatible,
 }));
 
 import { CHAT_ADDRESS_LIMIT, signAssistantTurn } from "@/modules/assistant/server";
@@ -48,9 +50,10 @@ function post(body: unknown, headers?: Record<string, string>) {
 describe("POST /api/chat", () => {
   beforeEach(() => {
     streamText.mockClear();
-    createAnthropic.mockClear();
+    createOpenAICompatible.mockClear();
     vi.stubEnv("AI_MODEL", "");
     vi.stubEnv("AI_API_KEY", "");
+    vi.stubEnv("AI_BASE_URL", "");
     vi.stubEnv("RAG_DOCUMENT_PATH", "");
   });
 
@@ -62,7 +65,10 @@ describe("POST /api/chat", () => {
 
     expect(response.status).toBe(200);
     expect(response.headers.get("content-type")).toContain("text/event-stream");
-    expect(createAnthropic).toHaveBeenCalledWith({ apiKey: "test-sleutel" });
+    expect(createOpenAICompatible).toHaveBeenCalledWith({
+      name: "qwen",
+      baseURL: "http://127.0.0.1:11434/v1",
+    });
     expect(streamText).toHaveBeenCalledWith(
       expect.objectContaining({
         model: { modelId: "test-model" },

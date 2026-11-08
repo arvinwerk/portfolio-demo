@@ -1,6 +1,6 @@
 import "server-only";
 
-import { createAnthropicSession } from "./infrastructure/anthropic-assistant-session";
+import { createLocalQwenSession } from "./infrastructure/local-qwen-session";
 import { readAssistantConfig } from "./infrastructure/assistant-config";
 import { createProfileKnowledge } from "./infrastructure/bm25-profile-knowledge";
 import { createHmacSeal, signAssistantTurn } from "./infrastructure/hmac-transcript-seal";
@@ -18,6 +18,6 @@ export function handleVisitorChat(request: Request): Promise<Response> {
     sealFor: createHmacSeal,
     gate,
     knowledge: createProfileKnowledge(),
-    openSession: createAnthropicSession,
+    openSession: createLocalQwenSession,
   });
 }
