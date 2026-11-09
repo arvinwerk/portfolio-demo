@@ -133,9 +133,15 @@ cp .env.example .env
 docker compose up -d --build
 ```
 
-De site luistert op `127.0.0.1:3000`. Een proxy ervoor zet HTTPS en `X-Real-IP`. Compose zet `AI_MODEL=qwen` en `AI_BASE_URL=http://qwen:11434/v1`. `AI_API_KEY` komt uit `.env` bij het starten van de site. Sleutel en gewichten worden niet in de Next-image gebakken. De service `qwen` laadt het model in volume `qwen`. De chat wacht op dat model. Is het er nog niet, dan krijgt de bezoeker de zin dat het antwoord niet lukte.
+De site luistert op `127.0.0.1:3000`. Compose zet `AI_MODEL=qwen` en `AI_BASE_URL=http://qwen:11434/v1`. `AI_API_KEY` komt uit `.env` bij het starten van de site. Sleutel en gewichten worden niet in de Next-image gebakken. De service `qwen` laadt het model in volume `qwen`. De chat wacht op dat model. Is het er nog niet, dan krijgt de bezoeker de zin dat het antwoord niet lukte.
 
-Op de VPS draait de site als het standalone archief uit de deploy, niet via Compose. Het archief bevat `qwen/`, zodat `sh qwen/start.sh` het model daar kan aanmaken. De chat leest `recruiter.txt` uit `CONTENT_DIR/rag` als die variabele gezet is.
+Op de VPS draait de site als het standalone archief uit de deploy, niet via Compose. Het archief bevat `qwen/`, zodat `sh qwen/start.sh` het model daar kan aanmaken. De chat leest `recruiter.txt` uit `CONTENT_DIR/rag` als die variabele gezet is. `deploy/portfolio.service` houdt het proces op `127.0.0.1:3000`.
+
+Nginx staat ervoor. `deploy/ssl` schrijft die vhost, zet `X-Real-IP` en laat `/api/chat` ongebuffert. Poort 80 stuurt door naar HTTPS en blijft `/.well-known/acme-challenge/` uitserveren. Zonder `SITE_ADDRESS` vraagt Certbot een certificaat voor het publieke IPv4-adres. Dat certificaat geldt zes dagen. De timer van Certbot vernieuwt het en herlaadt Nginx. Met `SITE_ADDRESS` op een hostnaam die naar deze machine wijst, komt het certificaat op die naam. `CERTBOT_EMAIL` is het adres voor het verloopbericht.
+
+```bash
+sudo sh deploy/ssl
+```
 
 ## Development
 

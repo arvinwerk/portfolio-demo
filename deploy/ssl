@@ -1,0 +1,364 @@
+#!/bin/sh
+# Nginx beëindigt TLS en stuurt door naar de app op 127.0.0.1.
+# Zonder SITE_ADDRESS geldt het certificaat voor het publieke IPv4-adres.
+# Dat certificaat duurt zes dagen. De timer van Certbot vernieuwt het.
+set -eu
+
+name=${PORTFOLIO_CERT_NAME:-portfolio}
+upstream=${PORTFOLIO_UPSTREAM:-127.0.0.1:3000}
+webroot=${PORTFOLIO_ACME_ROOT:-/var/www/html}
+domain=${SITE_ADDRESS:-}
+email=${CERTBOT_EMAIL:-}
+ip=${PORTFOLIO_SSL_IP:-}
+ip6=${PORTFOLIO_SSL_IPV6:-}
+dry=${PORTFOLIO_SSL_DRY_RUN:-}
+print_only=
+out=${PORTFOLIO_SSL_ROOT:-}
+
+die() {
+  echo "$1" >&2
+  exit 1
+}
+
+is_public_ipv4() {
+  candidate=$1
+  case $candidate in
+    *.*.*.*) ;;
+    *) return 1 ;;
+  esac
+  rest=$candidate
+  count=0
+  o1=; o2=; o3=; o4=
+  while [ -n "$rest" ]; do
+    octet=${rest%%.*}
+    case $rest in
+      *.*) rest=${rest#*.} ;;
+      *) rest= ;;
+    esac
+    count=$((count + 1))
+    case $octet in
+      "" | *[!0-9]* | 0[0-9]*) return 1 ;;
+    esac
+    if [ "$octet" -gt 255 ]; then
+      return 1
+    fi
+    case $count in
+      1) o1=$octet ;;
+      2) o2=$octet ;;
+      3) o3=$octet ;;
+      4) o4=$octet ;;
+      *) return 1 ;;
+    esac
+  done
+  [ "$count" -eq 4 ] || return 1
+  if [ "$o1" -ge 224 ] || [ "$o1" -eq 0 ] || [ "$o1" -eq 10 ] || [ "$o1" -eq 127 ]; then
+    return 1
+  fi
+  case $o1.$o2 in
+    169.254 | 192.168) return 1 ;;
+  esac
+  if [ "$o1" -eq 172 ] && [ "$o2" -ge 16 ] && [ "$o2" -le 31 ]; then
+    return 1
+  fi
+  return 0
+}
+
+is_hostname() {
+  case $1 in
+    "" | *[!A-Za-z0-9.-]* | .* | *. | *..* | -*) return 1 ;;
+    *.*) return 0 ;;
+    *) return 1 ;;
+  esac
+}
+
+is_upstream() {
+  host=${1%:*}
+  port=${1##*:}
+  if [ "$host" = "$1" ] || [ -z "$host" ] || [ "$host" = "$port" ]; then
+    return 1
+  fi
+  case $port in
+    "" | *[!0-9]*) return 1 ;;
+  esac
+  if [ "$port" -lt 1 ] || [ "$port" -gt 65535 ]; then
+    return 1
+  fi
+  case $host in
+    *[!A-Za-z0-9.-]*) return 1 ;;
+  esac
+  if is_public_ipv4 "$host"; then
+    return 0
+  fi
+  case $host in
+    127.0.0.1 | localhost) return 0 ;;
+  esac
+  is_hostname "$host"
+}
+
+is_cert_name() {
+  case $1 in
+    "" | *[!A-Za-z0-9._-]* | .* | *..* | -*) return 1 ;;
+    *) return 0 ;;
+  esac
+}
+
+require_names() {
+  is_cert_name "$name" || die "De certificaatnaam mag alleen letters, cijfers, punt, streepje en underscore bevatten."
+  is_upstream "$upstream" || die "De upstream moet host:poort zijn, bijvoorbeeld 127.0.0.1:3000."
+  if [ -n "$domain" ]; then
+    is_hostname "$domain" || die "SITE_ADDRESS moet een hostnaam zijn, zonder schema of poort."
+  fi
+  if [ -n "$ip" ]; then
+    is_public_ipv4 "$ip" || die "PORTFOLIO_SSL_IP moet een publiek IPv4-adres zijn."
+  fi
+  if [ -n "$ip6" ]; then
+    case $ip6 in
+      *[!A-Fa-f0-9:]* | fe80:* | ::1) die "PORTFOLIO_SSL_IPV6 moet een globaal IPv6-adres zijn." ;;
+      *:*) ;;
+      *) die "PORTFOLIO_SSL_IPV6 moet een globaal IPv6-adres zijn." ;;
+    esac
+  fi
+}
+
+discover_ip() {
+  if [ -n "$ip" ]; then
+    return 0
+  fi
+  ip=$(ip -4 route get 1.1.1.1 2>/dev/null | awk '{
+    for (i = 1; i <= NF; i++) if ($i == "src") { print $(i + 1); exit }
+  }') || ip=
+  is_public_ipv4 "$ip" || die "Geen publiek IPv4-adres gevonden. Zet SITE_ADDRESS of PORTFOLIO_SSL_IP."
+}
+
+proxy_headers() {
+  cat <<'EOF'
+        proxy_http_version 1.1;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+EOF
+}
+
+render_bootstrap() {
+  cat <<EOF
+server {
+    listen 80 default_server;
+    listen [::]:80 default_server;
+    server_name _;
+    client_max_body_size 128k;
+
+    location ^~ /.well-known/acme-challenge/ {
+        default_type "text/plain";
+        root ${webroot};
+    }
+
+    location /api/chat {
+        proxy_pass http://${upstream};
+$(proxy_headers)
+        proxy_set_header Connection "";
+        proxy_buffering off;
+        proxy_cache off;
+        gzip off;
+        proxy_read_timeout 300s;
+    }
+
+    location / {
+        proxy_pass http://${upstream};
+$(proxy_headers)
+    }
+}
+EOF
+}
+
+render_tls() {
+  cat <<EOF
+server {
+    listen 80 default_server;
+    listen [::]:80 default_server;
+    server_name _;
+
+    location ^~ /.well-known/acme-challenge/ {
+        default_type "text/plain";
+        root ${webroot};
+    }
+
+    location / {
+        return 301 https://\$host\$request_uri;
+    }
+}
+
+server {
+    listen 443 ssl default_server;
+    listen [::]:443 ssl default_server;
+    http2 on;
+    server_name _;
+    client_max_body_size 128k;
+
+    ssl_certificate     /etc/letsencrypt/live/${name}/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/${name}/privkey.pem;
+    ssl_protocols TLSv1.2 TLSv1.3;
+    ssl_session_timeout 1d;
+    ssl_session_cache shared:PortfolioSSL:10m;
+    ssl_session_tickets off;
+
+    location /api/chat {
+        proxy_pass http://${upstream};
+$(proxy_headers)
+        proxy_set_header Connection "";
+        proxy_buffering off;
+        proxy_cache off;
+        gzip off;
+        proxy_read_timeout 300s;
+    }
+
+    location / {
+        proxy_pass http://${upstream};
+$(proxy_headers)
+    }
+}
+EOF
+}
+
+run_certbot() {
+  if [ -n "$email" ]; then
+    set -- --email "$email"
+  else
+    set -- --register-unsafely-without-email
+  fi
+  if [ -n "$domain" ]; then
+    set -- "$@" -d "$domain"
+  else
+    discover_ip
+    set -- "$@" --preferred-profile shortlived --ip-address "$ip"
+    if [ -n "$ip6" ]; then
+      set -- "$@" --ip-address "$ip6"
+    fi
+  fi
+  if [ "$dry" = 1 ] || [ "$print_only" = 1 ]; then
+    printf '%s\n' certonly --non-interactive --agree-tos --keep-until-expiring \
+      --cert-name "$name" \
+      --webroot --webroot-path "$webroot" \
+      --deploy-hook "systemctl reload nginx" \
+      "$@"
+    return 0
+  fi
+  "$certbot" certonly --non-interactive --agree-tos --keep-until-expiring \
+    --cert-name "$name" \
+    --webroot --webroot-path "$webroot" \
+    --deploy-hook "systemctl reload nginx" \
+    "$@"
+}
+
+public_url() {
+  if [ -n "$domain" ]; then
+    printf 'https://%s/\n' "$domain"
+  else
+    discover_ip
+    printf 'https://%s/\n' "$ip"
+  fi
+}
+
+enable_site() {
+  site=/etc/nginx/sites-available/portfolio
+  enabled=/etc/nginx/sites-enabled/portfolio
+  default_link=/etc/nginx/sites-enabled/default
+  previous=$(mktemp)
+  had_previous=0
+  had_default=0
+  if [ -f "$site" ]; then
+    cp "$site" "$previous"
+    had_previous=1
+  fi
+  if [ -e "$default_link" ]; then
+    had_default=1
+  fi
+  cat > "$site"
+  ln -sfn "$site" "$enabled"
+  rm -f "$default_link"
+  if ! nginx -t; then
+    if [ "$had_previous" -eq 1 ]; then
+      cp "$previous" "$site"
+    else
+      rm -f "$site" "$enabled"
+    fi
+    if [ "$had_default" -eq 1 ]; then
+      ln -sfn /etc/nginx/sites-available/default "$default_link"
+    fi
+    rm -f "$previous"
+    die "Nginx weigerde de nieuwe configuratie."
+  fi
+  rm -f "$previous"
+  if ! systemctl reload nginx; then
+    systemctl restart nginx
+  fi
+}
+
+ensure_certbot() {
+  if [ -x /snap/bin/certbot ] && /snap/bin/certbot --help all 2>/dev/null | grep -q -- --ip-address; then
+    certbot=/snap/bin/certbot
+    return 0
+  fi
+  if command -v certbot >/dev/null 2>&1 && certbot --help all 2>/dev/null | grep -q -- --ip-address; then
+    certbot=$(command -v certbot)
+    return 0
+  fi
+  command -v snap >/dev/null 2>&1 || die "Certbot ontbreekt en snap is niet beschikbaar."
+  snap install --classic certbot
+  ln -sfn /snap/bin/certbot /usr/local/bin/certbot
+  certbot=/snap/bin/certbot
+  "$certbot" --help all 2>/dev/null | grep -q -- --ip-address || die "Certbot ondersteunt geen certificaat op een IP-adres."
+}
+
+install_tls() {
+  require_names
+  if [ "$dry" = 1 ]; then
+    [ -n "$out" ] || die "Zet PORTFOLIO_SSL_ROOT voor een droge run."
+    mkdir -p "$out"
+    render_bootstrap > "$out/bootstrap.conf"
+    render_tls > "$out/tls.conf"
+    run_certbot
+    public_url | awk '{ print "site-url=" $0 }'
+    return 0
+  fi
+  [ "$(id -u)" -eq 0 ] || die "deploy/ssl heeft root nodig."
+  command -v nginx >/dev/null 2>&1 || die "Nginx ontbreekt."
+  command -v systemctl >/dev/null 2>&1 || die "systemctl ontbreekt."
+  mkdir -p "$webroot"
+  render_bootstrap | enable_site
+  ensure_certbot
+  run_certbot
+  mkdir -p /etc/letsencrypt/renewal-hooks/deploy
+  printf '%s\n' '#!/bin/sh' 'systemctl reload nginx' > /etc/letsencrypt/renewal-hooks/deploy/portfolio-nginx
+  chmod 755 /etc/letsencrypt/renewal-hooks/deploy/portfolio-nginx
+  if [ -d /etc/systemd/system ]; then
+    systemctl enable --now snap.certbot.renew.timer >/dev/null 2>&1 || true
+  fi
+  render_tls | enable_site
+  url=$(public_url)
+  printf 'site-url=%s\n' "$url"
+}
+
+case ${1:-install} in
+  render)
+    mode=${2:-}
+    name=${3:-$name}
+    upstream=${4:-$upstream}
+    require_names
+    case $mode in
+      bootstrap) render_bootstrap ;;
+      tls) render_tls ;;
+      *) die "render verwacht bootstrap of tls." ;;
+    esac
+    ;;
+  check-ip)
+    is_public_ipv4 "${2:-}" || exit 1
+    ;;
+  plan)
+    print_only=1
+    require_names
+    run_certbot
+    ;;
+  install) install_tls ;;
+  *) die "Onbekend commando: $1" ;;
+esac

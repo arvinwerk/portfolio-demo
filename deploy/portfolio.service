@@ -1,0 +1,19 @@
+[Unit]
+Description=Portfolio
+After=network-online.target
+
+[Service]
+Type=simple
+WorkingDirectory=%h/portfolio/current
+Environment=NODE_ENV=production
+Environment=PORT=3000
+Environment=HOSTNAME=127.0.0.1
+Environment=NEXT_TELEMETRY_DISABLED=1
+Environment=CONTENT_DIR=%h/portfolio/data
+EnvironmentFile=-%h/portfolio/.env
+ExecStart=%h/.local/node/bin/node server.js
+Restart=on-failure
+RestartSec=2
+
+[Install]
+WantedBy=default.target
