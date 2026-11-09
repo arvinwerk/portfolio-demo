@@ -1,0 +1,13 @@
+---
+description: Elke feature krijgt een eenheidstest en een Playwright-scenario in dezelfde wijziging.
+alwaysApply: true
+---
+
+# Tests
+
+Een feature is klaar als de eenheidstest en de Playwright-suite dezelfde verandering kennen. De pipeline draait beide.
+
+- Verandert gedrag dat een bezoeker ziet of aanroept, dan werk je `e2e/` bij in dezelfde wijziging. Een nieuwe zin, deur, status, URL, filter of layout krijgt een scenario. Een test die het oude scherm verwacht, wordt het nieuwe scherm.
+- `pnpm test:e2e` blijft slagen. Chromium staat via `pnpm exec playwright install chromium`.
+- Een domeinregel, use case of adapter krijgt een test naast het bestand. Playwright vervangt die test niet.
+- `.github/workflows/ci.yml` draait `pnpm test` en `pnpm test:e2e` op elke pull request en op elke featuretak. `master` en `development` wachten op die jobs voordat ze publiceren.

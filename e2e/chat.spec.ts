@@ -1,4 +1,5 @@
 import { expect, type Page, test } from "@playwright/test";
+import { visitorDoors } from "../src/modules/assistant/domain/visitor-door";
 import {
   assistantText,
   mockChat,
@@ -15,6 +16,7 @@ import {
   strangerPrompt,
   streamError,
 } from "./helpers/chat";
+import { portfolio } from "./helpers/content";
 import { gotoPortfolio } from "./helpers/page";
 
 const serverSentences = [
@@ -71,6 +73,60 @@ test.describe("venster", () => {
     await opener.click();
     await page.getByRole("button", { name: "Chat sluiten" }).click();
     await expect(page.getByRole("button", { name: "Chat openen" })).toHaveAttribute("aria-expanded", "false");
+  });
+
+  test("de poster bedekt de pagina en het gesprek blijft groot erboven", async ({ page }) => {
+    const doors = visitorDoors(portfolio.personal.fullName);
+    const opener = page.getByRole("button", { name: "Chat openen" });
+    await opener.click();
+
+    const dialog = page.getByRole("dialog", { name: "Chat" });
+    const viewport = page.viewportSize();
+    expect(viewport).not.toBeNull();
+    await expect(dialog).toBeVisible();
+    const posterBox = await dialog.boundingBox();
+    expect(posterBox).not.toBeNull();
+    expect(posterBox!.x).toBeLessThanOrEqual(1);
+    expect(posterBox!.y).toBeLessThanOrEqual(1);
+    expect(posterBox!.width).toBeGreaterThanOrEqual(viewport!.width - 1);
+    expect(posterBox!.height).toBeGreaterThanOrEqual(viewport!.height - 1);
+
+    for (const [index, door] of doors.entries()) {
+      await expect(dialog.getByText(door.line, { exact: true })).toBeVisible();
+      await expect(dialog.getByText(String(index + 1).padStart(2, "0"), { exact: true })).toBeVisible();
+    }
+    await expect(page.getByRole("button", { name: "Chat sluiten" })).toBeHidden();
+    await expect.poll(() => page.evaluate(() => document.body.style.position)).toBe("fixed");
+    expect(await page.evaluate(() => {
+      window.scrollTo({ top: 600, behavior: "instant" });
+      return window.scrollY;
+    })).toBe(0);
+
+    await dialog.getByRole("button", { name: doors[0]?.label ?? "Ik zoek iemand" }).click();
+    const conversation = await dialog.boundingBox();
+    expect(conversation).not.toBeNull();
+    expect(conversation!.width).toBeLessThan(viewport!.width - 40);
+    expect(conversation!.height).toBeGreaterThan(viewport!.height * 0.7);
+    const veil = page.locator("div.bg-ink\\/60");
+    await expect(veil).toHaveCount(1);
+    const veilBox = await veil.boundingBox();
+    expect(veilBox).not.toBeNull();
+    expect(veilBox!.width).toBeGreaterThanOrEqual(viewport!.width - 1);
+    expect(veilBox!.height).toBeGreaterThanOrEqual(viewport!.height - 1);
+    await expect(page.getByRole("button", { name: "Chat sluiten" })).toBeVisible();
+
+    await dialog.getByRole("button", { name: "Andere ingang" }).click();
+    const returned = await dialog.boundingBox();
+    expect(returned!.width).toBeGreaterThanOrEqual(viewport!.width - 1);
+    await expect(dialog.getByText(doors[2]?.line ?? "", { exact: true })).toBeVisible();
+
+    await dialog.getByRole("button", { name: "Sluiten" }).click();
+    await expect(dialog).toBeHidden();
+    await expect.poll(() => page.evaluate(() => document.body.style.position)).toBe("");
+    expect(await page.evaluate(() => {
+      window.scrollTo({ top: 600, behavior: "instant" });
+      return window.scrollY;
+    })).toBeGreaterThan(100);
   });
 
   test("wie de persoon kent krijgt het huidige werk als voorzet", async ({ page }) => {
@@ -308,6 +364,20 @@ test.describe("venster", () => {
 
 test.describe("onder de sm-grens", () => {
   test.use({ viewport: { width: 639, height: 844 } });
+
+  test("de poster bedekt ook het smalle scherm", async ({ page }) => {
+    await gotoPortfolio(page);
+    await page.getByRole("button", { name: "Chat", exact: true }).click();
+    const dialog = page.getByRole("dialog", { name: "Chat" });
+    const viewport = page.viewportSize();
+    const box = await dialog.boundingBox();
+    expect(viewport).not.toBeNull();
+    expect(box).not.toBeNull();
+    expect(box!.width).toBeGreaterThanOrEqual(viewport!.width - 1);
+    expect(box!.height).toBeGreaterThanOrEqual(viewport!.height - 1);
+    await expect(dialog.getByText("Eén blik. Dan ken je me.", { exact: true })).toBeVisible();
+    await expect.poll(() => page.evaluate(() => document.body.style.position)).toBe("fixed");
+  });
 
   test("de kop opent de chat en de ronde knop is weg", async ({ page }) => {
     await gotoPortfolio(page);

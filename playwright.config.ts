@@ -18,7 +18,7 @@ export default defineConfig({
   fullyParallel: true,
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 1 : 0,
-  reporter: "list",
+  reporter: process.env.CI ? [["github"], ["list"]] : "list",
   timeout: 30_000,
   expect: { timeout: 10_000 },
   use: {
@@ -32,7 +32,7 @@ export default defineConfig({
     command: "pnpm build && pnpm start --hostname 127.0.0.1 --port 3000",
     url: "http://127.0.0.1:3000",
     reuseExistingServer: !process.env.CI,
-    timeout: 180_000,
+    timeout: process.env.CI ? 300_000 : 180_000,
     env: serverEnv(),
   },
 });

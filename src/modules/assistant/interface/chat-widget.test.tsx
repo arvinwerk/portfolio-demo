@@ -88,6 +88,47 @@ describe("ChatWidget", () => {
     expect(chat.setMessages).toHaveBeenCalledWith([]);
   });
 
+  it("opent de poster over de pagina en houdt het gesprek daarboven", () => {
+    const { container } = render(<ChatWidget />);
+    fireEvent.click(screen.getByRole("button", { name: "Chat openen" }));
+
+    const poster = screen.getByRole("dialog", { name: "Chat" });
+    expect(poster.className).toContain("inset-0");
+    expect(screen.getByText("01")).toBeInTheDocument();
+    expect(screen.getByText("02")).toBeInTheDocument();
+    expect(screen.getByText("03")).toBeInTheDocument();
+    expect(screen.getByText("Zeg de stack. Ik zeg of die erin zit.")).toBeInTheDocument();
+    expect(screen.getByText("Waar ik nu werk, en wat ik doe.")).toBeInTheDocument();
+    expect(screen.getByText("Eén blik. Dan ken je me.")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Chat sluiten" })).toHaveClass("hidden");
+    expect(document.body.style.overflow).toBe("hidden");
+    expect(document.documentElement.style.overflow).toBe("hidden");
+    expect(document.body.style.position).toBe("fixed");
+    expect(container.querySelector(".bg-ink\\/60")).toBeNull();
+
+    fireEvent.click(screen.getByRole("button", { name: "Ik ken Noor" }));
+
+    const conversation = screen.getByRole("dialog", { name: "Chat" });
+    expect(conversation.className).toContain("bg-paper");
+    expect(conversation.className).not.toContain("inset-0");
+    expect(container.querySelector(".bg-ink\\/60")).not.toBeNull();
+    expect(document.body.style.overflow).toBe("hidden");
+    expect(document.documentElement.style.overflow).toBe("hidden");
+
+    fireEvent.click(screen.getByRole("button", { name: "Sluiten" }));
+    expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+    expect(document.body.style.overflow).toBe("");
+    expect(document.documentElement.style.overflow).toBe("");
+    expect(document.body.style.position).toBe("");
+  });
+
+  it("opent de poster als de kop Chat stuurt", () => {
+    render(<ChatWidget />);
+    fireEvent(window, new Event("portfolio-chat-open"));
+    expect(screen.getByRole("dialog", { name: "Chat" })).toBeInTheDocument();
+    expect(screen.getByText("03")).toBeInTheDocument();
+  });
+
   it("toont dat het profiel wordt doorzocht", () => {
     chat.status = "streaming";
     chat.messages = [
