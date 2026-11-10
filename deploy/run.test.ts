@@ -1,7 +1,7 @@
 // @vitest-environment node
 
 import { spawnSync } from "node:child_process";
-import { chmodSync, mkdtempSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { chmodSync, mkdtempSync, mkdirSync, readFileSync, statSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
@@ -47,13 +47,68 @@ describe("deploy/run", () => {
     mkdirSync(source);
     writeExecutable(path.join(source, "development"), "#!/bin/sh\nexit 0\n");
     writeExecutable(path.join(source, "run"), "#!/bin/sh\nexit 0\n");
+    writeExecutable(path.join(source, "ssl"), "#!/bin/sh\nexit 0\n");
     const archive = path.join(lib, "tools.tar.xz");
-    const packed = spawnSync("tar", ["-C", source, "-cJf", archive, "development", "run"]);
+    const packed = spawnSync("tar", ["-C", source, "-cJf", archive, "development", "run", "ssl"]);
     expect(packed.status).toBe(0);
 
     const result = run("bootstrap", { ...process.env, HOME: lib, PORTFOLIO_LIB: path.join(lib, "host") }, readFileSync(archive));
     expect(result.status, result.stderr).toBe(0);
     expect(readFileSync(path.join(lib, "host", "development"), "utf8")).toContain("exit 0");
+    expect(statSync(path.join(lib, "host", "ssl")).mode & 0o111).not.toBe(0);
+  });
+
+  it("start TLS als root en leest het adres uit ssl.env", () => {
+    const lib = mkdtempSync(path.join(tmpdir(), "portfolio-ssl-run-"));
+    const bin = path.join(lib, "bin");
+    mkdirSync(bin);
+    const sudoLog = path.join(lib, "sudo.log");
+    writeExecutable(path.join(lib, "ssl"), "#!/bin/sh\nprintf 'site-url=https://%s/\\n' \"$SITE_ADDRESS\"\n");
+    writeExecutable(
+      path.join(bin, "sudo"),
+      `#!/bin/sh\nprintf '%s\\n' "\$@" > ${shellQuote(sudoLog)}\nshift 2\nexec "\$@"\n`,
+    );
+    writeFileSync(path.join(lib, "ssl.env"), "SITE_ADDRESS=portfolio.example.nl\nCERTBOT_EMAIL=beheer@example.nl\n");
+
+    const result = run("ssl", {
+      ...process.env,
+      HOME: lib,
+      PATH: `${bin}:${process.env.PATH ?? ""}`,
+      PORTFOLIO_LIB: lib,
+      PORTFOLIO_SSL_ENV: path.join(lib, "ssl.env"),
+    });
+
+    expect(result.status, result.stderr).toBe(0);
+    expect(result.stdout).toBe("site-url=https://portfolio.example.nl/\n");
+    expect(readFileSync(sudoLog, "utf8")).toContain("--preserve-env=SITE_ADDRESS,CERTBOT_EMAIL,PORTFOLIO_SSL_IP,PORTFOLIO_SSL_IPV6");
+    expect(readFileSync(sudoLog, "utf8")).toContain(path.join(lib, "ssl"));
+  });
+
+  it("zegt welk sudo-recht ontbreekt als TLS niet als root start", () => {
+    const lib = mkdtempSync(path.join(tmpdir(), "portfolio-ssl-sudo-"));
+    const bin = path.join(lib, "bin");
+    mkdirSync(bin);
+    writeExecutable(path.join(lib, "ssl"), "#!/bin/sh\nexit 0\n");
+    writeExecutable(path.join(bin, "sudo"), "#!/bin/sh\nexit 1\n");
+
+    const result = run("ssl", {
+      ...process.env,
+      HOME: lib,
+      PATH: `${bin}:${process.env.PATH ?? ""}`,
+      PORTFOLIO_LIB: lib,
+      USER: "arvinwerk",
+    });
+
+    expect(result.status).toBe(1);
+    expect(result.stderr).toContain("arvinwerk ALL=(root) NOPASSWD:");
+    expect(result.stderr).toContain(path.join(lib, "ssl"));
+  });
+
+  it("weigert TLS als het script nog niet op de VM staat", () => {
+    const lib = mkdtempSync(path.join(tmpdir(), "portfolio-ssl-missing-"));
+    const result = run("ssl", { ...process.env, HOME: lib, PORTFOLIO_LIB: lib });
+    expect(result.status).toBe(1);
+    expect(result.stderr).toContain("deploy/ssl ontbreekt");
   });
 });
 

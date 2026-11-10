@@ -139,8 +139,14 @@ Op de VPS draait de site als het standalone archief uit de deploy, niet via Comp
 
 Nginx staat ervoor. `deploy/ssl` schrijft die vhost, zet `X-Real-IP` en laat `/api/chat` ongebuffert. Poort 80 stuurt door naar HTTPS en blijft `/.well-known/acme-challenge/` uitserveren. Zonder `SITE_ADDRESS` vraagt Certbot een certificaat voor het publieke IPv4-adres. Dat certificaat geldt zes dagen. De timer van Certbot vernieuwt het en herlaadt Nginx. Met `SITE_ADDRESS` op een hostnaam die naar deze machine wijst, komt het certificaat op die naam. `CERTBOT_EMAIL` is het adres voor het verloopbericht.
 
+Elke push naar `master` publiceert de app en voert daarna `deploy/ssl` uit. Het commando `ssl` hoort bij `deploy/run`. Zonder `~/.config/portfolio/ssl.env` geldt het publieke IPv4-adres. Die file mag `SITE_ADDRESS` en `CERTBOT_EMAIL` zetten, met `chmod 600`.
+
+Eenmalig, naast de wrapper onder Development, krijgt de deploy-gebruiker het recht om alleen dat script als root te starten:
+
 ```bash
 sudo sh deploy/ssl
+printf '%s\n' 'arvinwerk ALL=(root) NOPASSWD: /home/arvinwerk/.local/lib/portfolio/ssl' | sudo tee /etc/sudoers.d/portfolio-ssl
+sudo chmod 440 /etc/sudoers.d/portfolio-ssl
 ```
 
 ## Development

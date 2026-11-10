@@ -22,4 +22,38 @@ jobs:
           printf '%s\n' "$DEPLOY_SSH_KEY" > ~/.ssh/deploy_key
           chmod 600 ~/.ssh/deploy_key
           printf '%s\n' '136.144.146.87 ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIBBQ4SiFeHJWTIqwr34Cw6jJPoK7J/lYapT/zXb12tf/' >> ~/.ssh/known_hosts
-          ssh -T -i ~/.ssh/deploy_key -o IdentitiesOnly=yes -o BatchMode=yes arvinwerk@136.144.146.87 run < portfolio.tar.xz
+          remote() {
+            ssh -T -i ~/.ssh/deploy_key -o IdentitiesOnly=yes -o BatchMode=yes -o LogLevel=ERROR arvinwerk@136.144.146.87 "$@"
+          }
+          remote run < portfolio.tar.xz
+
+          probe_err=$(mktemp)
+          if ! probe_out=$(remote bootstrap-probe 2>"$probe_err"); then
+            cat "$probe_err" >&2
+            if grep -q "archive empty" "$probe_err"; then
+              echo "De site is gepubliceerd. HTTPS wacht tot deploy/run voor de sleutel staat, zoals in README.md." >&2
+            fi
+            rm -f "$probe_err"
+            exit 1
+          fi
+          rm -f "$probe_err"
+          if [ "$probe_out" != "probe-ok" ]; then
+            echo "Onverwacht antwoord van de VM." >&2
+            printf '%s\n' "$probe_out" >&2
+            exit 1
+          fi
+
+          tar -C deploy -cJf host-tools.tar.xz run development ssl
+          remote bootstrap < host-tools.tar.xz
+          output=$(remote ssl)
+          printf '%s\n' "$output"
+          url=$(printf '%s\n' "$output" | sed -n 's/^site-url=//p' | tail -n 1)
+          if [ -z "$url" ]; then
+            echo "deploy/ssl gaf geen site-url terug." >&2
+            exit 1
+          fi
+          {
+            echo "### Site"
+            echo
+            echo "$url"
+          } >> "$GITHUB_STEP_SUMMARY"
