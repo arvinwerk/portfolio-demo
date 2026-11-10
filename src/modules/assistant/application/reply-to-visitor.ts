@@ -16,15 +16,16 @@ export async function replyToVisitor<T>(input: {
   seal: TranscriptSeal;
   gate: VisitorGate;
   session: AssistantSession<T>;
-  now?: number;
+  now: number;
 }): Promise<ReplyPlan<T>> {
-  const turns = restoreConversation(input.messages, {
-    verifyAssistant: (id, text, signature) => input.seal.matches(id, text, signature),
-  });
   const decision = input.gate.consume(input.address, input.now);
   if (!decision.allowed) {
     return { kind: "limited", retryAfterSeconds: decision.retryAfterSeconds };
   }
+
+  const turns = restoreConversation(input.messages, {
+    verifyAssistant: (id, text, signature) => input.seal.matches(id, text, signature),
+  });
 
   return {
     kind: "ready",

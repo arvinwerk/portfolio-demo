@@ -1,12 +1,12 @@
 import { describe, expect, it } from "vitest";
 import { chatTranscript } from "./chat-transcript";
 import type { TranscriptTurn } from "./conversation";
-import { WELCOME_TEXT } from "./welcome";
 
 const updatedAt = new Date("2026-11-08T16:47:00.000Z");
+const earlier = "Hoi. Dit is een vaste welkomstzin.";
 
 const turns: TranscriptTurn[] = [
-  { id: "welcome", role: "assistant", text: WELCOME_TEXT },
+  { id: "welcome", role: "assistant", text: earlier },
   { id: "vraag-1", role: "user", text: "Kun je Angular?" },
 ];
 
@@ -16,7 +16,7 @@ describe("chatTranscript", () => {
       id: "vraag-1",
       updatedAt: "2026-11-08T16:47:00.000Z",
       turns: [
-        { role: "assistant", text: WELCOME_TEXT },
+        { role: "assistant", text: earlier },
         { role: "user", text: "Kun je Angular?" },
         { role: "assistant", text: "Ja. Angular staat bij de vaardigheden." },
       ],

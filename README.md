@@ -51,15 +51,15 @@ De bron staat in `src/`. Twee bounded contexts, `portfolio` en `assistant`, elk 
 
 ## Chat en streaming
 
-`ChatWidget` is het venster. `useChat` stuurt het gesprek naar de route. De route is een dunne Next-adapter op `handleVisitorChat`. Die herstelt het gesprek, controleert het tempo en opent een sessie. De sessie leest het recruiterblad, zet die feiten in de prompt en streamt het antwoord van het model naar de browser.
+`ChatWidget` is het venster. `useChat` stuurt het gesprek naar de route. De route is een dunne Next-adapter op `handleVisitorChat`. Die controleert het tempo, herstelt het gesprek en opent een sessie. De sessie leest het recruiterblad, zet die feiten in de prompt en streamt het antwoord van het model naar de browser.
 
-`AI_MODEL` zet de chat aan. `.env.example` zet `qwen`. De route weigert het verzoek als model of sleutel ontbreekt, en het venster toont die zin in plaats van een rauwe JSON-body. `AI_BASE_URL` blijft een lokaal adres: zonder die variabele geldt `http://127.0.0.1:11434/v1`, en een adres buiten deze machine of het Docker-netwerk wordt geweigerd. De sessie stuurt het gesprek daarheen. `AI_API_KEY` ondertekent het gesprek en gaat niet mee in dat verzoek.
+`AI_MODEL` zet de chat aan. `.env.example` zet `qwen`. De route weigert het verzoek als model of sleutel ontbreekt, en het venster toont die zin in plaats van een rauwe foutpagina. `AI_BASE_URL` blijft een lokaal adres: zonder die variabele geldt `http://127.0.0.1:11434/v1`, en een adres buiten deze machine of het Docker-netwerk wordt geweigerd. De sessie stuurt het gesprek daarheen. `AI_API_KEY` ondertekent het gesprek en gaat niet mee in dat verzoek. `OLLAMA_URL` voor de dagelijkse review volgt dezelfde grens.
 
-Binnenkomende berichten worden gecontroleerd: alleen gebruiker en assistent, een begrensd aantal, alleen tekst, en een maximumlengte. Het lichaam van het verzoek stopt bij 96 kB. Tool-onderdelen uit de browser worden weggegooid. Een assistentbericht telt alleen mee als deze server het zelf ondertekend heeft met `AI_API_KEY`, of als het de vaste welkomstzin is. Een verzonnen antwoord komt niet in de volgende prompt terecht. De handtekening gaat mee in de stream en komt bij de volgende beurt terug. Wisselt de sleutel, dan vervalt de oude geschiedenis.
+Binnenkomende berichten worden gecontroleerd: alleen gebruiker en assistent, een begrensd aantal, alleen tekst, en een maximumlengte. Het lichaam van het verzoek stopt bij 96 kB, ook als de lengtekop ontbreekt of te laat komt. Tool-onderdelen uit de browser worden weggegooid. Een assistentbericht telt alleen mee als deze server het zelf ondertekend heeft met `AI_API_KEY`. Een verzonnen antwoord komt niet in de volgende prompt terecht. De handtekening gaat mee in de stream en komt bij de volgende beurt terug. Wisselt de sleutel, dan vervalt de oude geschiedenis.
 
 Elk gesprek landt in één tekstbestand. De eerste vraag van de bezoeker is de naam van dat gesprek; een vervolgvraag vervangt hetzelfde bestand met het hele gesprek tot dan toe. Zonder `CHAT_LOG_DIR` staat de map op `CONTENT_DIR/chat`, en zonder `CONTENT_DIR` op `data/chat` in de werkmap. Een herladen pagina begint een nieuw gesprek. De sleutel staat niet in het bestand.
 
-`/api/chat` heeft geen login. Per adres geldt een venster van 8 verzoeken per minuut. Per proces geldt daarnaast 100 verzoeken per tien minuten, ook als het adres in `x-forwarded-for` meedraait. Daarboven antwoordt de route met 429, vóórdat een antwoord wordt opgebouwd. Het plafond zit in het geheugen van dit proces. Meerdere instances delen het niet. Een fout gaat als vaste zin naar de browser, niet als ruwe fouttekst.
+`/api/chat` heeft geen login. Per adres geldt een venster van 8 verzoeken per minuut. Per proces geldt daarnaast 100 verzoeken per tien minuten, ook als het adres in `x-forwarded-for` meedraait. Daarboven antwoordt de route met 429, vóórdat een antwoord wordt opgebouwd. Een ongeldig gesprek telt mee voor dat venster. Het plafond zit in het geheugen van dit proces. Een adres waarvan het venster leeg is, verlaat de tabel. Meerdere instances delen het niet. Een fout gaat als vaste zin naar de browser, niet als ruwe fouttekst.
 
 ## Profiel voor de chat
 
@@ -71,7 +71,7 @@ Het corpus is verder de map `content/rag`. Elk tekstbestand telt voor de index: 
 
 Zonder `RAG_DOCUMENT_PATH` worden alle tekstbestanden geïndexeerd. Met die variabele blijft de index bij één bestandsnaam. Het recruiterblad wordt daar los van gelezen, altijd als `recruiter.txt` in dezelfde map. Een pad met een map of `..` wordt geweigerd, net als een andere extensie. `realpath` moet daarna binnen `content/rag` blijven. De route neemt de map mee in de file trace.
 
-`content/rag/profile.txt` en `content/rag/werk.txt` beschrijven dezelfde demopersona. Echte content hoort niet in de repo. Zet `CONTENT_DIR` op een absolute map buiten de checkout. Die map heeft dezelfde JSON-bestanden en `rag/` als `content/`, inclusief `recruiter.txt`, plus `images/` in de vorm van `public/images`. De pagina en de chat lezen die map bij elk verzoek. Een deploy vervangt de code en laat de map staan. Ontbreekt `CONTENT_DIR`, dan geldt de demo in de checkout.
+`content/rag/profile.txt` en `content/rag/werk.txt` beschrijven dezelfde demopersona. Echte content hoort niet in de repo. Zet `CONTENT_DIR` op een absolute map buiten de checkout. Die map heeft dezelfde JSON-bestanden en `rag/` als `content/`, inclusief `recruiter.txt`, plus `images/` zoals `content/images`. De pagina en de chat lezen die map bij elk verzoek. Een deploy vervangt de code en laat de map staan. Ontbreekt `CONTENT_DIR`, dan geldt de demo in de checkout.
 
 ## Naden
 
@@ -81,7 +81,7 @@ Elke context houdt dezelfde volgorde aan: document of verzoek naar binnen, domai
 
 `ProfileKnowledge` is de poort naar de feiten. `facts` leest het recruiterblad. `search` blijft de BM25-index: `FileProfileStore` leest de tekstbestanden, laat LangChain ze splitsen, rangschikt met BM25, weigert iets groters dan 64 kB, en cachet de stukken op het eigen object.
 
-Het venster importeert de fouttekst die het aan de bezoeker toont, en de welkomstzin uit het domain. Het herstellen van een gesprek blijft in het domain.
+Het venster toont de zin uit het antwoord van de route. Een pagina of stacktrace wordt de vaste zin dat het antwoord niet lukte. Het herstellen van een gesprek blijft in het domain.
 
 ## Tests
 
@@ -91,7 +91,7 @@ Domeintests dekken datums, het filter, project-id's, de contentvalidatie, het re
 
 De routetest controleert dat een vraag het model bereikt met de feiten uit het blad, en dat een verzonnen assistentantwoord niet in die prompt belandt. Een tweede test stuurt de stream van het model door de echte SDK en controleert dat de tekst ondertekend is en dat de sleutel niet in het modelverzoek staat.
 
-`pnpm test:e2e` draait Playwright tegen een productiebuild. Die suite dekt de pagina, het filter, de chat en de agentpagina. Het filter wordt gecontroleerd in de eerste HTML, na een klik, met de terugknop, zonder JavaScript, en zonder dat die klik de scrollpositie verschuift. De chat dekt openen en sluiten, de poster over de pagina, een leeg bericht, een antwoordstroom, het zoeken in het profiel, stoppen, en de zinnen die `/api/chat` teruggeeft. Zonder `AI_MODEL` en `AI_API_KEY` antwoordt die route met 503. Een ongeldige of te grote body wordt geweigerd voordat het model eraan te pas komt. Een wijziging aan wat de bezoeker ziet, werkt die suite bij in dezelfde wijziging. De regel staat in `.cursor/rules/tests.mdc`.
+`pnpm test:e2e` draait Playwright tegen een productiebuild. Die suite dekt de pagina, het filter, de chat en de agentpagina. Het filter wordt gecontroleerd in de eerste HTML, na een klik, met de terugknop, zonder JavaScript, en zonder dat die klik de scrollpositie verschuift. De chat dekt openen en sluiten, de poster over de pagina, een leeg bericht, een antwoordstroom, stoppen, een ruwe foutpagina, en de zinnen die `/api/chat` teruggeeft. Zonder `AI_MODEL` en `AI_API_KEY` antwoordt die route met 503. Een ongeldige of te grote body wordt geweigerd voordat het model eraan te pas komt. Een wijziging aan wat de bezoeker ziet, werkt die suite bij in dezelfde wijziging. De regel staat in `.cursor/rules/tests.mdc`.
 
 Elke pull request en elke featuretak draait `pnpm test` en `pnpm test:e2e` via `.github/workflows/ci.yml`. Een push naar `master` of `development` wacht op die twee jobs voordat de site wordt gepubliceerd.
 
@@ -171,7 +171,7 @@ DNS wijst die hostnaam naar dezelfde machine. De bestaande proxy stuurt haar naa
 
 Drie agents kijken elke dag naar de pagina en de code. De ene let op UI en gebruik, de tweede op de content, de derde op vindbaarheid. Ze lezen eerst de oudere markdownrapporten. Een run schrijft drie nieuwe bestanden onder `content/reviews/`, of onder `CONTENT_DIR/reviews` als die variabele gezet is. `/agents` toont alleen die voorstellen, elk met een score van 1 tot 10 en het gemiddelde van die dag. Sleutels, wachtwoorden, ip-adressen, e-mailadressen en absolute paden worden uit het rapport gehaald voordat het op de pagina staat.
 
-De run praat met Qwen via Ollama op `OLLAMA_URL` (standaard `http://127.0.0.1:11434`). `QWEN_MODEL` is standaard `qwen`. `REVIEW_SOURCE_DIR` is de checkout die de agents lezen. Er gaat geen API-sleutel mee.
+De run praat met Qwen via Ollama op `OLLAMA_URL` (standaard `http://127.0.0.1:11434`). Een adres buiten deze machine of het Docker-netwerk wordt geweigerd. `QWEN_MODEL` is standaard `qwen`. `REVIEW_SOURCE_DIR` is de checkout die de agents lezen. Er gaat geen API-sleutel mee.
 
 ```bash
 pnpm review:daily
@@ -189,4 +189,4 @@ De JSON in `content/` is democontent over Noor Linden, een verzonnen frontend de
 - `content/banners.json` — paden onder `/images/`.
 - `content/rag/` — `recruiter.txt` is het blad dat het model als feiten krijgt. `profile.txt` is de persoon, `werk.txt` de projecten. Alles is democontent. Andere `.txt`-, `.md`- of `.markdown`-bestanden in die map tellen mee voor de index, tenzij `RAG_DOCUMENT_PATH` er één van aanwijst. Op de server staat deze map onder `CONTENT_DIR`, niet in git. De balk in de header en de regel in de voettekst horen bij deze demo; die zinnen staan in de code, niet in de JSON.
 
-Beelden staan in `public/images/`.
+Beelden staan in `content/images/`. `/images` leest die map via de route, niet via `public/`, omdat Next statische bestanden eerder serveert dan een dynamische route. Daardoor vervangt `CONTENT_DIR/images` de demobestanden. De response zet `nosniff` en een beleid zonder scripts, zodat een svg geen pagina wordt.

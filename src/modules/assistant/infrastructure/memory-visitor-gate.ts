@@ -10,15 +10,18 @@ export class MemoryVisitorGate {
   private readonly addresses = new Map<string, number[]>();
   private globalHits: number[] = [];
 
-  consume(address: string, now = Date.now()): RateDecision {
-    const addressHits = freshHits(this.addresses.get(address) ?? [], CHAT_ADDRESS_WINDOW_MS, now);
+  consume(address: string, now: number): RateDecision {
     this.globalHits = freshHits(this.globalHits, CHAT_GLOBAL_WINDOW_MS, now);
-    if (addressHits.length === 0) {
-      this.addresses.delete(address);
-    } else {
-      this.addresses.set(address, addressHits);
+    for (const [known, hits] of this.addresses) {
+      const fresh = freshHits(hits, CHAT_ADDRESS_WINDOW_MS, now);
+      if (fresh.length === 0) {
+        this.addresses.delete(known);
+      } else if (fresh.length !== hits.length) {
+        this.addresses.set(known, fresh);
+      }
     }
 
+    const addressHits = this.addresses.get(address) ?? [];
     const decision = decideRate({
       addressHits,
       globalHits: this.globalHits,
@@ -30,9 +33,8 @@ export class MemoryVisitorGate {
       return decision;
     }
 
-    addressHits.push(now);
+    this.addresses.set(address, [...addressHits, now]);
     this.globalHits.push(now);
-    this.addresses.set(address, addressHits);
     return { allowed: true };
   }
 }

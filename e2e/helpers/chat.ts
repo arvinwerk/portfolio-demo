@@ -1,6 +1,5 @@
 import { expect, type Page, type Route } from "@playwright/test";
 
-export { WELCOME_TEXT } from "../../src/modules/assistant/domain/welcome";
 export {
   ACQUAINTANCE_PROMPT,
   ACQUAINTANCE_QUESTION,
@@ -28,47 +27,6 @@ export function assistantText(text: string, messageId = "antwoord"): string {
   const id = "tekst";
   return sse([
     { type: "start", messageId },
-    { type: "start-step" },
-    { type: "text-start", id },
-    { type: "text-delta", id, delta: text },
-    { type: "text-end", id },
-    { type: "finish-step" },
-    { type: "finish", finishReason: "stop" },
-  ]);
-}
-
-export function profileLookup(): string {
-  return sse([
-    { type: "start", messageId: "zoeken" },
-    { type: "start-step" },
-    {
-      type: "tool-input-available",
-      toolCallId: "zoek-1",
-      toolName: "searchProfile",
-      input: { query: "opleiding" },
-    },
-    { type: "finish-step" },
-    { type: "finish", finishReason: "tool-calls" },
-  ]);
-}
-
-export function profileAnswer(text: string): string {
-  const id = "tekst";
-  return sse([
-    { type: "start", messageId: "antwoord" },
-    { type: "start-step" },
-    {
-      type: "tool-input-available",
-      toolCallId: "zoek-1",
-      toolName: "searchProfile",
-      input: { query: "opleiding" },
-    },
-    {
-      type: "tool-output-available",
-      toolCallId: "zoek-1",
-      output: { fragments: ["Voorbeeld Hogeschool"] },
-    },
-    { type: "finish-step" },
     { type: "start-step" },
     { type: "text-start", id },
     { type: "text-delta", id, delta: text },

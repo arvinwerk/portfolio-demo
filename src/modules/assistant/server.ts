@@ -19,7 +19,7 @@ export function handleVisitorChat(request: Request): Promise<Response> {
     sealFor: createHmacSeal,
     gate,
     knowledge: createProfileKnowledge(),
-    openSession: (config, knowledge) => createLocalQwenSession(config, knowledge, new Date()),
+    openSession: (config, knowledge, now) => createLocalQwenSession(config, knowledge, now),
     log: new FileChatLog(),
     now: () => new Date(),
   });

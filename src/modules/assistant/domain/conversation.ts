@@ -1,5 +1,3 @@
-import { WELCOME_TEXT } from "./welcome";
-
 const MAX_MESSAGES = 24;
 const MAX_USER_TEXT = 2_000;
 const MAX_ASSISTANT_TEXT = 8_000;
@@ -66,12 +64,10 @@ export function restoreConversation(
 
     const id = messageId(record.id);
     if (role === "assistant") {
-      const welcome = turns.length === 0 && text === WELCOME_TEXT;
-      const signed = id !== undefined && (options?.verifyAssistant?.(id, text, signatureOf(record.metadata)) ?? false);
-      if (!welcome && !signed) {
+      if (id === undefined || !(options?.verifyAssistant?.(id, text, signatureOf(record.metadata)) ?? false)) {
         continue;
       }
-      turns.push({ id: id ?? crypto.randomUUID(), role, text });
+      turns.push({ id, role, text });
       continue;
     }
 

@@ -8,8 +8,7 @@ import { asUiTurn, ConversationRejected } from "../domain/conversation";
 import type { ProfileKnowledge } from "../domain/profile-knowledge";
 import type { TranscriptSeal } from "../domain/transcript-seal";
 import { clientAddress } from "./client-address";
-
-const MAX_BODY_BYTES = 96 * 1024;
+import { readLimitedBody } from "./limited-body";
 
 type ModelStream = Parameters<typeof toUIMessageStream>[0]["stream"];
 
@@ -18,26 +17,20 @@ export type VisitorChatDeps = {
   sealFor(apiKey: string): TranscriptSeal;
   gate: VisitorGate;
   knowledge: ProfileKnowledge;
-  openSession(config: AssistantCredentials, knowledge: ProfileKnowledge): AssistantSession<{ stream: ModelStream }>;
+  openSession(config: AssistantCredentials, knowledge: ProfileKnowledge, now: Date): AssistantSession<{ stream: ModelStream }>;
   log: ChatLog;
   now(): Date;
 };
 
 export async function respondToVisitor(request: Request, deps: VisitorChatDeps): Promise<Response> {
-  let raw: string;
-  try {
-    raw = await request.text();
-  } catch {
-    return Response.json({ error: "Ongeldig verzoek." }, { status: 400 });
-  }
-
-  if (Buffer.byteLength(raw) > MAX_BODY_BYTES) {
-    return Response.json({ error: "Het verzoek is te groot." }, { status: 413 });
+  const raw = await readLimitedBody(request);
+  if (!raw.ok) {
+    return Response.json({ error: raw.error }, { status: raw.status });
   }
 
   let body: { messages?: unknown };
   try {
-    body = JSON.parse(raw) as { messages?: unknown };
+    body = JSON.parse(raw.text) as { messages?: unknown };
   } catch {
     return Response.json({ error: "Ongeldig verzoek." }, { status: 400 });
   }
@@ -51,6 +44,7 @@ export async function respondToVisitor(request: Request, deps: VisitorChatDeps):
   }
 
   const seal = deps.sealFor(config.apiKey);
+  const now = deps.now();
 
   try {
     const plan = await replyToVisitor({
@@ -58,7 +52,8 @@ export async function respondToVisitor(request: Request, deps: VisitorChatDeps):
       address: clientAddress(request),
       seal,
       gate: deps.gate,
-      session: deps.openSession(config, deps.knowledge),
+      session: deps.openSession(config, deps.knowledge, now),
+      now: now.getTime(),
     });
 
     if (plan.kind === "limited") {

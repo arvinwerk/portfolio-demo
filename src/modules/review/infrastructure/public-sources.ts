@@ -52,11 +52,11 @@ export function loadReviewExcerpts(root = process.cwd()): readonly ReviewExcerpt
 function resolveDirectory(root: string): string {
   let resolved: string;
   try {
-    resolved = realpathSync(root);
+    resolved = realpathSync(/*turbopackIgnore: true*/ root);
   } catch {
     throw new ReviewSourceError("REVIEW_SOURCE_DIR is niet beschikbaar.");
   }
-  if (!statSync(resolved).isDirectory()) {
+  if (!statSync(/*turbopackIgnore: true*/ resolved).isDirectory()) {
     throw new ReviewSourceError("REVIEW_SOURCE_DIR moet een map zijn.");
   }
   return resolved;
@@ -69,12 +69,12 @@ function readAllowed(root: string, relative: string): string | undefined {
   const full = path.resolve(root, relative);
   let resolved: string;
   try {
-    resolved = realpathSync(full);
+    resolved = realpathSync(/*turbopackIgnore: true*/ full);
   } catch {
     return undefined;
   }
   if (resolved !== root && !resolved.startsWith(`${root}${path.sep}`)) {
     return undefined;
   }
-  return readFileSync(resolved, "utf8");
+  return readFileSync(/*turbopackIgnore: true*/ resolved, "utf8");
 }

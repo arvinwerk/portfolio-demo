@@ -41,20 +41,20 @@ describe("JsonPortfolioRepository", () => {
     expect(model.skillGroups.map((group) => group.label)).toEqual(["Professional", "Frameworks", "Other"]);
   });
 
-  it("wijst alleen naar beelden die in public staan", () => {
+  it("wijst alleen naar beelden die in de contentmap staan", () => {
     const root = process.cwd();
-    expect(existsSync(path.join(root, "public/images/profile.svg"))).toBe(true);
+    expect(existsSync(path.join(root, "content/images/profile.svg"))).toBe(true);
 
     for (const banner of portfolio.banners) {
       for (const image of [banner.bgImage.src, banner.laptopImage.src, banner.mobileImage.src]) {
         const relative = image.replace(/^\//, "");
-        expect(existsSync(path.join(root, "public", relative)), image).toBe(true);
+        expect(existsSync(path.join(root, "content", relative)), image).toBe(true);
       }
     }
 
     for (const project of portfolio.projects) {
       for (const image of project.images) {
-        expect(existsSync(path.join(root, "public/images/logos", image)), image).toBe(true);
+        expect(existsSync(path.join(root, "content/images/logos", image)), image).toBe(true);
       }
     }
   });

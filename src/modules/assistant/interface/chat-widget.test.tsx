@@ -129,23 +129,6 @@ describe("ChatWidget", () => {
     expect(screen.getByText("03")).toBeInTheDocument();
   });
 
-  it("toont dat het profiel wordt doorzocht", () => {
-    chat.status = "streaming";
-    chat.messages = [
-      {
-        id: "lookup",
-        role: "assistant",
-        parts: [{ type: "tool-searchProfile", state: "input-available", text: "" }],
-      },
-    ];
-
-    render(<ChatWidget />);
-    fireEvent.click(screen.getByRole("button", { name: "Chat openen" }));
-    fireEvent.click(screen.getByRole("button", { name: "Ik liep binnen" }));
-
-    expect(screen.getByText("Ik zoek in het profiel.")).toBeInTheDocument();
-  });
-
   it("toont een binnenkomend antwoord en kan de stream stoppen", () => {
     chat.status = "streaming";
     chat.messages = [{ id: "answer", role: "assistant", parts: [{ type: "text", text: "Ik ben" }] }];
