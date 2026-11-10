@@ -187,12 +187,14 @@ Op de machine waar Ollama draait kan dat dagelijks via de voorbeelden `deploy/re
 
 ## Content vervangen
 
-De JSON in `content/` is democontent over Noor Linden, een verzonnen frontend developer. Het vak en de stack lijken op een echte frontendpraktijk. De naam, de plaats Kadewijk, de opdrachtgevers en de campagnes zijn verzonnen, en volledig genoeg om filter, banners, vaardigheden en chat te gebruiken. De balk bovenin en de voettekst zeggen dat het geen echt cv is. De twee banners zijn fictieve campagnes, Festival Noordlicht en Circuit Meridiaan.
+De JSON in `content/` is democontent over Noor Linden. Die bestanden blijven in git zodat de app zonder servermap te bouwen is. Het gepubliceerde portfolio staat niet in git.
 
-- `content/personal.json` — profiel van Noor Linden. `${age}` en `${yearsAsDeveloper}` in `foreword` worden op de server ingevuld vanuit `dateOfBirth` en `developingStartDate`. Die twee datums zijn voorbeelddata.
-- `content/skills.json` — `category` is `skills`, `framework` of `other`.
+`deploy/content` leest een archief van stdin en zet het in `~/.local/share/portfolio-content`. Die map ligt buiten `~/portfolio/current`. Een deploy vervangt de release en laat de map staan. Het script schrijft `CONTENT_DIR` in `~/portfolio/.env` en in een systemd-drop-in, en herstart `portfolio.service`. Gesprekken in `chat/` en rapporten in `reviews/` blijven staan.
+
+- `content/personal.json` — profiel. `${age}` en `${yearsAsDeveloper}` in `foreword` worden op de server ingevuld. `education` en `dateOfBirth` mogen ontbreken. Zonder geboortedatum mag het voorwoord `${age}` niet noemen.
+- `content/skills.json` — `category` is `skills`, `framework`, `other` of `ai`.
 - `content/projects.json` — de id is de volgorde in het bestand plus één.
 - `content/banners.json` — paden onder `/images/`.
-- `content/rag/` — `recruiter.txt` is het blad dat het model als feiten krijgt. `profile.txt` is de persoon, `werk.txt` de projecten. Alles is democontent. Andere `.txt`-, `.md`- of `.markdown`-bestanden in die map tellen mee voor de index, tenzij `RAG_DOCUMENT_PATH` er één van aanwijst. Op de server staat deze map onder `CONTENT_DIR`, niet in git. De balk in de header en de regel in de voettekst horen bij deze demo; die zinnen staan in de code, niet in de JSON.
+- `content/rag/` — `recruiter.txt` is het blad dat het model als feiten krijgt. `opleiding` en `geboren` mogen ontbreken. `profile.txt` is de persoon, `werk.txt` de projecten. Andere `.txt`-, `.md`- of `.markdown`-bestanden in die map tellen mee voor de index, tenzij `RAG_DOCUMENT_PATH` er één van aanwijst.
 
-Beelden staan in `public/images/`.
+Beelden voor de gepubliceerde site staan in `images/` naast de JSON, onder `CONTENT_DIR`. Zonder `CONTENT_DIR` komen ze uit `public/images/`.

@@ -15,6 +15,12 @@ export function displayUrl(value: string): string {
   }
 }
 
-export function renderForeword(template: string, age: number, yearsAsDeveloper: number): string {
-  return template.replaceAll("${age}", String(age)).replaceAll("${yearsAsDeveloper}", String(yearsAsDeveloper));
+export function renderForeword(template: string, age: number | null, yearsAsDeveloper: number): string {
+  if (template.includes("${age}") && age == null) {
+    throw new Error("Het voorwoord noemt een leeftijd, maar er is geen geboortedatum.");
+  }
+
+  return template
+    .replaceAll("${age}", age == null ? "" : String(age))
+    .replaceAll("${yearsAsDeveloper}", String(yearsAsDeveloper));
 }

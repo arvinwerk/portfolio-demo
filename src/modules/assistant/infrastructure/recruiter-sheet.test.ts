@@ -25,7 +25,7 @@ describe("parseRecruiterSheet", () => {
   });
 
   it("weigert een onvolledig blad", () => {
-    expect(() => parseRecruiterSheet(sheet.replace("geboren: 1993-04-18\n", ""))).toThrow(RecruiterSheetError);
+    expect(parseRecruiterSheet(sheet.replace("geboren: 1993-04-18\n", "")).bornOn).toBeNull();
     expect(() => parseRecruiterSheet(sheet.replace("1993-04-18", "1993-13-40"))).toThrow(RecruiterSheetError);
     expect(() => parseRecruiterSheet(`${sheet}project: Alleen een naam\n`)).toThrow(RecruiterSheetError);
     expect(() => parseRecruiterSheet(`${sheet}onbekend: iets\n`)).toThrow(RecruiterSheetError);

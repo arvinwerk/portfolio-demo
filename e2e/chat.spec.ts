@@ -178,8 +178,7 @@ test.describe("venster", () => {
 
     await expectNoRequest(page, async () => {
       await dialog.getByRole("button", { name: "Ik liep binnen" }).click();
-      await expect(dialog.getByText(/Frontend developer/)).toBeVisible();
-      await expect(dialog.getByText(/verzonnen/)).toBeVisible();
+      await expect(dialog.getByText("Noor. Vraag gerust naar werk, opleiding of contact.")).toBeVisible();
     });
   });
 

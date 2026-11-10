@@ -38,7 +38,7 @@ describe("JsonPortfolioRepository", () => {
     expect(model.forewordParagraphs.join(" ")).toContain("33");
     expect(model.forewordParagraphs.join(" ")).toContain("11");
     expect(model.projects.map((project) => project.id)).toEqual([1, 2, 3, 4, 5]);
-    expect(model.skillGroups.map((group) => group.label)).toEqual(["Professional", "Frameworks", "Other"]);
+    expect(model.skillGroups.map((group) => group.label)).toEqual(["Talen", "Frameworks", "Aanpak"]);
   });
 
   it("wijst alleen naar beelden die in public staan", () => {

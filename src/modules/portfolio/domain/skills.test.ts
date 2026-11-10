@@ -10,11 +10,11 @@ const skills: Skill[] = [
 ];
 
 describe("groupSkills", () => {
-  it("zet Professional, Frameworks en Other in die volgorde en behoudt de invoervolgorde", () => {
+  it("zet Talen, Frameworks, Aanpak en AI in die volgorde en behoudt de invoervolgorde", () => {
     expect(groupSkills(skills)).toEqual([
       {
         category: "skills",
-        label: "Professional",
+        label: "Talen",
         skills: [{ name: "TypeScript", percentage: 30, category: "skills" }],
       },
       {
@@ -27,7 +27,7 @@ describe("groupSkills", () => {
       },
       {
         category: "other",
-        label: "Other",
+        label: "Aanpak",
         skills: [{ name: "Node.js", percentage: 10, category: "other" }],
       },
     ]);
@@ -35,7 +35,7 @@ describe("groupSkills", () => {
 
   it("laat een lege categorie weg", () => {
     expect(groupSkills(skills.filter((skill) => skill.category !== "other")).map((group) => group.label)).toEqual([
-      "Professional",
+      "Talen",
       "Frameworks",
     ]);
   });

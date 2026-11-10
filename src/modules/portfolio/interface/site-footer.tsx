@@ -34,9 +34,6 @@ export function SiteFooter({
           </li>
         </ul>
       </div>
-      <p className="border-t border-white/15 px-4 py-4 pr-24 text-center text-sm text-white/75">
-        Demopagina over {name}. Geen echt cv.
-      </p>
     </footer>
   );
 }

@@ -73,8 +73,7 @@ describe("ChatWidget", () => {
     fireEvent.click(screen.getByRole("button", { name: "Chat openen" }));
     fireEvent.click(screen.getByRole("button", { name: "Ik liep binnen" }));
 
-    expect(screen.getByText(/Frontend developer/)).toBeInTheDocument();
-    expect(screen.getByText(/verzonnen/)).toBeInTheDocument();
+    expect(screen.getByText("Noor. Vraag gerust naar werk, opleiding of contact.")).toBeInTheDocument();
     expect(chat.sendMessage).not.toHaveBeenCalled();
   });
 

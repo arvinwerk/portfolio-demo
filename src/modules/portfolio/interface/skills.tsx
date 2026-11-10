@@ -11,7 +11,7 @@ export function Skills({ groups }: { groups: SkillGroup[] }) {
         <h2 id="skills-title" className="font-display text-4xl font-semibold tracking-tight text-ink">
           Vaardigheden
         </h2>
-        <div className="mt-10 grid gap-12 md:grid-cols-3">
+        <div className="mt-10 grid gap-12 md:grid-cols-2">
           {groups.map((group) => (
             <div key={group.category}>
               <h3 className="font-display text-xl font-semibold text-ink">{group.label}</h3>

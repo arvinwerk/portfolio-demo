@@ -6,14 +6,19 @@ export function recruiterBriefing(facts: RecruiterFacts, now: Date): string {
     .map((project) => `${project.client}, ${project.title}. Stack: ${project.stack.join(", ")}.`)
     .join("\n");
 
-  return [
+  const lines = [
     `Feiten op ${formatDutchDate(now)}:`,
     `Naam: ${facts.name}`,
     `Rol: ${facts.role}`,
     `Woonplaats: ${facts.residence}`,
-    `Opleiding: ${facts.education}`,
-    `Geboren: ${formatDutchDate(facts.bornOn)}`,
-    `Leeftijd: ${fullYearsBetween(now, facts.bornOn)} jaar`,
+  ];
+  if (facts.education) {
+    lines.push(`Opleiding: ${facts.education}`);
+  }
+  if (facts.bornOn) {
+    lines.push(`Geboren: ${formatDutchDate(facts.bornOn)}`, `Leeftijd: ${fullYearsBetween(now, facts.bornOn)} jaar`);
+  }
+  lines.push(
     `Interfaces sinds: ${formatDutchDate(facts.interfacesSince)}`,
     `Jaren interfaces: ${fullYearsBetween(now, facts.interfacesSince)}`,
     `Werk nu: ${facts.currentWork}`,
@@ -23,5 +28,7 @@ export function recruiterBriefing(facts: RecruiterFacts, now: Date): string {
     `Contact: ${facts.contact}`,
     `GitHub: ${facts.github}`,
     "Niet aanwezig: salaris, tarief, loon, beschikbaarheid, opzegtermijn, ingangsdatum.",
-  ].join("\n");
+  );
+
+  return lines.join("\n");
 }

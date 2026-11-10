@@ -42,6 +42,17 @@ case "$action" in
     if [ -f "$lib/ssl" ]; then
       chmod 755 "$lib/ssl"
     fi
+    if [ -f "$lib/content" ]; then
+      chmod 755 "$lib/content"
+    fi
+    ;;
+  content)
+    script=$lib/content
+    if [ ! -x "$script" ]; then
+      echo "deploy/content ontbreekt. Bootstrap de hosttools eerst." >&2
+      exit 1
+    fi
+    exec "$script"
     ;;
   development)
     exec "$lib/development"

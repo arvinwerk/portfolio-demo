@@ -104,6 +104,25 @@ describe("deploy/run", () => {
     expect(result.stderr).toContain(path.join(lib, "ssl"));
   });
 
+  it("geeft het content-archief aan deploy/content", () => {
+    const lib = mkdtempSync(path.join(tmpdir(), "portfolio-content-run-"));
+    const received = path.join(lib, "ontvangen");
+    writeExecutable(path.join(lib, "content"), `#!/bin/sh\ncat > ${shellQuote(received)}\nprintf 'content-dir=/data\\nrestart=skipped\\n'\n`);
+
+    const result = run("content", { ...process.env, HOME: lib, PORTFOLIO_LIB: lib }, "archief");
+
+    expect(result.status, result.stderr).toBe(0);
+    expect(readFileSync(received, "utf8")).toBe("archief");
+    expect(result.stdout).toContain("content-dir=/data");
+  });
+
+  it("weigert content als het script nog niet op de VM staat", () => {
+    const lib = mkdtempSync(path.join(tmpdir(), "portfolio-content-missing-"));
+    const result = run("content", { ...process.env, HOME: lib, PORTFOLIO_LIB: lib });
+    expect(result.status).toBe(1);
+    expect(result.stderr).toContain("deploy/content ontbreekt");
+  });
+
   it("weigert TLS als het script nog niet op de VM staat", () => {
     const lib = mkdtempSync(path.join(tmpdir(), "portfolio-ssl-missing-"));
     const result = run("ssl", { ...process.env, HOME: lib, PORTFOLIO_LIB: lib });

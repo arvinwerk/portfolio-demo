@@ -6,9 +6,10 @@ import { gotoPortfolio } from "./helpers/page";
 const { personal, skills, projects, banners, age, yearsAsDeveloper } = portfolio;
 
 const categoryLabels = [
-  ["skills", "Professional"],
+  ["skills", "Talen"],
   ["framework", "Frameworks"],
-  ["other", "Other"],
+  ["other", "Aanpak"],
+  ["ai", "AI"],
 ] as const;
 
 test.beforeEach(async ({ page }) => {
@@ -20,7 +21,7 @@ test("zet taal, titel en een niet-geïndexeerde omschrijving", async ({ page }) 
   await expect(page).toHaveTitle(`${personal.fullName} — ${personal.function}`);
   await expect(page.locator('meta[name="description"]')).toHaveAttribute(
     "content",
-    `Demoportfolio van ${personal.fullName}, een verzonnen ${personal.function.toLowerCase()}. Werk, vaardigheden en een chat over het profiel.`,
+    `Portfolio van ${personal.fullName}, ${personal.function}. Werk, vaardigheden en een chat over het profiel.`,
   );
   await expect(page.locator('meta[name="robots"]')).toHaveAttribute("content", /noindex/);
 });
@@ -38,7 +39,9 @@ test("toont het profiel, de afgeleide feiten en de contactlinks", async ({ page 
   const profile = page.getByRole("region", { name: "Profiel" });
   await expect(profile.getByRole("heading", { level: 1, name: personal.fullName })).toBeVisible();
   await expect(profile.getByText(personal.function)).toBeVisible();
-  await expect(profile.getByText(personal.education)).toBeVisible();
+  const education = personal.education ?? "";
+  expect(education.length).toBeGreaterThan(0);
+  await expect(profile.getByText(education)).toBeVisible();
   await expect(profile.getByText(personal.location)).toBeVisible();
 
   const facts = profile.locator("dl");
@@ -188,7 +191,7 @@ test("de sectielinks en de naam gaan naar het juiste anker", async ({ page }) =>
 test("de footer herhaalt naam en contact", async ({ page }) => {
   const footer = page.getByRole("contentinfo");
   await expect(footer.getByText(personal.fullName, { exact: true })).toBeVisible();
-  await expect(footer.getByText(`Demopagina over ${personal.fullName}. Geen echt cv.`)).toBeVisible();
+  await expect(footer.getByText(/Demopagina/)).toHaveCount(0);
   await expect(footer.getByRole("link", { name: personal.email })).toHaveAttribute("href", `mailto:${personal.email}`);
   await expect(footer.getByRole("link", { name: "LinkedIn" })).toHaveAttribute("href", personal.linkedIn);
   await expect(footer.getByRole("link", { name: "GitHub" })).toHaveAttribute("href", personal.github);

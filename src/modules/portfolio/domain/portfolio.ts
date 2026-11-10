@@ -23,11 +23,12 @@ export function assemblePortfolio(parts: {
   };
 }
 
-export function timelineAt(profile: PersonalProfile, now: Date): { age: number; yearsAsDeveloper: number } {
-  const age = differenceInYears(now, parseCalendarDate(profile.dateOfBirth));
+export function timelineAt(profile: PersonalProfile, now: Date): { age: number | null; yearsAsDeveloper: number } {
   const yearsAsDeveloper = differenceInYears(now, parseCalendarDate(profile.developingStartDate));
+  const age =
+    profile.dateOfBirth == null ? null : differenceInYears(now, parseCalendarDate(profile.dateOfBirth));
 
-  if (age < 0 || yearsAsDeveloper < 0) {
+  if ((age != null && age < 0) || yearsAsDeveloper < 0) {
     throw new Error("Geboortedatum of start als developer ligt in de toekomst.");
   }
 

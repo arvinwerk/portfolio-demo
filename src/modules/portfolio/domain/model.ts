@@ -1,4 +1,4 @@
-export const SKILL_CATEGORIES = ["skills", "framework", "other"] as const;
+export const SKILL_CATEGORIES = ["skills", "framework", "other", "ai"] as const;
 
 export type SkillCategory = (typeof SKILL_CATEGORIES)[number];
 
@@ -6,13 +6,13 @@ export type PersonalProfile = {
   fullName: string;
   function: string;
   email: string;
-  education: string;
+  education: string | null;
   developingStartDate: string;
   linkedIn: string;
   portfolioUrl: string;
   location: string;
   foreword: string;
-  dateOfBirth: string;
+  dateOfBirth: string | null;
   github: string;
   githubDescription: string;
 };

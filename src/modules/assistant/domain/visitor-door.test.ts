@@ -37,7 +37,7 @@ describe("visitorDoors", () => {
   it("geeft een onbekende een eerste indruk zonder vraag aan de server", () => {
     const stranger = doors[2];
     expect(stranger?.prompt).toBe(strangerPrompt("Noor"));
-    expect(stranger?.prompt).toContain("verzonnen");
+    expect(stranger?.prompt).toBe("Noor. Vraag gerust naar werk, opleiding of contact.");
     expect(stranger?.question).toBeUndefined();
   });
 

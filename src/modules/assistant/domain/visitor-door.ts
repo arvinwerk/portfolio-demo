@@ -31,7 +31,7 @@ export function recruiterQuestion(text: string): string {
 }
 
 export function strangerPrompt(name: string): string {
-  return `${name}. Frontend developer, en dit is een demo. De naam is verzonnen, het vak niet. Interfaces waarin de inhoud voorop staat. Vraag gerust naar werk, opleiding of contact.`;
+  return `${name}. Vraag gerust naar werk, opleiding of contact.`;
 }
 
 export function givenName(fullName: string): string {

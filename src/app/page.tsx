@@ -10,7 +10,7 @@ export async function generateMetadata(): Promise<Metadata> {
 
   return {
     title: `${profile.fullName} — ${profile.function}`,
-    description: `Demoportfolio van ${profile.fullName}, een verzonnen ${profile.function.toLowerCase()}. Werk, vaardigheden en een chat over het profiel.`,
+    description: `Portfolio van ${profile.fullName}, ${profile.function}. Werk, vaardigheden en een chat over het profiel.`,
   };
 }
 

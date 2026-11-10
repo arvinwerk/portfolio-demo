@@ -23,8 +23,12 @@ export function VCard({
             {profile.fullName}
           </h1>
           <p className="mt-5 max-w-xl text-lg text-muted">
-            {profile.education}
-            <span aria-hidden="true"> · </span>
+            {profile.education ? (
+              <>
+                {profile.education}
+                <span aria-hidden="true"> · </span>
+              </>
+            ) : null}
             <span>{profile.location}</span>
           </p>
           {showFacts ? (

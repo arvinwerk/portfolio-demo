@@ -13,9 +13,10 @@ describe("Skills", () => {
   it("toont alleen categorieën met skills en de balkbreedte", () => {
     render(<Skills groups={groupSkills(skills)} />);
 
-    expect(screen.getByRole("heading", { name: "Professional" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Talen" })).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "Frameworks" })).toBeInTheDocument();
-    expect(screen.queryByRole("heading", { name: "Other" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("heading", { name: "Aanpak" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("heading", { name: "AI" })).not.toBeInTheDocument();
 
     const meter = screen.getByRole("meter", { name: "TypeScript" });
     expect(meter).toHaveAttribute("aria-valuenow", "90");

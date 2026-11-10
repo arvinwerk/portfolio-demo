@@ -3,12 +3,10 @@ import { describe, expect, it } from "vitest";
 import { SiteHeader } from "./site-header";
 
 describe("SiteHeader", () => {
-  it("zegt dat de getoonde persoon democontent is", () => {
+  it("toont de naam zonder een vast oordeel over de persoon", () => {
     render(<SiteHeader name="Noor Linden" />);
 
-    const note = screen.getByRole("note");
-    expect(note).toHaveTextContent("Democontent");
-    expect(note).toHaveTextContent("Noor Linden");
-    expect(note).toHaveTextContent("verzonnen");
+    expect(screen.getByRole("link", { name: "Noor Linden" })).toHaveAttribute("href", "#top");
+    expect(screen.queryByRole("note")).not.toBeInTheDocument();
   });
 });

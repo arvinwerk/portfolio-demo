@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { render, screen, within } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 import type { PersonalProfile } from "../domain/model";
 import { VCard } from "./v-card";
@@ -35,5 +35,12 @@ describe("VCard", () => {
     expect(screen.getByText("[Locatie]")).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "LinkedIn" })).toHaveAttribute("href", "https://example.com/linkedin");
     expect(screen.getByRole("link", { name: "GitHub" })).toHaveAttribute("href", "https://example.com/github");
+  });
+
+  it("toont alleen de plaats als er geen opleiding is", () => {
+    const view = render(<VCard profile={{ ...profile, education: null }} />);
+
+    expect(within(view.container).getByText("[Locatie]")).toBeInTheDocument();
+    expect(within(view.container).queryByText("[Opleiding]")).not.toBeInTheDocument();
   });
 });
