@@ -32,6 +32,13 @@ jobs:
             cat "$probe_err" >&2
             if grep -q "archive empty" "$probe_err"; then
               echo "De site is gepubliceerd. HTTPS wacht tot deploy/run voor de sleutel staat, zoals in README.md." >&2
+              {
+                echo "### HTTPS"
+                echo
+                echo "De app is gepubliceerd. \`deploy/ssl\` draait zodra \`deploy/run\` het commando van de sleutel is."
+              } >> "$GITHUB_STEP_SUMMARY"
+              rm -f "$probe_err"
+              exit 0
             fi
             rm -f "$probe_err"
             exit 1
