@@ -5,11 +5,15 @@ on:
     branches: [master]
 
 jobs:
-  test:
-    uses: ./.github/workflows/ci.yml
+  unit:
+    uses: ./.github/workflows/unit.yml
+
+  playwright:
+    uses: ./.github/workflows/playwright.yml
 
   deploy:
-    needs: test
+    needs: [unit, playwright]
+    if: ${{ needs.unit.result == 'success' && needs.playwright.result == 'success' }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4

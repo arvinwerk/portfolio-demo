@@ -10,4 +10,4 @@ Een feature is klaar als de eenheidstest en de Playwright-suite dezelfde verande
 - Verandert gedrag dat een bezoeker ziet of aanroept, dan werk je `e2e/` bij in dezelfde wijziging. Een nieuwe zin, deur, status, URL, filter of layout krijgt een scenario. Een test die het oude scherm verwacht, wordt het nieuwe scherm.
 - `pnpm test:e2e` blijft slagen. Chromium staat via `pnpm exec playwright install chromium`.
 - Een domeinregel, use case of adapter krijgt een test naast het bestand. Playwright vervangt die test niet.
-- `.github/workflows/ci.yml` draait `pnpm test` en `pnpm test:e2e` op elke pull request en op elke featuretak. `master` en `development` wachten op die jobs voordat ze publiceren.
+- Een release publiceert pas als de unit-tests en Playwright allebei groen zijn. `master` en `development` noemen die twee jobs apart en starten de publicatie alleen bij `success` op beide. Elke pull request en elke featuretak draait dezelfde twee workflows.

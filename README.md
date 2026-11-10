@@ -93,7 +93,7 @@ De routetest controleert dat een vraag het model bereikt met de feiten uit het b
 
 `pnpm test:e2e` draait Playwright tegen een productiebuild. Die suite dekt de pagina, het filter, de chat en de agentpagina. Het filter wordt gecontroleerd in de eerste HTML, na een klik, met de terugknop, zonder JavaScript, en zonder dat die klik de scrollpositie verschuift. De chat dekt openen en sluiten, de poster over de pagina, een leeg bericht, een antwoordstroom, het zoeken in het profiel, stoppen, en de zinnen die `/api/chat` teruggeeft. Zonder `AI_MODEL` en `AI_API_KEY` antwoordt die route met 503. Een ongeldige of te grote body wordt geweigerd voordat het model eraan te pas komt. Een wijziging aan wat de bezoeker ziet, werkt die suite bij in dezelfde wijziging. De regel staat in `.cursor/rules/tests.mdc`.
 
-Elke pull request en elke featuretak draait `pnpm test` en `pnpm test:e2e` via `.github/workflows/ci.yml`. Een push naar `master` of `development` wacht op die twee jobs voordat de site wordt gepubliceerd.
+Elke release publiceert pas als `pnpm test` en `pnpm test:e2e` allebei groen zijn. Op `master` en `development` zijn dat twee aparte jobs; de publicatie start alleen als beide `success` zijn. Elke pull request en elke featuretak draait dezelfde twee workflows.
 
 ```bash
 pnpm exec playwright install chromium
