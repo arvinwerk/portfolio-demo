@@ -48,12 +48,12 @@ export function VCard({
               </a>
             </li>
             <li>
-              <a className="text-ink underline decoration-primary/40 underline-offset-4 hover:text-primary" href={profile.linkedIn} target="_blank" rel="noreferrer">
+              <a className="text-ink underline decoration-primary/40 underline-offset-4 hover:text-primary" href={profile.linkedIn} target="_blank" rel="me noreferrer">
                 LinkedIn
               </a>
             </li>
             <li>
-              <a className="text-ink underline decoration-primary/40 underline-offset-4 hover:text-primary" href={profile.github} target="_blank" rel="noreferrer">
+              <a className="text-ink underline decoration-primary/40 underline-offset-4 hover:text-primary" href={profile.github} target="_blank" rel="me noreferrer">
                 GitHub
               </a>
             </li>

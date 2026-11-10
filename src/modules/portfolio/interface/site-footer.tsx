@@ -23,12 +23,12 @@ export function SiteFooter({
             </a>
           </li>
           <li>
-            <a className="text-white no-underline hover:underline" href={linkedIn} target="_blank" rel="noreferrer">
+            <a className="text-white no-underline hover:underline" href={linkedIn} target="_blank" rel="me noreferrer">
               LinkedIn
             </a>
           </li>
           <li>
-            <a className="text-white no-underline hover:underline" href={github} target="_blank" rel="noreferrer">
+            <a className="text-white no-underline hover:underline" href={github} target="_blank" rel="me noreferrer">
               GitHub
             </a>
           </li>

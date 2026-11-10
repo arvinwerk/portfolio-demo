@@ -56,6 +56,12 @@ describe("parseContent", () => {
     expect(content.personal.dateOfBirth).toBeNull();
   });
 
+  it("negeert een meegestuurd beeldbestand in de persoonsgegevens", () => {
+    const input = validInput();
+    (input.personal as { siteImages?: unknown }).siteImages = { "banners/vval-bg.svg": "aW8=" };
+    expect(parseContent(input).personal.fullName).toBe("Noor Linden");
+  });
+
   it("accepteert een rasterlogo", () => {
     const input = validInput();
     input.projects[0].images = ["merk.png"];

@@ -33,7 +33,7 @@ export function About({
             className="mt-6 inline-block bg-action px-4 py-2.5 font-ui text-sm font-medium tracking-wide text-white uppercase no-underline hover:brightness-110"
             href={github}
             target="_blank"
-            rel="noreferrer"
+            rel="me noreferrer"
           >
             Code
           </a>

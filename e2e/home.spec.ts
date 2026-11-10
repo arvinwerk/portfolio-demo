@@ -16,14 +16,47 @@ test.beforeEach(async ({ page }) => {
   await gotoPortfolio(page);
 });
 
-test("zet taal, titel en een niet-geïndexeerde omschrijving", async ({ page }) => {
+test("zet taal, titel, canonical en een indexeerbare omschrijving", async ({ page }) => {
+  const title = `${personal.fullName} — ${personal.function}`;
   await expect(page.locator("html")).toHaveAttribute("lang", "nl");
-  await expect(page).toHaveTitle(`${personal.fullName} — ${personal.function}`);
+  await expect(page).toHaveTitle(title);
   await expect(page.locator('meta[name="description"]')).toHaveAttribute(
     "content",
-    `Portfolio van ${personal.fullName}, ${personal.function}. Werk, vaardigheden en een chat over het profiel.`,
+    `Portfolio van ${personal.fullName}, ${personal.function} in ${personal.location}. Projecten, vaardigheden en contact.`,
   );
-  await expect(page.locator('meta[name="robots"]')).toHaveAttribute("content", /noindex/);
+  await expect(page.locator('meta[name="robots"]')).toHaveAttribute("content", "index, follow");
+  await expect(page.locator('link[rel="canonical"]')).toHaveAttribute("href", personal.portfolioUrl);
+  await expect(page.locator('meta[property="og:title"]')).toHaveAttribute("content", title);
+  await expect(page.locator('meta[property="og:url"]')).toHaveAttribute("content", personal.portfolioUrl);
+  await expect(page.locator('meta[property="og:locale"]')).toHaveAttribute("content", "nl_NL");
+  await expect(page.locator('meta[name="twitter:image"]')).toHaveAttribute(
+    "content",
+    new URL("/opengraph-image", new URL(personal.portfolioUrl).origin).href,
+  );
+  expect(await page.locator('script[type="application/ld+json"]').textContent()).toContain(personal.fullName);
+  await expect(page.getByRole("region", { name: "Profiel" }).getByRole("link", { name: "LinkedIn" })).toHaveAttribute(
+    "rel",
+    "me noreferrer",
+  );
+  await expect(page.locator("#contact").getByRole("link", { name: "GitHub" })).toHaveAttribute("rel", "me noreferrer");
+});
+
+test("publiceert robots.txt, een sitemap en een deelbare afbeelding", async ({ request }) => {
+  const robots = await request.get("/robots.txt");
+  expect(robots.status()).toBe(200);
+  const robotsText = await robots.text();
+  expect(robotsText).toContain("Allow: /");
+  expect(robotsText).toContain("Disallow: /agents");
+  expect(robotsText).toContain("Disallow: /api/");
+  expect(robotsText).toContain(new URL("/sitemap.xml", personal.portfolioUrl).href);
+
+  const sitemap = await request.get("/sitemap.xml");
+  expect(sitemap.status()).toBe(200);
+  expect(await sitemap.text()).toContain(personal.portfolioUrl);
+
+  const image = await request.get("/opengraph-image");
+  expect(image.status()).toBe(200);
+  expect(image.headers()["content-type"]).toContain("image/png");
 });
 
 test("de skiplink brengt de focus naar de inhoud", async ({ page }) => {

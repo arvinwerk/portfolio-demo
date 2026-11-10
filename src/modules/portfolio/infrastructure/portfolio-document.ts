@@ -127,7 +127,7 @@ const PERSONAL_REQUIRED = [
   "githubDescription",
 ];
 
-const PERSONAL_OPTIONAL = ["education", "dateOfBirth"];
+const PERSONAL_OPTIONAL = ["education", "dateOfBirth", "siteImages"];
 
 function assertAllowedKeys(value: UnknownRecord, required: string[], optional: string[], path: string): void {
   const allowed = new Set([...required, ...optional]);

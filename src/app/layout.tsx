@@ -1,4 +1,3 @@
-import type { Metadata } from "next";
 import type { ReactNode } from "react";
 import { Mulish, Raleway, Roboto } from "next/font/google";
 import { ChatWidget } from "@/modules/assistant";
@@ -20,10 +19,6 @@ const ui = Roboto({
   weight: ["300", "400", "500", "700"],
   variable: "--font-roboto",
 });
-
-export const metadata: Metadata = {
-  robots: { index: false, follow: false },
-};
 
 export default function RootLayout({ children }: { children: ReactNode }) {
   const name = loadPortfolioPage(undefined).profile.fullName;
