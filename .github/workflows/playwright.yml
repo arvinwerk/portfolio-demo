@@ -17,14 +17,6 @@ jobs:
           corepack prepare pnpm@10.33.4 --activate
           pnpm install --frozen-lockfile
       - name: Install Chromium
-        run: |
-          for attempt in 1 2 3; do
-            if pnpm exec playwright install --with-deps chromium; then
-              exit 0
-            fi
-            echo "Chromium install attempt ${attempt} failed." >&2
-            sleep $((attempt * 15))
-          done
-          exit 1
+        run: pnpm exec playwright install chromium
       - name: Playwright
         run: pnpm test:e2e
