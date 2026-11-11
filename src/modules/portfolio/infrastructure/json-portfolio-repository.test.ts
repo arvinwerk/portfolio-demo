@@ -10,35 +10,33 @@ import { JsonPortfolioRepository } from "./json-portfolio-repository";
 describe("JsonPortfolioRepository", () => {
   const portfolio = new JsonPortfolioRepository().load();
 
-  it("houdt de demopersona en de twee verzonnen campagnes", () => {
+  it("leest het gepubliceerde profiel en de twee campagnes", () => {
     expect(portfolio.profile).toMatchObject({
-      fullName: "Noor Linden",
-      function: "Frontend developer",
-      email: "noor.linden@example.com",
-      education: "Informatica, Voorbeeld Hogeschool",
-      location: "Kadewijk (verzonnen)",
-      linkedIn: "https://example.com/demo/noor-linden/linkedin",
-      github: "https://example.com/demo/noor-linden/code",
-      portfolioUrl: "https://example.com/demo/noor-linden",
+      fullName: "Arvin Sokarijo",
+      function: "Senior Angular developer",
+      email: "arvin.werk@gmail.com",
+      education: null,
+      location: "Oranjewoud, in de buurt van Heerenveen",
+      linkedIn: "https://www.linkedin.com/in/arvin-sokarijo-7a382011",
+      github: "https://github.com/arvinwerk",
+      portfolioUrl: "https://arvinportfolio.nl",
     });
-    expect(portfolio.profile.foreword).toContain("${age}");
+    expect(portfolio.profile.foreword).not.toContain("${age}");
     expect(portfolio.profile.foreword).toContain("${yearsAsDeveloper}");
     const profile = readFileSync(path.join(process.cwd(), "content/rag/profile.txt"), "utf8");
-    expect(profile).toContain("Noor Linden");
-    expect(profile).toContain("Voorbeeld Hogeschool");
+    expect(profile).toContain("Arvin Sokarijo");
+    expect(profile).toContain("Oranjewoud");
     expect(portfolio.banners.map((banner) => banner.title)).toEqual([
-      "Festival Noordlicht — Lichtarrangementen",
-      "Circuit Meridiaan — Baan VIP",
+      "Vrienden van Amstel VIP Arrangementen 2024",
+      "Heineken Formule 1 VIP",
     ]);
   });
 
-  it("bouwt op 23 oktober 2026 een voorwoord met leeftijd 33 en 11 jaar ontwikkeling", () => {
+  it("bouwt op 23 oktober 2026 een voorwoord met 17 jaar ontwikkeling", () => {
     const model = composePortfolioPage(portfolio, { now: new Date(2026, 9, 23) });
-    expect(model.forewordParagraphs.join(" ")).toContain("verzonnen");
-    expect(model.forewordParagraphs.join(" ")).toContain("33");
-    expect(model.forewordParagraphs.join(" ")).toContain("11");
-    expect(model.projects.map((project) => project.id)).toEqual([1, 2, 3, 4, 5]);
-    expect(model.skillGroups.map((group) => group.label)).toEqual(["Talen", "Frameworks", "Aanpak"]);
+    expect(model.forewordParagraphs.join(" ")).toContain("17");
+    expect(model.projects.map((project) => project.id)).toEqual([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]);
+    expect(model.skillGroups.map((group) => group.label)).toEqual(["Talen", "Frameworks", "Aanpak", "AI"]);
   });
 
   it("wijst alleen naar beelden die in public staan", () => {

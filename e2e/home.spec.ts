@@ -72,9 +72,9 @@ test("toont het profiel, de afgeleide feiten en de contactlinks", async ({ page 
   const profile = page.getByRole("region", { name: "Profiel" });
   await expect(profile.getByRole("heading", { level: 1, name: personal.fullName })).toBeVisible();
   await expect(profile.getByText(personal.function)).toBeVisible();
-  const education = personal.education ?? "";
-  expect(education.length).toBeGreaterThan(0);
-  await expect(profile.getByText(education)).toBeVisible();
+  if (personal.education) {
+    await expect(profile.getByText(personal.education)).toBeVisible();
+  }
   await expect(profile.getByText(personal.location)).toBeVisible();
 
   const facts = profile.locator("dl");
@@ -144,7 +144,7 @@ test("toont de vaardigheden per categorie met balk en meter", async ({ page }) =
     await expect(meter).toHaveAttribute("aria-valuenow", String(skill.percentage));
     await expect(meter).toHaveAttribute("aria-valuetext", `${skill.percentage}%`);
     await expect(meter.locator("span")).toHaveAttribute("style", new RegExp(`width:\\s*${skill.percentage}%`));
-    await expect(section.getByText(`${skill.percentage}%`)).toBeVisible();
+    await expect(section.getByText(`${skill.percentage}%`).first()).toBeVisible();
   }
 });
 

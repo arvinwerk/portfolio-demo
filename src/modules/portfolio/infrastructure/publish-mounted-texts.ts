@@ -13,17 +13,17 @@ export function publishMountedTexts(
     return;
   }
 
-  mkdirSync(destination, { recursive: true });
+  mkdirSync(/*turbopackIgnore: true*/ destination, { recursive: true });
   for (const name of DOCUMENT_NAMES) {
-    cpSync(path.join(cwd, "content", name), path.join(destination, name));
+    cpSync(path.join(cwd, "content", name), path.join(/*turbopackIgnore: true*/ destination, name));
   }
 
-  const rag = path.join(destination, "rag");
+  const rag = path.join(/*turbopackIgnore: true*/ destination, "rag");
   mkdirSync(rag, { recursive: true });
   for (const name of readdirSync(path.join(cwd, "content", "rag"))) {
     const source = path.join(cwd, "content", "rag", name);
     if (statSync(source).isFile()) {
-      cpSync(source, path.join(rag, name));
+      cpSync(source, path.join(/*turbopackIgnore: true*/ rag, name));
     }
   }
 

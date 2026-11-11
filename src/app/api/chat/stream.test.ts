@@ -68,7 +68,8 @@ describe("het modelantwoord in de stream", () => {
     const init = fetchMock.mock.calls[0]?.[1];
     const request = String(init?.body);
     expect(request).toContain("Wat is je opleiding?");
-    expect(request).toContain("informatica aan de Voorbeeld Hogeschool, afgerond in 2015");
+    expect(request).toContain("Van Meijel Automatisering");
+    expect(request).not.toContain("Opleiding:");
     expect(request).not.toContain("test-sleutel");
     expect(new Headers(init?.headers).get("authorization")).toBeNull();
     expect(text).toContain(answer);

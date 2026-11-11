@@ -132,8 +132,8 @@ describe("createProfileKnowledge", () => {
     write(rag, "recruiter.txt", readFileSync(path.join(process.cwd(), "content/rag/recruiter.txt")));
 
     const facts = await createProfileKnowledge({ CONTENT_DIR: directory }).facts();
-    expect(facts.residence).toBe("Kadewijk");
-    expect(facts.projects.map((project) => project.client)).toContain("Circuit Meridiaan");
+    expect(facts.residence).toBe("Oranjewoud, in de buurt van Heerenveen");
+    expect(facts.projects.map((project) => project.client)).toContain("Van Meijel Automatisering");
   });
 
   it("zegt het als het bestand ontbreekt, buiten de map wijst, of geen tekst is", async () => {
