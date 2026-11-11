@@ -1,6 +1,6 @@
 Van Meijel Automatisering, Metacom Calculatie. Sinds januari 2025 bouwt hij aan de calculatiesoftware voor bouw en infra. Metacom Calculatie hoort bij het ERP Metacom. Een aannemer rekent er een kostprijs mee uit, maakt een werkbegroting of calculeert een bestek, RAW of STABU, ook vanuit een 3D-model, van een eerste raming tot de definitieve werkbegroting. Hij heeft er AI bij gezet zodat een calculatie sneller af is. Claude hangt via de Vercel AI SDK aan de Angular-app. Langfuse laat zien wat het model doet. Promptfoo checkt de prompts voordat ze mee gaan.
 
-Achmea, lead Angular developer. In oktober 2023 begon hij in Leeuwarden als senior Angular developer. Vanaf januari 2024 was hij lead, tot hij in januari 2025 naar Van Meijel ging. Stack: Angular.
+Achmea, lead frontend bij FBTO. In oktober 2023 begon hij in Leeuwarden als senior Angular developer. Vanaf januari 2024 was hij lead frontend bij FBTO, tot hij in januari 2025 naar Van Meijel ging. Stack: Angular.
 
 De projecten hieronder zijn het werk bij Webavance, van maart 2013 tot oktober 2023.
 

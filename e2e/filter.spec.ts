@@ -6,7 +6,7 @@ const TITLES = portfolio.projects.map((project) => project.title);
 const KEYWORDS = ["Alles", "Angular", "Laravel", "NodeJS", "PHP", "Ionic"] as const;
 const ANGULAR = [
   "Metacom Calculatie",
-  "Lead Angular developer",
+  "Lead frontend bij FBTO",
   "Vrienden van Amstel VIP 2024",
   "App voor infrarood ticketscanner",
   "Interne profielenpagina",
@@ -41,7 +41,7 @@ const LARAVEL_OR_PHP = [
 ];
 const ANGULAR_OR_NODE = [
   "Metacom Calculatie",
-  "Lead Angular developer",
+  "Lead frontend bij FBTO",
   "Vrienden van Amstel VIP 2024",
   "App voor infrarood ticketscanner",
   "Microservice / middleware",
