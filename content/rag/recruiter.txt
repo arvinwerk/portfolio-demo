@@ -1,6 +1,6 @@
 # Feiten voor het model. De chat antwoordt alleen vanuit dit blad.
 naam: Arvin Sokarijo
-rol: full stack developer
+rol: senior angular developer
 woonplaats: Oranjewoud, in de buurt van Heerenveen
 interfaces-sinds: 2009-01-01
 nu: sinds januari 2025 senior Angular developer bij Van Meijel Automatisering, aan Metacom Calculatie voor bouw en infra
