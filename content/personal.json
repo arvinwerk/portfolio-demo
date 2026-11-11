@@ -1,14 +1,12 @@
 {
-  "fullName": "Noor Linden",
-  "function": "Frontend developer",
-  "email": "noor.linden@example.com",
-  "education": "Informatica, Voorbeeld Hogeschool",
-  "developingStartDate": "2015-08-03",
-  "linkedIn": "https://example.com/demo/noor-linden/linkedin",
-  "portfolioUrl": "https://example.com/demo/noor-linden",
-  "location": "Kadewijk (verzonnen)",
-  "foreword": "Noor Linden is een verzonnen frontend developer. Het vak lijkt op een echt beroep, het cv niet. In deze demo is Noor ${age} en bouwt ${yearsAsDeveloper} jaar aan interfaces.\n\nDe teksten, de projecten en de chat zijn compleet genoeg om de pagina te gebruiken. Leeftijd en jaren komen uit de datums in content/personal.json. Er staat geen echte persoon achter de naam.",
-  "dateOfBirth": "1993-04-18",
-  "github": "https://example.com/demo/noor-linden/code",
-  "githubDescription": "De knop wijst naar een voorbeeldadres op example.com. Er staat geen repository en geen account achter.\n\nDe pagina haalt die content niet op in de browser. Next.js leest de JSON op de server, en de chat zoekt alleen in de tekstbestanden onder content/rag."
+  "fullName": "Arvin Sokarijo",
+  "function": "Senior Angular developer",
+  "email": "arvin.werk@gmail.com",
+  "developingStartDate": "2009-01-01",
+  "linkedIn": "https://www.linkedin.com/in/arvin-sokarijo-7a382011",
+  "portfolioUrl": "https://arvinportfolio.nl",
+  "location": "Oranjewoud, in de buurt van Heerenveen",
+  "foreword": "Ik bouw interfaces, en de services die erachter zitten. Inmiddels ${yearsAsDeveloper} jaar. Het begon in januari 2009, als front-end developer bij One-stop-webshop.\n\nVan maart 2013 tot oktober 2023 zat ik bij Webavance. De projecten hieronder zijn uit die tijd, voor opdrachtgevers als We-Invite, Ziggo, Sanoma en Meander. Daarna was ik van oktober 2023 tot januari 2025 bij Achmea in Leeuwarden, eerst senior en daarna lead Angular developer. Sinds januari 2025 werk ik bij Van Meijel Automatisering aan Metacom Calculatie, de software waarmee je in bouw en infra calculeert. Daar heb ik AI aan toegevoegd, zodat een calculatie sneller rond is.",
+  "github": "https://github.com/arvinwerk",
+  "githubDescription": "De code van dit portfolio staat op GitHub.\n\nIk bouw de pagina in Next.js. De teksten leest de server, niet de browser."
 }

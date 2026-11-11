@@ -1,42 +1,98 @@
 [
   {
-    "company": "Festival Noordlicht",
-    "title": "Lichtarrangementen",
-    "shortDescription": "Verzonnen campagnesite voor een lichtfestival, met een zwaar visuele voorkant.",
-    "longDescription": "De pagina brengt sfeer en aanmelding samen in herbruikbare blokken, zodat een volgende editie de structuur kan houden. Angular en TypeScript delen dezelfde inhoud op laptop en telefoon.\n\nOpdrachtgever, festival en aanmeldingen zijn verzonnen. De banner hierboven is het scherm van deze campagne.",
-    "keywords": ["Angular", "TypeScript"],
-    "images": ["noordlicht.svg"]
+    "company": "Van Meijel Automatisering",
+    "title": "Metacom Calculatie",
+    "shortDescription": "Sinds januari 2025 bouw ik aan Metacom Calculatie, voor aannemers in bouw en infra.",
+    "longDescription": "Metacom Calculatie hoort bij Metacom, het ERP voor bouw en infra. Een aannemer rekent er een kostprijs mee uit, maakt een werkbegroting, of calculeert een bestek. Dat bestek is RAW of STABU, en soms start je vanuit een 3D-model. Van de eerste raming tot de definitieve werkbegroting.\n\nIk heb er AI bij gezet, zodat een calculatie sneller af is. Claude hangt via de Vercel AI SDK aan de Angular-app. In Langfuse zie ik wat het model doet. Met Promptfoo check ik de prompts voordat ze mee gaan.",
+    "keywords": ["Angular", "Claude", "Vercel AI SDK", "Langfuse", "Promptfoo"],
+    "images": []
   },
   {
-    "company": "Circuit Meridiaan",
-    "title": "Baan VIP",
-    "shortDescription": "VIP-ervaring rond een verzonnen racereeks, van de landing tot de aanmelding.",
-    "longDescription": "Bezoekers zien het arrangement op een laptop en op een telefoon, in dezelfde campagne. Angular levert het scherm, Laravel de aanmelding.\n\nCircuit Meridiaan bestaat niet. Het merkteken op de kaart is een demo, geen logo van een renstal of een biermerk.",
-    "keywords": ["Angular", "Laravel"],
-    "images": ["meridiaan.svg"]
+    "company": "Achmea",
+    "title": "Lead Angular developer",
+    "shortDescription": "Van oktober 2023 tot januari 2025 in Leeuwarden. Eerst senior, daarna lead.",
+    "longDescription": "In oktober 2023 begon ik bij Achmea in Leeuwarden als senior Angular developer. Vanaf januari 2024 was ik lead, tot ik in januari 2025 naar Van Meijel ging. Het werk daar was Angular.",
+    "keywords": ["Angular"],
+    "images": []
   },
   {
-    "company": "Studio Noord",
-    "title": "Componentbibliotheek",
-    "shortDescription": "Verzonnen bibliotheek, zodat het filter React, TypeScript en Next.js laat zien.",
-    "longDescription": "Filters, lijsten en balken delen één model. Een visuele wijziging kan de interactie niet stilletjes veranderen.\n\nElke staat van zo'n onderdeel heeft een test. Studio Noord is geen bestaand bureau.",
-    "keywords": ["React", "TypeScript", "Next.js"],
-    "images": ["ui.svg"]
+    "company": "We-Invite",
+    "title": "Vrienden van Amstel VIP 2024",
+    "shortDescription": "De webshop en het beheer voor de VIP-arrangementen van Vrienden van Amstel 2024. Voor- en achterkant.",
+    "longDescription": "Bezoekers kopen in de webshop een VIP-arrangement voor Vrienden van Amstel 2024. Achter de schermen houdt de organisatie die verkoop bij. Ik heb beide kanten gebouwd, in Angular en Laravel.\n\nDe webshop staat op https://vvalvip2024.we-invite.shop.",
+    "keywords": ["Laravel", "Angular"],
+    "images": []
   },
   {
-    "company": "Haven & Co",
-    "title": "Content-API",
-    "shortDescription": "Verzonnen API, zodat het filter Laravel en Node.js laat zien.",
-    "longDescription": "De pagina krijgt persoonsgegevens, vaardigheden en projecten als props.\n\nHet filter staat in de URL. Dezelfde selectie is deelbaar, en Next.js past hem toe voordat de HTML vertrekt. Haven & Co is een verzonnen opdrachtgever.",
-    "keywords": ["Laravel", "Node.js"],
-    "images": ["api.svg"]
+    "company": "We-Invite",
+    "title": "Placeertool en uitnodigingen",
+    "shortDescription": "Een plek op de plattegrond, en meteen de uitnodiging erbij. Onder andere de Nationale Dodenherdenking 2023 en The Bodyguard.",
+    "longDescription": "Met de placeertool krijgt elke bezoeker een plek op de plattegrond, en daar hoort een uitnodiging bij. Plaatsen met de hand hoeft dan niet meer.\n\nDe tool is onder andere gebruikt bij de Nationale Dodenherdenking 2023. Premier Rutte, de koning en de koningin waren toen te gast. The Bodyguard is er ook mee geplaatst.",
+    "keywords": ["Laravel"],
+    "images": []
   },
   {
-    "company": "Atelier Linden",
-    "title": "Deze demopagina",
-    "shortDescription": "Het portfolio zelf, als laatste kaart: React en Next.js lezen de JSON op de server.",
-    "longDescription": "Persoonsgegevens, vaardigheden, projecten en banners komen uit bestanden. De browser haalt die JSON niet op.\n\nAtelier Linden is de verzonnen studiowanaam van Noor. De kaart laat zien dat de pagina een project in dezelfde lijst kan zijn.",
-    "keywords": ["React", "Next.js"],
-    "images": ["atelier.svg"]
+    "company": "Arpo entertainment",
+    "title": "App voor infrarood ticketscanner",
+    "shortDescription": "QR-codes scannen aan de deur. Onder andere de Grand Prix in Zandvoort, Vrienden van Amstel in Ahoy en Prinsjesdag.",
+    "longDescription": "Een Ionic-app voor een infraroodscanner. De scanner leest de QR-code op het ticket, en dan kan een bezoeker naar binnen.\n\nIk heb ook het stuk gemaakt dat de tickets aanmaakt, er een barcode op zet en ze verstuurt. De app is gebruikt bij de Grand Prix in Zandvoort, bij Vrienden van Amstel in Ahoy en op Prinsjesdag.",
+    "keywords": ["Ionic", "Angular"],
+    "images": []
+  },
+  {
+    "company": "Ziggo",
+    "title": "Microservice / middleware",
+    "shortDescription": "De koppeling die storingsdata naar ziggo.nl brengt.",
+    "longDescription": "Op ziggo.nl kijk je of er een storing is op je adres. Die gegevens komen niet uit de pagina zelf. Een externe API levert ze, en een NodeJS-middleware legt de verbinding met de site.\n\nToen die koppeling problemen gaf, heb ik Ziggo geholpen. Ik heb de middleware uitgezocht tot duidelijk was waar de storingsdata bleef hangen.",
+    "keywords": ["NodeJS"],
+    "images": []
+  },
+  {
+    "company": "Ziggo",
+    "title": "Interne profielenpagina",
+    "shortDescription": "Een pagina waarop collega's elkaar leren kennen, en eens per maand vertellen hoe het gaat.",
+    "longDescription": "Om collega's elkaar beter te laten leren kennen, en om te zien hoe tevreden ze zijn, heb ik een profielenpagina gemaakt. Iedereen heeft er een eigen profiel. Eens per maand vult die een enquête in over de tevredenheid.\n\nDe pagina is gebouwd met AngularJS en Angular. NodeJS en SailsJS zitten erachter.",
+    "keywords": ["NodeJS", "SailsJS", "Angular", "AngularJS"],
+    "images": []
+  },
+  {
+    "company": "Arpo entertainment",
+    "title": "Welkomsscherm na inchecken ticket",
+    "shortDescription": "Check je in, dan heet het scherm je meteen welkom.",
+    "longDescription": "Zodra een ticket is ingecheckt, staat de bezoeker live op een scherm en wordt die welkom geheten. Het scherm wacht niet op een verversing achteraf.\n\nLeuk om te vertellen: het draaide tijdens het diner voor de prijswinnaars van de Koning Willem I Prijs, met onder andere koningin Máxima als gast.",
+    "keywords": ["Ionic", "Angular"],
+    "images": []
+  },
+  {
+    "company": "Temporary Work Design",
+    "title": "Urenregistratie",
+    "shortDescription": "Werkuren en declarabiliteit, voor een club die meebouwt aan de windturbines op de Noordzee.",
+    "longDescription": "Temporary Work Design werkt onder andere mee aan de windturbines op de Noordzee. Werkuren en declarabiliteit moesten daar inzichtelijk zijn, niet verspreid over lijsten.\n\nWe hebben een urenregistratie gebouwd bovenop de API van Afas. Ionic en Angular zitten aan de voorkant, C# op .NET aan de achterkant.",
+    "keywords": ["Ionic", "Angular", "DOT.NET", "C#", "Afas"],
+    "images": []
+  },
+  {
+    "company": "Sanoma",
+    "title": "Swipe & Shop app",
+    "shortDescription": "Swipe & Shop is het best te omschrijven als Tinder for fashion.",
+    "longDescription": "Swipe & Shop is het best te omschrijven als Tinder for fashion. Je veegt door producten en houdt wat je zou kopen.\n\nIk deed de backend. Grote productfeeds moesten beter binnenkomen, onder andere via ZANOX. Er kwam een algoritme bij, zodat iemand eerder producten ziet die die zou kopen. Daaromheen PHP, Heroku, Docker en AWS S3.",
+    "keywords": ["Ionic", "Angular", "PHP", "ZANOX", "AWS", "S3", "Heroku"],
+    "images": []
+  },
+  {
+    "company": "Meander ziekenhuis Amersfoort",
+    "title": "Rooster generator",
+    "shortDescription": "Het rooster van de artsen, zonder het nog met de hand in elkaar te zetten.",
+    "longDescription": "Het rooster van de artsen werd altijd met de hand gemaakt. Het kostte veel tijd om het rond te krijgen. We hebben een tool gemaakt die het rooster genereert. Die houdt rekening met het aantal uren per maand, met vrije dagen en met vakantie.\n\nIk deed de voorkant. Daar zie je het gegenereerde rooster, en daar pas je het aan. Het is helaas nooit in de praktijk in gebruik genomen, maar functioneel werkte het wel goed.",
+    "keywords": ["Laravel", "PHP", "Angular"],
+    "images": []
+  },
+  {
+    "company": "Arpo entertainment",
+    "title": "Backoffice en dynamische registratie voor we-invite",
+    "shortDescription": "De backoffice van We-Invite: registratiepagina's, tickets en bezoekers.",
+    "longDescription": "De backoffice van We-Invite. Registratiepagina's, tickets en bezoekers beheer je daar, en de registratie kan per pagina anders zijn.\n\nAngular zit aan de voorkant, Laravel en PHP erachter. Capistrano zet het live. Redis hoort bij dezelfde stack.",
+    "keywords": ["Angular", "Laravel", "Capistrano", "Redis", "PHP"],
+    "images": []
   }
 ]

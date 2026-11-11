@@ -1,0 +1,48 @@
+name: Place published content
+
+on:
+  push:
+    branches: [cursor/oranjewoud-7622]
+
+jobs:
+  place:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Build the release
+        run: |
+          corepack enable
+          corepack prepare pnpm@10.33.4 --activate
+          pnpm install --frozen-lockfile
+          pnpm build
+          mkdir -p release/.next
+          cp -a .next/standalone/. release/
+          cp -a .next/static release/.next/static
+          rm -rf release/content release/public release/qwen
+          cp -a content release/content
+          cp -a public release/public
+          cp -a qwen release/qwen
+          tar -C release -cJf portfolio.tar.xz .
+          tar -xOJf portfolio.tar.xz ./content/personal.json | grep -q 'Oranjewoud'
+      - name: Publish the release
+        env:
+          DEPLOY_SSH_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
+        run: |
+          install -d -m 700 ~/.ssh
+          printf '%s\n' "$DEPLOY_SSH_KEY" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          printf '%s\n' '136.144.146.87 ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIBBQ4SiFeHJWTIqwr34Cw6jJPoK7J/lYapT/zXb12tf/' >> ~/.ssh/known_hosts
+          if [ ! -s ~/.ssh/deploy_key ]; then
+            echo "De deploysleutel ontbreekt." >&2
+            exit 1
+          fi
+          set +e
+          ssh -T -i ~/.ssh/deploy_key -o IdentitiesOnly=yes -o BatchMode=yes -o LogLevel=ERROR arvinwerk@136.144.146.87 run < portfolio.tar.xz > deploy.out 2> deploy.err
+          status=$?
+          echo "deploy=$status"
+          cat deploy.out
+          cat deploy.err >&2
+          exit "$status"
