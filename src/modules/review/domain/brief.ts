@@ -1,5 +1,5 @@
 import { lensQuestion, lensTitle, type ReviewLens } from "./lens";
-import { clip, type ReviewReport } from "./report";
+import { clip, emptySuggestion, type ReviewReport } from "./report";
 import { sanitizePublicText } from "./sanitize";
 
 export type ReviewExcerpt = {
@@ -19,7 +19,7 @@ export function reviewBrief(input: {
   prior: readonly ReviewReport[];
 }): string {
   const prior = input.prior
-    .filter((report) => report.date < input.date)
+    .filter((report) => report.date < input.date && (report.score !== null || keptSuggestions(report).length > 0))
     .toSorted((left, right) => right.date.localeCompare(left.date) || left.lens.localeCompare(right.lens))
     .slice(0, maxPriorReports);
   const inspiration =
@@ -27,7 +27,7 @@ export function reviewBrief(input: {
       ? "Er zijn nog geen eerdere rapporten."
       : prior
           .map((report) => {
-            const suggestions = report.suggestions.map((suggestion) => `- ${suggestion}`).join("\n");
+            const suggestions = keptSuggestions(report).map((suggestion) => `- ${suggestion}`).join("\n");
             const score = report.score === null ? "geen score" : `${report.score}/10`;
             return `${report.date}, ${lensTitle[report.lens]}, ${score}\n${suggestions}`;
           })
@@ -63,4 +63,8 @@ ${excerpts}
 korte alinea
 
 Het cijfer is een geheel getal van 1 tot en met 10. 10 betekent dat deze lens weinig in de weg zit.`);
+}
+
+function keptSuggestions(report: ReviewReport): string[] {
+  return report.suggestions.filter((suggestion) => suggestion !== emptySuggestion && suggestion.trim().length > 0);
 }

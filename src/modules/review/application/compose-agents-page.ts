@@ -1,5 +1,5 @@
 import { lensTitle, reviewLenses, type ReviewLens } from "../domain/lens";
-import { averageReviewScore, publishedReport, type ReviewReport } from "../domain/report";
+import { averageReviewScore, publishedReport, reportHasFinding, type ReviewReport } from "../domain/report";
 
 export type AgentReportCard = {
   date: string;
@@ -23,14 +23,10 @@ export function composeAgentsPage(reports: readonly ReviewReport[]): AgentsPage 
   const dates = [...new Set(published.map((report) => report.date))].toSorted((left, right) => right.localeCompare(left));
 
   return {
-    days: dates.map((date) => ({
-      date,
-      averageScore: averageReviewScore(
-        published.filter((report) => report.date === date).map((report) => report.score),
-      ),
-      reports: reviewLenses.flatMap((lens) => {
+    days: dates.flatMap((date) => {
+      const cards = reviewLenses.flatMap((lens) => {
         const report = published.find((candidate) => candidate.date === date && candidate.lens === lens);
-        if (!report) {
+        if (!report || !reportHasFinding(report)) {
           return [];
         }
         return [
@@ -47,7 +43,17 @@ export function composeAgentsPage(reports: readonly ReviewReport[]): AgentsPage 
               .slice(0, 6),
           },
         ];
-      }),
-    })),
+      });
+      if (cards.length === 0) {
+        return [];
+      }
+      return [
+        {
+          date,
+          averageScore: averageReviewScore(cards.map((report) => report.score)),
+          reports: cards,
+        },
+      ];
+    }),
   };
 }

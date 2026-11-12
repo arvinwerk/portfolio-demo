@@ -1,7 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { ReviewModelError, type ReportArchive, type ReviewModel } from "../domain/ports";
 import type { ReviewReport } from "../domain/report";
-import { emptySuggestion } from "../domain/report";
 import { runDailyReview } from "./run-daily-review";
 
 describe("runDailyReview", () => {
@@ -35,7 +34,7 @@ describe("runDailyReview", () => {
     expect(archive.list()).toHaveLength(6);
   });
 
-  it("bewaart een vast voorstel als het model geen antwoord geeft", async () => {
+  it("bewaart geen rapport als het model geen antwoord geeft", async () => {
     const archive = memoryArchive();
     const model: ReviewModel = {
       async complete() {
@@ -50,7 +49,8 @@ describe("runDailyReview", () => {
       archive,
     });
 
-    expect(reports.every((report) => report.suggestions[0] === emptySuggestion)).toBe(true);
+    expect(reports).toEqual([]);
+    expect(archive.list()).toEqual([]);
   });
 });
 

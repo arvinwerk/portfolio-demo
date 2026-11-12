@@ -27,7 +27,28 @@ describe("composeAgentsPage", () => {
       },
     ]);
 
-    expect(page.days[0]?.reports[0]?.suggestions).toEqual(["Vandaag geen bruikbaar voorstel."]);
+    expect(page.days[0]?.reports[0]?.suggestions).toEqual([]);
     expect(page.days[0]?.reports[0]?.paragraphs.join(" ")).not.toContain("example.com");
+  });
+
+  it("laat een dag weg als elk rapport leeg is", () => {
+    const page = composeAgentsPage([
+      {
+        date: "2026-11-12",
+        lens: "interface",
+        score: null,
+        suggestions: ["Vandaag geen bruikbaar voorstel."],
+        body: "Geen toelichting.",
+      },
+      {
+        date: "2026-11-12",
+        lens: "content",
+        score: null,
+        suggestions: [],
+        body: "",
+      },
+    ]);
+
+    expect(page.days).toEqual([]);
   });
 });

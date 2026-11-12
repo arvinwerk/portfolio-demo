@@ -1,6 +1,6 @@
 import { reviewBrief, type ReviewExcerpt } from "../domain/brief";
 import { ReviewModelError, type ReportArchive, type ReviewModel } from "../domain/ports";
-import { interpretReview, reviewDate, type ReviewReport } from "../domain/report";
+import { interpretReview, reportHasFinding, reviewDate, type ReviewReport } from "../domain/report";
 import { reviewLenses } from "../domain/lens";
 
 export async function runDailyReview(input: {
@@ -25,6 +25,9 @@ export async function runDailyReview(input: {
       }
     }
     const report = interpretReview(date, lens, raw);
+    if (!reportHasFinding(report)) {
+      continue;
+    }
     input.archive.save(report);
     written.push(report);
   }
