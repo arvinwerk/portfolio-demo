@@ -14,4 +14,4 @@ A release that contains `content/.publish`, with `CONTENT_DIR` set to an absolut
 - `content/banners.json` uses paths under `/images/`.
 - `content/rag/recruiter.txt` is the sheet the model receives as facts. `opleiding` and `geboren` may be absent. `profile.txt` is the person, `werk.txt` is the projects. Other `.txt`, `.md`, or `.markdown` files in that directory count for the index, unless `RAG_DOCUMENT_PATH` points at one of them.
 
-Images for the published site live in `images/` next to the JSON, under `CONTENT_DIR`. Without `CONTENT_DIR` they come from `public/images/`.
+Images live in `content/images/`. `/images` reads that directory through the route, not through `public/`, because Next serves static files before a dynamic route. `CONTENT_DIR/images` therefore replaces the checkout images. The response sets `nosniff` and a policy without scripts, so an svg does not become a page.

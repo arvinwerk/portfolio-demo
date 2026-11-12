@@ -22,4 +22,4 @@ Each context keeps the same order: a document or a request comes in, the domain 
 
 `ProfileKnowledge` is the port to the facts. `facts` reads the recruiter sheet. `search` is the BM25 index: `FileProfileStore` reads the text files, lets LangChain split them, ranks them with BM25, refuses anything larger than 64 kB, and caches the pieces on itself.
 
-The window imports the error sentence it shows the visitor, and the welcome sentence from the domain. Restoring a conversation stays in the domain.
+The window shows the sentence from the route's response. A page or a stack trace becomes the fixed sentence that the answer failed. Restoring a conversation stays in the domain.

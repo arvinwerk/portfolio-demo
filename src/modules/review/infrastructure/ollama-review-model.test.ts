@@ -14,6 +14,9 @@ describe("readOllamaTarget", () => {
     });
     expect(() => readOllamaTarget({ OLLAMA_URL: "http://user:secret@127.0.0.1:11434" })).toThrow(ReviewConfigError);
     expect(() => readOllamaTarget({ QWEN_MODEL: "qwen?token=geheim" })).toThrow(ReviewConfigError);
+    expect(readOllamaTarget({ OLLAMA_URL: "http://qwen:11434/" }).baseUrl).toBe("http://qwen:11434");
+    expect(() => readOllamaTarget({ OLLAMA_URL: "https://example.com" })).toThrow("OLLAMA_URL wijst niet naar een lokaal model.");
+    expect(() => readOllamaTarget({ OLLAMA_URL: "niet een url" })).toThrow("OLLAMA_URL is ongeldig.");
   });
 });
 

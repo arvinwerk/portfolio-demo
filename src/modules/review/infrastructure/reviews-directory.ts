@@ -25,11 +25,11 @@ function contentRoot(env: Record<string, string | undefined>): string {
 
   let resolved: string;
   try {
-    resolved = realpathSync(configured);
+    resolved = realpathSync(/*turbopackIgnore: true*/ configured);
   } catch {
     throw new ReviewDirectoryError("CONTENT_DIR is niet beschikbaar.");
   }
-  if (!statSync(resolved).isDirectory()) {
+  if (!statSync(/*turbopackIgnore: true*/ resolved).isDirectory()) {
     throw new ReviewDirectoryError("CONTENT_DIR moet een map zijn.");
   }
   return resolved;

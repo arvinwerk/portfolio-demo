@@ -336,8 +336,7 @@ function Conversation({
 
 function Message({ message, busy, last }: { message: UIMessage; busy: boolean; last: boolean }) {
   const text = message.parts.flatMap((part) => (part.type === "text" ? [part.text] : []));
-  const searching = message.parts.some((part) => isPendingTool(part));
-  if (text.length === 0 && !searching) {
+  if (text.length === 0) {
     return null;
   }
 
@@ -348,16 +347,11 @@ function Message({ message, busy, last }: { message: UIMessage; busy: boolean; l
       }`}
     >
       {text.join("")}
-      {searching ? <span className="block text-sm text-muted">Ik zoek in het profiel.</span> : null}
       {busy && last && message.role === "assistant" ? (
         <span className="ml-1 inline-block h-4 w-1 animate-pulse bg-primary align-middle" aria-hidden="true" />
       ) : null}
     </p>
   );
-}
-
-function isPendingTool(part: { type: string; state?: string }): boolean {
-  return part.type.startsWith("tool-") && part.state !== "output-available" && part.state !== "output-error";
 }
 
 function ChatIcon() {

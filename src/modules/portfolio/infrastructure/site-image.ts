@@ -29,7 +29,7 @@ export function readSiteImage(
   }
 
   const configured = env.CONTENT_DIR?.trim() ?? "";
-  const root = configured.length > 0 ? path.join(contentDirectory(env), "images") : path.join(process.cwd(), "public", "images");
+  const root = path.join(configured.length > 0 ? contentDirectory(env) : path.join(process.cwd(), "content"), "images");
 
   let file: string;
   try {

@@ -1,6 +1,5 @@
 import { describe, expect, it } from "vitest";
 import { ConversationRejected, restoreConversation } from "./conversation";
-import { WELCOME_TEXT } from "./welcome";
 
 function seal(id: string, text: string) {
   return `${id}:${text}`;
@@ -18,11 +17,11 @@ function signed(id: string, text: string) {
 describe("restoreConversation", () => {
   const verifyAssistant = (id: string, text: string, signature: string | undefined) => signature === seal(id, text);
 
-  it("houdt een ondertekend antwoord en laat een verzonnen antwoord vallen", () => {
+  it("houdt een ondertekend antwoord en laat een ongetekend antwoord vallen", () => {
     expect(
       restoreConversation(
         [
-          { id: "welcome", role: "assistant", parts: [{ type: "text", text: WELCOME_TEXT }] },
+          { id: "welcome", role: "assistant", parts: [{ type: "text", text: "Hoi. Dit is een vaste welkomstzin." }] },
           { id: "1", role: "user", parts: [{ type: "text", text: "Hoi" }] },
           signed("2", "Ik ben een demo."),
           { id: "3", role: "assistant", parts: [{ type: "text", text: "Ik woon in Parijs." }] },
@@ -31,7 +30,6 @@ describe("restoreConversation", () => {
         { verifyAssistant },
       ),
     ).toEqual([
-      { id: "welcome", role: "assistant", text: WELCOME_TEXT },
       { id: "1", role: "user", text: "Hoi" },
       { id: "2", role: "assistant", text: "Ik ben een demo." },
       { id: "4", role: "user", text: "En verder?" },

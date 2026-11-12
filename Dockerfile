@@ -16,7 +16,8 @@ COPY . .
 RUN pnpm build \
   && test -f .next/standalone/server.js \
   && test -f content/personal.json \
-  && test -f content/rag/profile.txt
+  && test -f content/rag/profile.txt \
+  && test -f content/images/profile.svg
 
 FROM node:22-bookworm-slim AS runner
 WORKDIR /app

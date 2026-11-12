@@ -5,8 +5,6 @@ import {
   mockChat,
   openChat,
   postedTexts,
-  profileAnswer,
-  profileLookup,
   sendChat,
   ACQUAINTANCE_PROMPT,
   ACQUAINTANCE_QUESTION,
@@ -267,28 +265,18 @@ test.describe("venster", () => {
     expect(postedTexts(bodies[1] ?? {})).toEqual(["Eerste vraag", "Eerste antwoord.", "Tweede vraag"]);
   });
 
-  test("toont dat het profiel wordt doorzocht zolang de tool geen resultaat heeft", async ({ page }) => {
-    await mockChat(page, async (route) => {
-      await route.fulfill({ status: 200, headers: STREAM_HEADERS, body: profileLookup() });
-    });
-    const dialog = await openChat(page);
-    await sendChat(dialog, "Welke opleiding?");
-    await expect(dialog.getByText("Ik zoek in het profiel.")).toBeVisible();
-    await expect(dialog.getByRole("button", { name: "Verstuur" })).toBeVisible();
-  });
-
-  test("verbergt het zoeken zodra het antwoord uit het profiel er is", async ({ page }) => {
+  test("een ruwe foutpagina wordt de vaste zin", async ({ page }) => {
     await mockChat(page, async (route) => {
       await route.fulfill({
-        status: 200,
-        headers: STREAM_HEADERS,
-        body: profileAnswer("De opleiding staat in het profiel."),
+        status: 502,
+        contentType: "text/html",
+        body: "<html><body>Error: secret stack at /home/ubuntu</body></html>",
       });
     });
     const dialog = await openChat(page);
-    await sendChat(dialog, "Welke opleiding?");
-    await expect(dialog.getByText("De opleiding staat in het profiel.", { exact: true })).toBeVisible();
-    await expect(dialog.getByText("Ik zoek in het profiel.")).toHaveCount(0);
+    await sendChat(dialog, "Hoi");
+    await expect(dialog.getByText("Het antwoord lukte niet. Probeer het opnieuw.", { exact: true })).toBeVisible();
+    await expect(dialog.getByText(/secret stack/)).toHaveCount(0);
   });
 
   test("een fout in de stream toont de vaste zin", async ({ page }) => {

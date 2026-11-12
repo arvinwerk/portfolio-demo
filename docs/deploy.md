@@ -29,7 +29,7 @@ sudo chmod 440 /etc/sudoers.d/portfolio-ssl
 
 Three agents look at the page and the code every day. One watches UI and use, the second watches the content, and the third watches findability. They read the older markdown reports first. A run writes three new files under `content/reviews/`, or under `CONTENT_DIR/reviews` when that variable is set. `/agents` shows only those proposals, each with a score from 1 to 10 and that day's average. Keys, passwords, IP addresses, email addresses, and absolute paths are removed from the report before it reaches the page.
 
-The run talks to Qwen through Ollama at `OLLAMA_URL` (default `http://127.0.0.1:11434`). `QWEN_MODEL` defaults to `qwen`. `REVIEW_SOURCE_DIR` is the checkout the agents read. No API key goes with the request.
+The run talks to Qwen through Ollama at `OLLAMA_URL` (default `http://127.0.0.1:11434`). An address outside this machine or the Docker network is refused. `QWEN_MODEL` defaults to `qwen`. `REVIEW_SOURCE_DIR` is the checkout the agents read. No API key goes with the request.
 
 ```bash
 pnpm review:daily

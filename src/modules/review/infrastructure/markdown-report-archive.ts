@@ -9,17 +9,17 @@ export class MarkdownReportArchive implements ReportArchive {
   constructor(private readonly directory: string) {}
 
   list(): readonly ReviewReport[] {
-    if (!existsSync(this.directory)) {
+    if (!existsSync(/*turbopackIgnore: true*/ this.directory)) {
       return [];
     }
     const reports: ReviewReport[] = [];
-    for (const name of readdirSync(this.directory)) {
+    for (const name of readdirSync(/*turbopackIgnore: true*/ this.directory)) {
       const identity = reportIdentity(name);
       if (!identity) {
         continue;
       }
       try {
-        const raw = readFileSync(path.join(this.directory, name), "utf8");
+        const raw = readFileSync(/*turbopackIgnore: true*/ path.join(this.directory, name), "utf8");
         reports.push(interpretReview(identity.date, identity.lens, raw));
       } catch {
         continue;
@@ -29,10 +29,10 @@ export class MarkdownReportArchive implements ReportArchive {
   }
 
   save(report: ReviewReport): void {
-    mkdirSync(this.directory, { recursive: true });
+    mkdirSync(/*turbopackIgnore: true*/ this.directory, { recursive: true });
     const target = path.join(this.directory, reportFileName(report.date, report.lens));
     const partial = `${target}.partial`;
-    writeFileSync(partial, renderReportMarkdown(report), "utf8");
-    renameSync(partial, target);
+    writeFileSync(/*turbopackIgnore: true*/ partial, renderReportMarkdown(report), "utf8");
+    renameSync(/*turbopackIgnore: true*/ partial, target);
   }
 }

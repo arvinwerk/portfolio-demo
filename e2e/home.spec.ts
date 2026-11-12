@@ -97,6 +97,7 @@ test("toont het profiel, de afgeleide feiten en de contactlinks", async ({ page 
   const portrait = profile.getByRole("img", { name: `Monogram van ${personal.fullName}` });
   await expect(portrait).toBeVisible();
   await expect(portrait).toHaveAttribute("src", "/images/profile.svg");
+  await expect.poll(() => portrait.evaluate((img: HTMLImageElement) => img.complete && img.naturalWidth > 0)).toBe(true);
 });
 
 test("vult leeftijd en jaren in het voorwoord in", async ({ page }) => {
@@ -191,6 +192,8 @@ test("de beelden uit de content zijn bereikbaar", async ({ request }) => {
   for (const path of paths) {
     const response = await request.get(path);
     expect(response.status(), path).toBe(200);
+    expect(response.headers()["x-content-type-options"], path).toBe("nosniff");
+    expect(response.headers()["content-security-policy"], path).toContain("script-src 'none'");
     expect(await response.text()).toContain("<svg");
   }
 });
