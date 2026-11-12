@@ -35,7 +35,7 @@ jobs:
           if ! probe_out=$(remote bootstrap-probe 2>"$probe_err"); then
             cat "$probe_err" >&2
             if grep -q "archive empty" "$probe_err"; then
-              echo "De site is gepubliceerd. HTTPS wacht tot deploy/run voor de sleutel staat, zoals in README.md." >&2
+              echo "De site is gepubliceerd. HTTPS wacht tot deploy/run voor de sleutel staat, zoals in docs/deploy.md." >&2
               {
                 echo "### HTTPS"
                 echo
