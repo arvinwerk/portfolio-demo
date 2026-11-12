@@ -8,8 +8,8 @@ export type RecruiterFacts = {
   name: string;
   role: string;
   residence: string;
-  education: string;
-  bornOn: Date;
+  education: string | null;
+  bornOn: Date | null;
   interfacesSince: Date;
   currentWork: string;
   skills: readonly string[];

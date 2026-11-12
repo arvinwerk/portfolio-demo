@@ -8,22 +8,16 @@ export class RecruiterSheetError extends Error {
   }
 }
 
-const SINGLE_KEYS = [
-  "naam",
-  "rol",
-  "woonplaats",
-  "opleiding",
-  "geboren",
-  "interfaces-sinds",
-  "nu",
-  "contact",
-  "github",
-] as const;
+const SINGLE_KEYS = ["naam", "rol", "woonplaats", "interfaces-sinds", "nu", "contact", "github"] as const;
+
+const OPTIONAL_KEYS = ["opleiding", "geboren"] as const;
 
 type SingleKey = (typeof SINGLE_KEYS)[number];
+type OptionalKey = (typeof OPTIONAL_KEYS)[number];
+type SheetKey = SingleKey | OptionalKey;
 
 export function parseRecruiterSheet(text: string): RecruiterFacts {
-  const singles = new Map<SingleKey, string>();
+  const singles = new Map<SheetKey, string>();
   const skills: string[] = [];
   const projects: RecruiterProject[] = [];
 
@@ -52,7 +46,7 @@ export function parseRecruiterSheet(text: string): RecruiterFacts {
       projects.push(parseProject(value));
       continue;
     }
-    if (!isSingleKey(key)) {
+    if (!isSingleKey(key) && !isOptionalKey(key)) {
       throw new RecruiterSheetError("Het recruiterblad bevat een onbekende sleutel.");
     }
     if (singles.has(key)) {
@@ -74,8 +68,8 @@ export function parseRecruiterSheet(text: string): RecruiterFacts {
     name: required(singles, "naam"),
     role: required(singles, "rol"),
     residence: required(singles, "woonplaats"),
-    education: required(singles, "opleiding"),
-    bornOn: calendarDate(required(singles, "geboren")),
+    education: singles.get("opleiding") ?? null,
+    bornOn: calendarDateOrNull(singles.get("geboren")),
     interfacesSince: calendarDate(required(singles, "interfaces-sinds")),
     currentWork: required(singles, "nu"),
     skills,
@@ -99,6 +93,10 @@ function parseProject(value: string): RecruiterProject {
   return { client: parts[0], title: parts[1], stack };
 }
 
+function calendarDateOrNull(value: string | undefined): Date | null {
+  return value == null ? null : calendarDate(value);
+}
+
 function calendarDate(value: string): Date {
   try {
     return parseIsoDate(value);
@@ -107,10 +105,14 @@ function calendarDate(value: string): Date {
   }
 }
 
-function required(singles: Map<SingleKey, string>, key: SingleKey): string {
+function required(singles: Map<SheetKey, string>, key: SingleKey): string {
   return singles.get(key) ?? "";
 }
 
 function isSingleKey(key: string): key is SingleKey {
   return (SINGLE_KEYS as readonly string[]).includes(key);
+}
+
+function isOptionalKey(key: string): key is OptionalKey {
+  return (OPTIONAL_KEYS as readonly string[]).includes(key);
 }

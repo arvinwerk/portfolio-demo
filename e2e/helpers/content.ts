@@ -9,13 +9,14 @@ function readJson<T>(name: string): T {
 
 const personal = readJson<PersonalProfile>("personal.json");
 const now = new Date();
+const bornOn = personal.dateOfBirth;
 
 export const portfolio = {
   personal,
   skills: readJson<Skill[]>("skills.json"),
   projects: readJson<ProjectDraft[]>("projects.json"),
   banners: readJson<Banner[]>("banners.json"),
-  age: differenceInYears(now, parseCalendarDate(personal.dateOfBirth)),
+  age: bornOn == null ? null : differenceInYears(now, parseCalendarDate(bornOn)),
   yearsAsDeveloper: differenceInYears(now, parseCalendarDate(personal.developingStartDate)),
 };
 

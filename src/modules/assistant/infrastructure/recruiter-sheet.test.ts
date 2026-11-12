@@ -20,12 +20,13 @@ github: example.com/demo/noor-linden
 describe("parseRecruiterSheet", () => {
   it("leest het blad uit de checkout", () => {
     const facts = parseRecruiterSheet(readFileSync(path.join(process.cwd(), "content/rag/recruiter.txt"), "utf8"));
-    expect(facts.name).toBe("Noor Linden");
-    expect(facts.projects.find((project) => project.client === "Circuit Meridiaan")?.stack).toEqual(["Angular", "Laravel"]);
+    expect(facts.name).toBe("Arvin Sokarijo");
+    expect(facts.residence).toBe("Oranjewoud, in de buurt van Heerenveen");
+    expect(facts.projects.find((project) => project.client === "We-Invite")?.stack).toEqual(["Laravel", "Angular"]);
   });
 
   it("weigert een onvolledig blad", () => {
-    expect(() => parseRecruiterSheet(sheet.replace("geboren: 1993-04-18\n", ""))).toThrow(RecruiterSheetError);
+    expect(parseRecruiterSheet(sheet.replace("geboren: 1993-04-18\n", "")).bornOn).toBeNull();
     expect(() => parseRecruiterSheet(sheet.replace("1993-04-18", "1993-13-40"))).toThrow(RecruiterSheetError);
     expect(() => parseRecruiterSheet(`${sheet}project: Alleen een naam\n`)).toThrow(RecruiterSheetError);
     expect(() => parseRecruiterSheet(`${sheet}onbekend: iets\n`)).toThrow(RecruiterSheetError);

@@ -6,23 +6,57 @@ import { gotoPortfolio } from "./helpers/page";
 const { personal, skills, projects, banners, age, yearsAsDeveloper } = portfolio;
 
 const categoryLabels = [
-  ["skills", "Professional"],
+  ["skills", "Talen"],
   ["framework", "Frameworks"],
-  ["other", "Other"],
+  ["other", "Aanpak"],
+  ["ai", "AI"],
 ] as const;
 
 test.beforeEach(async ({ page }) => {
   await gotoPortfolio(page);
 });
 
-test("zet taal, titel en een niet-geïndexeerde omschrijving", async ({ page }) => {
+test("zet taal, titel, canonical en een indexeerbare omschrijving", async ({ page }) => {
+  const title = `${personal.fullName} — ${personal.function}`;
   await expect(page.locator("html")).toHaveAttribute("lang", "nl");
-  await expect(page).toHaveTitle(`${personal.fullName} — ${personal.function}`);
+  await expect(page).toHaveTitle(title);
   await expect(page.locator('meta[name="description"]')).toHaveAttribute(
     "content",
-    `Demoportfolio van ${personal.fullName}, een verzonnen ${personal.function.toLowerCase()}. Werk, vaardigheden en een chat over het profiel.`,
+    `Portfolio van ${personal.fullName}, ${personal.function} in ${personal.location}. Projecten, vaardigheden en contact.`,
   );
-  await expect(page.locator('meta[name="robots"]')).toHaveAttribute("content", /noindex/);
+  await expect(page.locator('meta[name="robots"]')).toHaveAttribute("content", "index, follow");
+  await expect(page.locator('link[rel="canonical"]')).toHaveAttribute("href", personal.portfolioUrl);
+  await expect(page.locator('meta[property="og:title"]')).toHaveAttribute("content", title);
+  await expect(page.locator('meta[property="og:url"]')).toHaveAttribute("content", personal.portfolioUrl);
+  await expect(page.locator('meta[property="og:locale"]')).toHaveAttribute("content", "nl_NL");
+  await expect(page.locator('meta[name="twitter:image"]')).toHaveAttribute(
+    "content",
+    new URL("/opengraph-image", new URL(personal.portfolioUrl).origin).href,
+  );
+  expect(await page.locator('script[type="application/ld+json"]').textContent()).toContain(personal.fullName);
+  await expect(page.getByRole("region", { name: "Profiel" }).getByRole("link", { name: "LinkedIn" })).toHaveAttribute(
+    "rel",
+    "me noreferrer",
+  );
+  await expect(page.locator("#contact").getByRole("link", { name: "GitHub" })).toHaveAttribute("rel", "me noreferrer");
+});
+
+test("publiceert robots.txt, een sitemap en een deelbare afbeelding", async ({ request }) => {
+  const robots = await request.get("/robots.txt");
+  expect(robots.status()).toBe(200);
+  const robotsText = await robots.text();
+  expect(robotsText).toContain("Allow: /");
+  expect(robotsText).toContain("Disallow: /agents");
+  expect(robotsText).toContain("Disallow: /api/");
+  expect(robotsText).toContain(new URL("/sitemap.xml", personal.portfolioUrl).href);
+
+  const sitemap = await request.get("/sitemap.xml");
+  expect(sitemap.status()).toBe(200);
+  expect(await sitemap.text()).toContain(personal.portfolioUrl);
+
+  const image = await request.get("/opengraph-image");
+  expect(image.status()).toBe(200);
+  expect(image.headers()["content-type"]).toContain("image/png");
 });
 
 test("de skiplink brengt de focus naar de inhoud", async ({ page }) => {
@@ -38,7 +72,9 @@ test("toont het profiel, de afgeleide feiten en de contactlinks", async ({ page 
   const profile = page.getByRole("region", { name: "Profiel" });
   await expect(profile.getByRole("heading", { level: 1, name: personal.fullName })).toBeVisible();
   await expect(profile.getByText(personal.function)).toBeVisible();
-  await expect(profile.getByText(personal.education)).toBeVisible();
+  if (personal.education) {
+    await expect(profile.getByText(personal.education)).toBeVisible();
+  }
   await expect(profile.getByText(personal.location)).toBeVisible();
 
   const facts = profile.locator("dl");
@@ -109,7 +145,7 @@ test("toont de vaardigheden per categorie met balk en meter", async ({ page }) =
     await expect(meter).toHaveAttribute("aria-valuenow", String(skill.percentage));
     await expect(meter).toHaveAttribute("aria-valuetext", `${skill.percentage}%`);
     await expect(meter.locator("span")).toHaveAttribute("style", new RegExp(`width:\\s*${skill.percentage}%`));
-    await expect(section.getByText(`${skill.percentage}%`)).toBeVisible();
+    await expect(section.getByText(`${skill.percentage}%`).first()).toBeVisible();
   }
 });
 
@@ -191,7 +227,7 @@ test("de sectielinks en de naam gaan naar het juiste anker", async ({ page }) =>
 test("de footer herhaalt naam en contact", async ({ page }) => {
   const footer = page.getByRole("contentinfo");
   await expect(footer.getByText(personal.fullName, { exact: true })).toBeVisible();
-  await expect(footer.getByText(`Demopagina over ${personal.fullName}. Geen echt cv.`)).toBeVisible();
+  await expect(footer.getByText(/Demopagina/)).toHaveCount(0);
   await expect(footer.getByRole("link", { name: personal.email })).toHaveAttribute("href", `mailto:${personal.email}`);
   await expect(footer.getByRole("link", { name: "LinkedIn" })).toHaveAttribute("href", personal.linkedIn);
   await expect(footer.getByRole("link", { name: "GitHub" })).toHaveAttribute("href", personal.github);

@@ -6,39 +6,10 @@ on:
     branches-ignore:
       - master
       - development
-  workflow_call:
 
 jobs:
   unit:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 22
-      - name: Install
-        run: |
-          corepack enable
-          corepack prepare pnpm@10.33.4 --activate
-          pnpm install --frozen-lockfile
-      - name: Unit tests
-        run: pnpm test
-      - name: Typecheck
-        run: pnpm typecheck
+    uses: ./.github/workflows/unit.yml
 
   playwright:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 22
-      - name: Install
-        run: |
-          corepack enable
-          corepack prepare pnpm@10.33.4 --activate
-          pnpm install --frozen-lockfile
-      - name: Install Chromium
-        run: pnpm exec playwright install --with-deps chromium
-      - name: Playwright
-        run: pnpm test:e2e
+    uses: ./.github/workflows/playwright.yml

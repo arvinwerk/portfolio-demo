@@ -4,8 +4,32 @@
 set -eu
 lib=${PORTFOLIO_LIB:-$HOME/.local/lib/portfolio}
 production=${PORTFOLIO_PRODUCTION_RUN:-$lib/run-production}
+ssl_env=${PORTFOLIO_SSL_ENV:-$HOME/.config/portfolio/ssl.env}
 original=${SSH_ORIGINAL_COMMAND:-run}
 action=${original%% *}
+
+read_ssl_env() {
+  file=$1
+  [ -f "$file" ] || return 0
+  while IFS= read -r line || [ -n "$line" ]; do
+    case "$line" in
+      '' | \#*) continue ;;
+    esac
+    key=${line%%=*}
+    value=${line#*=}
+    key=$(printf '%s' "$key" | tr -d '[:space:]')
+    case "$value" in
+      \"*\") value=${value#\"}; value=${value%\"} ;;
+      \'*\') value=${value#\'}; value=${value%\'} ;;
+    esac
+    case "$key" in
+      SITE_ADDRESS) [ -n "${SITE_ADDRESS:-}" ] || SITE_ADDRESS=$value ;;
+      CERTBOT_EMAIL) [ -n "${CERTBOT_EMAIL:-}" ] || CERTBOT_EMAIL=$value ;;
+      PORTFOLIO_SSL_IP) [ -n "${PORTFOLIO_SSL_IP:-}" ] || PORTFOLIO_SSL_IP=$value ;;
+      PORTFOLIO_SSL_IPV6) [ -n "${PORTFOLIO_SSL_IPV6:-}" ] || PORTFOLIO_SSL_IPV6=$value ;;
+    esac
+  done < "$file"
+}
 
 case "$action" in
   bootstrap-probe)
@@ -15,9 +39,43 @@ case "$action" in
     mkdir -p "$lib"
     tar -C "$lib" -xJf -
     chmod 755 "$lib/development" "$lib/run"
+    if [ -f "$lib/ssl" ]; then
+      chmod 755 "$lib/ssl"
+    fi
+    if [ -f "$lib/content" ]; then
+      chmod 755 "$lib/content"
+    fi
+    ;;
+  content)
+    script=$lib/content
+    if [ ! -x "$script" ]; then
+      echo "deploy/content ontbreekt. Bootstrap de hosttools eerst." >&2
+      exit 1
+    fi
+    exec "$script"
     ;;
   development)
     exec "$lib/development"
+    ;;
+  ssl)
+    script=$lib/ssl
+    if [ ! -x "$script" ]; then
+      echo "deploy/ssl ontbreekt. Bootstrap de hosttools eerst." >&2
+      exit 1
+    fi
+    if [ "$(id -u)" -eq 0 ]; then
+      exec "$script"
+    fi
+    read_ssl_env "$ssl_env"
+    export SITE_ADDRESS="${SITE_ADDRESS:-}" CERTBOT_EMAIL="${CERTBOT_EMAIL:-}" PORTFOLIO_SSL_IP="${PORTFOLIO_SSL_IP:-}" PORTFOLIO_SSL_IPV6="${PORTFOLIO_SSL_IPV6:-}"
+    set +e
+    sudo -n --preserve-env=SITE_ADDRESS,CERTBOT_EMAIL,PORTFOLIO_SSL_IP,PORTFOLIO_SSL_IPV6 "$script"
+    status=$?
+    set -e
+    if [ "$status" -ne 0 ]; then
+      echo "deploy/ssl is niet als root gelukt. Eenmalig: $USER ALL=(root) NOPASSWD: $script" >&2
+      exit "$status"
+    fi
     ;;
   run)
     exec "$production"

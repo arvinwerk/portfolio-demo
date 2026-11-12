@@ -3,7 +3,55 @@ import { ORIGIN, pageUrl, portfolio } from "./helpers/content";
 import { documentRemains, gotoPortfolio, keywordFilter, markDocument, scrollY } from "./helpers/page";
 
 const TITLES = portfolio.projects.map((project) => project.title);
-const KEYWORDS = ["Alles", "Angular", "TypeScript", "Laravel", "React", "Next.js", "Node.js"] as const;
+const KEYWORDS = ["Alles", "Angular", "Laravel", "NodeJS", "PHP", "Ionic"] as const;
+const ANGULAR = [
+  "Metacom Calculatie",
+  "Lead frontend bij FBTO",
+  "Vrienden van Amstel VIP 2024",
+  "App voor infrarood ticketscanner",
+  "Interne profielenpagina",
+  "Welkomsscherm na inchecken ticket",
+  "Urenregistratie",
+  "Swipe & Shop app",
+  "Rooster generator",
+  "Backoffice en dynamische registratie voor we-invite",
+];
+const LARAVEL = [
+  "Vrienden van Amstel VIP 2024",
+  "Placeertool en uitnodigingen",
+  "Rooster generator",
+  "Backoffice en dynamische registratie voor we-invite",
+];
+const NODE = ["Microservice / middleware", "Interne profielenpagina"];
+const PHP = ["Swipe & Shop app", "Rooster generator", "Backoffice en dynamische registratie voor we-invite"];
+const LARAVEL_OR_NODE = [
+  "Vrienden van Amstel VIP 2024",
+  "Placeertool en uitnodigingen",
+  "Microservice / middleware",
+  "Interne profielenpagina",
+  "Rooster generator",
+  "Backoffice en dynamische registratie voor we-invite",
+];
+const LARAVEL_OR_PHP = [
+  "Vrienden van Amstel VIP 2024",
+  "Placeertool en uitnodigingen",
+  "Swipe & Shop app",
+  "Rooster generator",
+  "Backoffice en dynamische registratie voor we-invite",
+];
+const ANGULAR_OR_NODE = [
+  "Metacom Calculatie",
+  "Lead frontend bij FBTO",
+  "Vrienden van Amstel VIP 2024",
+  "App voor infrarood ticketscanner",
+  "Microservice / middleware",
+  "Interne profielenpagina",
+  "Welkomsscherm na inchecken ticket",
+  "Urenregistratie",
+  "Swipe & Shop app",
+  "Rooster generator",
+  "Backoffice en dynamische registratie voor we-invite",
+];
 
 function workHtml(html: string): string {
   const start = html.indexOf('id="werk"');
@@ -13,7 +61,7 @@ function workHtml(html: string): string {
 
 function projectTitlesIn(html: string): string[] {
   return [...workHtml(html).matchAll(/<h3\b[^>]*>([^<]*)<\/h3>/g)]
-    .map((match) => match[1]?.trim() ?? "")
+    .map((match) => (match[1] ?? "").replaceAll("&amp;", "&").trim())
     .filter((title) => TITLES.includes(title));
 }
 
@@ -36,14 +84,14 @@ async function expectCurrent(page: Page, current: readonly string[]) {
 test.describe("eerste HTML", () => {
   const cases = [
     { path: "/", titles: TITLES },
-    { path: "/?keywords=React", titles: ["Componentbibliotheek", "Deze demopagina"] },
-    { path: "/?keywords=TypeScript", titles: ["Lichtarrangementen", "Componentbibliotheek"] },
-    { path: "/?keywords=Angular&keywords=React", titles: ["Lichtarrangementen", "Baan VIP", "Componentbibliotheek", "Deze demopagina"] },
-    { path: "/?keywords=Angular,React", titles: ["Lichtarrangementen", "Baan VIP", "Componentbibliotheek", "Deze demopagina"] },
+    { path: "/?keywords=PHP", titles: PHP },
+    { path: "/?keywords=NodeJS", titles: NODE },
+    { path: "/?keywords=Laravel&keywords=NodeJS", titles: LARAVEL_OR_NODE },
+    { path: "/?keywords=Laravel,NodeJS", titles: LARAVEL_OR_NODE },
     { path: "/?keywords=Onbekend", titles: TITLES },
     { path: "/?keywords=angular", titles: TITLES },
-    { path: "/?keywords=Onbekend&keywords=Node.js", titles: ["Content-API"] },
-    { path: "/?keywords=%20React%20", titles: ["Componentbibliotheek", "Deze demopagina"] },
+    { path: "/?keywords=Onbekend&keywords=NodeJS", titles: NODE },
+    { path: "/?keywords=%20PHP%20", titles: PHP },
   ];
 
   for (const example of cases) {
@@ -58,24 +106,16 @@ test.describe("eerste HTML", () => {
 test.describe("adresbalk", () => {
   const cases: { path: string; titles: string[]; current: string[] }[] = [
     { path: "/", titles: TITLES, current: ["Alles"] },
-    { path: "/?keywords=React", titles: ["Componentbibliotheek", "Deze demopagina"], current: ["React"] },
-    { path: "/?keywords=Laravel", titles: ["Baan VIP", "Content-API"], current: ["Laravel"] },
-    {
-      path: "/?keywords=Angular&keywords=Node.js",
-      titles: ["Lichtarrangementen", "Baan VIP", "Content-API"],
-      current: ["Angular", "Node.js"],
-    },
-    {
-      path: "/?keywords=Angular,%20React",
-      titles: ["Lichtarrangementen", "Baan VIP", "Componentbibliotheek", "Deze demopagina"],
-      current: ["Angular", "React"],
-    },
+    { path: "/?keywords=PHP", titles: PHP, current: ["PHP"] },
+    { path: "/?keywords=Laravel", titles: LARAVEL, current: ["Laravel"] },
+    { path: "/?keywords=Angular&keywords=NodeJS", titles: ANGULAR_OR_NODE, current: ["Angular", "NodeJS"] },
+    { path: "/?keywords=Laravel,%20NodeJS", titles: LARAVEL_OR_NODE, current: ["Laravel", "NodeJS"] },
     { path: "/?keywords=Onbekend", titles: TITLES, current: ["Alles"] },
     { path: "/?keywords=angular", titles: TITLES, current: ["Alles"] },
-    { path: "/?keywords=Onbekend&keywords=React", titles: ["Componentbibliotheek", "Deze demopagina"], current: ["React"] },
-    { path: "/?keywords=React&keywords=React", titles: ["Componentbibliotheek", "Deze demopagina"], current: ["React"] },
+    { path: "/?keywords=Onbekend&keywords=PHP", titles: PHP, current: ["PHP"] },
+    { path: "/?keywords=PHP&keywords=PHP", titles: PHP, current: ["PHP"] },
     { path: "/?keywords=", titles: TITLES, current: ["Alles"] },
-    { path: "/?keywords=%20React%20", titles: ["Componentbibliotheek", "Deze demopagina"], current: ["React"] },
+    { path: "/?keywords=%20PHP%20", titles: PHP, current: ["PHP"] },
   ];
 
   for (const example of cases) {
@@ -87,23 +127,23 @@ test.describe("adresbalk", () => {
   }
 
   test("een hash op werk opent bij de lijst", async ({ page }) => {
-    await gotoPortfolio(page, "/?keywords=React#werk");
-    await expectProjects(page, ["Componentbibliotheek", "Deze demopagina"]);
+    await gotoPortfolio(page, "/?keywords=PHP#werk");
+    await expectProjects(page, PHP);
     await expect(page.getByRole("heading", { name: "Werkervaring" })).toBeInViewport();
   });
 
   test("dezelfde selectie zonder hash blijft bovenaan", async ({ page }) => {
-    await gotoPortfolio(page, "/?keywords=React");
-    await expectProjects(page, ["Componentbibliotheek", "Deze demopagina"]);
+    await gotoPortfolio(page, "/?keywords=PHP");
+    await expectProjects(page, PHP);
     await expect(page.getByRole("heading", { level: 1 })).toBeInViewport();
     await expect(page.getByRole("heading", { name: "Werkervaring" })).not.toBeInViewport();
   });
 
   test("een gedeelde URL opent dezelfde selectie in een nieuw tabblad", async ({ page }) => {
-    await gotoPortfolio(page, "/?keywords=Node.js#werk");
+    await gotoPortfolio(page, "/?keywords=NodeJS#werk");
     const second = await page.context().newPage();
     await second.goto(page.url());
-    await expectProjects(second, ["Content-API"]);
+    await expectProjects(second, NODE);
     await expect(second.getByRole("heading", { name: "Werkervaring" })).toBeInViewport();
     await second.close();
   });
@@ -120,29 +160,29 @@ test("een klik filtert in de pagina en laat de scrollpositie staan", async ({ pa
   const before = await scrollY(page);
   await markDocument(page);
 
-  await filter.getByRole("link", { name: "React", exact: true }).click();
+  await filter.getByRole("link", { name: "PHP", exact: true }).click();
 
-  await expect(page).toHaveURL(pageUrl("/?keywords=React#werk"));
-  await expectProjects(page, ["Componentbibliotheek", "Deze demopagina"]);
-  await expectCurrent(page, ["React"]);
+  await expect(page).toHaveURL(pageUrl("/?keywords=PHP#werk"));
+  await expectProjects(page, PHP);
+  await expectCurrent(page, ["PHP"]);
   expect(await scrollY(page)).toBe(before);
   await documentRemains(page);
-  await expect(page.getByRole("img", { name: "Merkteken van Studio Noord" })).toHaveAttribute("src", "/images/logos/ui.svg");
+  await expect(page.getByRole("heading", { name: "Swipe & Shop app" })).toBeVisible();
 });
 
 test("meerdere trefwoorden zijn een OF-filter en Alles wist de selectie", async ({ page }) => {
   await gotoPortfolio(page);
   const filter = keywordFilter(page);
   await filter.getByRole("link", { name: "Angular", exact: true }).click();
-  await filter.getByRole("link", { name: "Node.js", exact: true }).click();
+  await filter.getByRole("link", { name: "NodeJS", exact: true }).click();
 
-  await expect(page).toHaveURL(pageUrl("/?keywords=Angular&keywords=Node.js#werk"));
-  await expectProjects(page, ["Lichtarrangementen", "Baan VIP", "Content-API"]);
-  await expectCurrent(page, ["Angular", "Node.js"]);
+  await expect(page).toHaveURL(pageUrl("/?keywords=Angular&keywords=NodeJS#werk"));
+  await expectProjects(page, ANGULAR_OR_NODE);
+  await expectCurrent(page, ["Angular", "NodeJS"]);
 
-  await filter.getByRole("link", { name: "Node.js", exact: true }).click();
+  await filter.getByRole("link", { name: "NodeJS", exact: true }).click();
   await expect(page).toHaveURL(pageUrl("/?keywords=Angular#werk"));
-  await expectProjects(page, ["Lichtarrangementen", "Baan VIP"]);
+  await expectProjects(page, ANGULAR);
 
   await filter.getByRole("link", { name: "Alles", exact: true }).click();
   await expect(page).toHaveURL(pageUrl("/#werk"));
@@ -156,30 +196,30 @@ test("de href beschrijft de volgende selectie, ook op de kaart", async ({ page }
   await expect(filter.getByRole("link", { name: "Alles", exact: true })).toHaveAttribute("href", "/#werk");
   await expect(filter.getByRole("link", { name: "Laravel", exact: true })).toHaveAttribute("href", "/?keywords=Laravel#werk");
 
-  await filter.getByRole("link", { name: "Angular", exact: true }).click();
-  await expect(filter.getByRole("link", { name: "Angular", exact: true })).toHaveAttribute("href", "/#werk");
-  await expect(filter.getByRole("link", { name: "TypeScript", exact: true })).toHaveAttribute(
+  await filter.getByRole("link", { name: "NodeJS", exact: true }).click();
+  await expect(filter.getByRole("link", { name: "NodeJS", exact: true })).toHaveAttribute("href", "/#werk");
+  await expect(filter.getByRole("link", { name: "SailsJS", exact: true })).toHaveAttribute(
     "href",
-    "/?keywords=Angular&keywords=TypeScript#werk",
+    "/?keywords=NodeJS&keywords=SailsJS#werk",
   );
 
-  const noordlicht = page.getByRole("article").filter({ has: page.getByRole("heading", { name: "Lichtarrangementen" }) });
-  await expect(noordlicht.getByRole("link", { name: "Angular", exact: true })).toHaveAttribute("aria-current", "true");
-  const typescript = noordlicht.getByRole("link", { name: "TypeScript", exact: true });
-  await expect(typescript).toHaveAttribute("href", "/?keywords=Angular&keywords=TypeScript#werk");
-  await typescript.click();
+  const profilePage = page.getByRole("article").filter({ has: page.getByRole("heading", { name: "Interne profielenpagina" }) });
+  await expect(profilePage.getByRole("link", { name: "NodeJS", exact: true })).toHaveAttribute("aria-current", "true");
+  const sails = profilePage.getByRole("link", { name: "SailsJS", exact: true });
+  await expect(sails).toHaveAttribute("href", "/?keywords=NodeJS&keywords=SailsJS#werk");
+  await sails.click();
 
-  await expect(page).toHaveURL(pageUrl("/?keywords=Angular&keywords=TypeScript#werk"));
-  await expectProjects(page, ["Lichtarrangementen", "Baan VIP", "Componentbibliotheek"]);
+  await expect(page).toHaveURL(pageUrl("/?keywords=NodeJS&keywords=SailsJS#werk"));
+  await expectProjects(page, NODE);
 });
 
 test("Enter op een trefwoord filtert hetzelfde als een klik", async ({ page }) => {
   await gotoPortfolio(page);
-  const react = keywordFilter(page).getByRole("link", { name: "React", exact: true });
-  await react.focus();
-  await react.press("Enter");
-  await expect(page).toHaveURL(pageUrl("/?keywords=React#werk"));
-  await expectProjects(page, ["Componentbibliotheek", "Deze demopagina"]);
+  const php = keywordFilter(page).getByRole("link", { name: "PHP", exact: true });
+  await php.focus();
+  await php.press("Enter");
+  await expect(page).toHaveURL(pageUrl("/?keywords=PHP#werk"));
+  await expectProjects(page, PHP);
 });
 
 test("de terugknop herstelt de vorige selectie", async ({ page }) => {
@@ -187,17 +227,17 @@ test("de terugknop herstelt de vorige selectie", async ({ page }) => {
   await markDocument(page);
   const filter = keywordFilter(page);
   await filter.getByRole("link", { name: "Laravel", exact: true }).click();
-  await filter.getByRole("link", { name: "React", exact: true }).click();
-  await expect(page).toHaveURL(pageUrl("/?keywords=Laravel&keywords=React#werk"));
-  await expectProjects(page, ["Baan VIP", "Componentbibliotheek", "Content-API", "Deze demopagina"]);
+  await filter.getByRole("link", { name: "PHP", exact: true }).click();
+  await expect(page).toHaveURL(pageUrl("/?keywords=Laravel&keywords=PHP#werk"));
+  await expectProjects(page, LARAVEL_OR_PHP);
 
   await page.goBack();
   await expect(page).toHaveURL(pageUrl("/?keywords=Laravel#werk"));
-  await expectProjects(page, ["Baan VIP", "Content-API"]);
+  await expectProjects(page, LARAVEL);
   await expectCurrent(page, ["Laravel"]);
 
   await page.goForward();
-  await expectProjects(page, ["Baan VIP", "Componentbibliotheek", "Content-API", "Deze demopagina"]);
+  await expectProjects(page, LARAVEL_OR_PHP);
 
   await page.goBack();
   await page.goBack();
@@ -216,10 +256,10 @@ test("zonder JavaScript volgt de href en filtert de server", async ({ browser })
   const page = await context.newPage();
   try {
     await page.goto("/");
-    await keywordFilter(page).getByRole("link", { name: "React", exact: true }).click();
-    await expect(page).toHaveURL(pageUrl("/?keywords=React#werk"));
-    await expectProjects(page, ["Componentbibliotheek", "Deze demopagina"]);
-    await expectCurrent(page, ["React"]);
+    await keywordFilter(page).getByRole("link", { name: "PHP", exact: true }).click();
+    await expect(page).toHaveURL(pageUrl("/?keywords=PHP#werk"));
+    await expectProjects(page, PHP);
+    await expectCurrent(page, ["PHP"]);
     await expect(page.getByRole("heading", { name: "Werkervaring" })).toBeInViewport();
   } finally {
     await context.close();
@@ -234,7 +274,7 @@ test.describe("smal scherm", () => {
     await markDocument(page);
     await keywordFilter(page).getByRole("link", { name: "Laravel", exact: true }).click();
     await expect(page).toHaveURL(pageUrl("/?keywords=Laravel#werk"));
-    await expectProjects(page, ["Baan VIP", "Content-API"]);
+    await expectProjects(page, LARAVEL);
     await documentRemains(page);
   });
 });

@@ -46,6 +46,22 @@ describe("parseContent", () => {
     expect(content.skills[0].category).toBe("framework");
   });
 
+  it("laat opleiding en geboortedatum weg als die ontbreken", () => {
+    const input = validInput();
+    const { education, dateOfBirth, ...personal } = input.personal;
+    void education;
+    void dateOfBirth;
+    const content = parseContent({ ...input, personal });
+    expect(content.personal.education).toBeNull();
+    expect(content.personal.dateOfBirth).toBeNull();
+  });
+
+  it("negeert een meegestuurd beeldbestand in de persoonsgegevens", () => {
+    const input = validInput();
+    (input.personal as { siteImages?: unknown }).siteImages = { "banners/vval-bg.svg": "aW8=" };
+    expect(parseContent(input).personal.fullName).toBe("Noor Linden");
+  });
+
   it("accepteert een rasterlogo", () => {
     const input = validInput();
     input.projects[0].images = ["merk.png"];

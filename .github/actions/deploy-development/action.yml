@@ -35,7 +35,7 @@ runs:
           cat "$probe_err" >&2
           if grep -q "archive empty" "$probe_err"; then
             echo "De deploy-sleutel start alleen het bestaande commando run. Productie is niet aangeraakt." >&2
-            echo "Zet eenmalig deploy/run ervoor, zoals in README.md onder Development." >&2
+            echo "Zet eenmalig deploy/run ervoor, zoals in docs/development.md." >&2
           fi
           rm -f "$probe_err"
           exit 1

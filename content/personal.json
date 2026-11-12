@@ -1,14 +1,12 @@
 {
-  "fullName": "Noor Linden",
-  "function": "Frontend developer",
-  "email": "noor.linden@example.com",
-  "education": "Informatica, Voorbeeld Hogeschool",
-  "developingStartDate": "2015-08-03",
-  "linkedIn": "https://example.com/demo/noor-linden/linkedin",
-  "portfolioUrl": "https://example.com/demo/noor-linden",
-  "location": "Kadewijk (verzonnen)",
-  "foreword": "Noor Linden is een verzonnen frontend developer. Het vak lijkt op een echt beroep, het cv niet. In deze demo is Noor ${age} en bouwt ${yearsAsDeveloper} jaar aan interfaces.\n\nDe teksten, de projecten en de chat zijn compleet genoeg om de pagina te gebruiken. Leeftijd en jaren komen uit de datums in content/personal.json. Er staat geen echte persoon achter de naam.",
-  "dateOfBirth": "1993-04-18",
-  "github": "https://example.com/demo/noor-linden/code",
-  "githubDescription": "De knop wijst naar een voorbeeldadres op example.com. Er staat geen repository en geen account achter.\n\nDe pagina haalt die content niet op in de browser. Next.js leest de JSON op de server, en de chat zoekt alleen in de tekstbestanden onder content/rag."
+  "fullName": "Arvin Sokarijo",
+  "function": "Senior Angular developer",
+  "email": "arvin.werk@gmail.com",
+  "developingStartDate": "2009-01-01",
+  "linkedIn": "https://www.linkedin.com/in/arvin-sokarijo-7a382011",
+  "portfolioUrl": "https://arvinportfolio.nl",
+  "location": "Oranjewoud, in de buurt van Heerenveen",
+  "foreword": "Ik ben Senior Angular Developer bij Van Meijel Automatisering. Sinds januari 2025 werk ik aan Metacom Calculatie, de software voor bouw en infra. Ik richt me hier op de frontend \u00e9n de AI-integraties\u2014waarbij ik Claude, de Vercel AI SDK, Langfuse en Promptfoo inzet om calculaties sneller rond te krijgen.\n\nDit werk doe ik inmiddels ${yearsAsDeveloper} jaar. Ik ben een full stack developer die graag de verbindende factor is: van het scherm tot de achterliggende services. Ik vind het sparren met klanten en het meedenken over hun proces minstens zo leuk als het coderen zelf, waarbij ik altijd een scherp oog houd voor strakke UI en een intu\u00eftieve UX.\n\nHiervoor was ik bij Achmea in Leeuwarden actief voor FBTO, eerst als Senior Angular Developer en daarna als Lead Frontend. Daarvoor zat ik ruim tien jaar bij Webavance als Full Stack Developer (PHP, Laravel, Node.js en .NET), voor opdrachtgevers als Ziggo, Sanoma, We-Invite en Meander.",
+  "github": "https://github.com/arvinwerk",
+  "githubDescription": "Deze site is gemaakt met Next.js, React, Typescript en Tailwind. De chat praat via de Vercel AI SDK met een lokaal model. De code staat openbaar op GitHub, in arvinwerk/portfolio-demo.\n\nBij een push naar master bouwt GitHub Actions een standalone Node-server en zet die op de VPS, zodra de tests slagen. systemd houdt het proces draaiend. Nginx staat ervoor."
 }

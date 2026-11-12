@@ -1,0 +1,80 @@
+#!/bin/sh
+# Place published portfolio files outside the release tree.
+# A deploy replaces ~/portfolio/current. This directory stays.
+set -eu
+
+dest=${PORTFOLIO_CONTENT_DIR:-$HOME/.local/share/portfolio-content}
+env_file=${PORTFOLIO_ENV_FILE:-$HOME/portfolio/.env}
+drop_in=${PORTFOLIO_CONTENT_DROPIN:-$HOME/.config/systemd/user/portfolio.service.d/content.conf}
+restart=${PORTFOLIO_CONTENT_RESTART:-1}
+
+archive=$(mktemp)
+staging=$(mktemp -d)
+trap 'rm -rf "$archive" "$staging"' EXIT
+cat > "$archive"
+
+if ! tar -tJf "$archive" >/dev/null 2>&1; then
+  echo "Het archief is niet leesbaar." >&2
+  exit 1
+fi
+if tar -tJf "$archive" | grep -E '(^|/)\.\.(/|$)|^/|^[A-Za-z]:'; then
+  echo "Het archief bevat een pad buiten de uitpakmap." >&2
+  exit 1
+fi
+
+tar -C "$staging" -xJf "$archive"
+
+for required in personal.json projects.json skills.json banners.json rag/recruiter.txt images; do
+  if [ ! -e "$staging/$required" ]; then
+    echo "Het archief mist $required." >&2
+    exit 1
+  fi
+done
+
+mkdir -p "$dest"
+for name in personal.json projects.json skills.json banners.json; do
+  cp "$staging/$name" "$dest/$name"
+done
+rm -rf "$dest/rag" "$dest/images"
+cp -a "$staging/rag" "$dest/rag"
+cp -a "$staging/images" "$dest/images"
+
+case "$dest" in
+  /*) ;;
+  *)
+    echo "CONTENT_DIR moet een absoluut pad zijn." >&2
+    exit 1
+    ;;
+esac
+
+mkdir -p "$(dirname "$env_file")" "$(dirname "$drop_in")"
+if [ -f "$env_file" ]; then
+  updated=$(mktemp)
+  awk -v value="$dest" '
+    BEGIN { done = 0 }
+    $0 ~ /^CONTENT_DIR=/ { print "CONTENT_DIR=" value; done = 1; next }
+    { print }
+    END { if (!done) print "CONTENT_DIR=" value }
+  ' "$env_file" > "$updated"
+  cat "$updated" > "$env_file"
+  rm -f "$updated"
+else
+  printf 'CONTENT_DIR=%s\n' "$dest" > "$env_file"
+fi
+chmod 600 "$env_file"
+
+cat > "$drop_in" << EOF
+[Service]
+Environment=CONTENT_DIR=$dest
+EOF
+
+state=skipped
+if [ "$restart" = 1 ] && command -v systemctl >/dev/null 2>&1; then
+  if systemctl --user daemon-reload && systemctl --user try-restart portfolio.service; then
+    state=ok
+  else
+    state=failed
+  fi
+fi
+
+printf 'content-dir=%s\nrestart=%s\n' "$dest" "$state"

@@ -21,7 +21,7 @@ export function About({
           ))}
         </div>
         <aside className="bg-white p-6 shadow-card sm:p-8">
-          <p className="font-ui text-xs font-medium tracking-[0.22em] text-primary uppercase">Broncode</p>
+          <p className="font-ui text-xs font-medium tracking-[0.22em] text-primary uppercase">Techniek</p>
           <div className="mt-4 space-y-3">
             {githubDescription.map((paragraph) => (
               <p key={paragraph} className="text-ink">
@@ -33,7 +33,7 @@ export function About({
             className="mt-6 inline-block bg-action px-4 py-2.5 font-ui text-sm font-medium tracking-wide text-white uppercase no-underline hover:brightness-110"
             href={github}
             target="_blank"
-            rel="noreferrer"
+            rel="me noreferrer"
           >
             Code
           </a>

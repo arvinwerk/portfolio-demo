@@ -1,24 +1,39 @@
 # Feiten voor het model. De chat antwoordt alleen vanuit dit blad.
-naam: Noor Linden
-rol: frontend developer
-woonplaats: Kadewijk
-opleiding: informatica aan de Voorbeeld Hogeschool, afgerond in 2015
-geboren: 1993-04-18
-interfaces-sinds: 2015-08-03
-nu: sinds 2023 onder de naam Atelier Linden
-vaardigheid: TypeScript
-vaardigheid: JavaScript
-vaardigheid: Toegankelijkheid
-vaardigheid: Angular
-vaardigheid: React
-vaardigheid: Next.js
+naam: Arvin Sokarijo
+rol: senior angular developer
+woonplaats: Oranjewoud, in de buurt van Heerenveen
+interfaces-sinds: 2009-01-01
+nu: sinds januari 2025 senior Angular developer bij Van Meijel Automatisering, aan Metacom Calculatie voor bouw en infra
+vaardigheid: PHP
+vaardigheid: Javascript
+vaardigheid: Typescript
+vaardigheid: CSS3 / SASS
+vaardigheid: C#
+vaardigheid: Angular(JS)
 vaardigheid: Laravel
-vaardigheid: Node.js
-vaardigheid: Testen
-project: Festival Noordlicht | Lichtarrangementen | Angular, TypeScript
-project: Circuit Meridiaan | Baan VIP | Angular, Laravel
-project: Studio Noord | componentbibliotheek | React, TypeScript, Next.js
-project: Haven & Co | content-API | Laravel, Node.js
-project: Atelier Linden | deze demopagina | React, Next.js
-contact: noor.linden@example.com
-github: example.com/demo/noor-linden
+vaardigheid: Codeigniter
+vaardigheid: dot.net
+vaardigheid: NodeJS
+vaardigheid: OOP
+vaardigheid: Functional programming
+vaardigheid: Reactive Programming
+vaardigheid: RxJS
+vaardigheid: Ngrx Store
+vaardigheid: Vercel AI SDK
+vaardigheid: Claude
+vaardigheid: Langfuse
+vaardigheid: Promptfoo
+project: Van Meijel Automatisering | Metacom Calculatie | Angular, Claude, Vercel AI SDK, Langfuse, Promptfoo
+project: Achmea | Lead frontend bij FBTO | Angular
+project: We-Invite | Vrienden van Amstel VIP 2024 | Laravel, Angular
+project: We-Invite | Placeertool en uitnodigingen | Laravel
+project: Arpo entertainment | App voor infrarood ticketscanner | Ionic, Angular
+project: Ziggo | Microservice / middleware | NodeJS
+project: Ziggo | Interne profielenpagina | NodeJS, SailsJS, Angular, AngularJS
+project: Arpo entertainment | Welkomsscherm na inchecken ticket | Ionic, Angular
+project: Temporary Work Design | Urenregistratie | Ionic, Angular, DOT.NET, C#, Afas
+project: Sanoma | Swipe & Shop app | Ionic, Angular, PHP, ZANOX, AWS, S3, Heroku
+project: Meander ziekenhuis Amersfoort | Rooster generator | Laravel, PHP, Angular
+project: Arpo entertainment | Backoffice en dynamische registratie voor we-invite | Angular, Laravel, Capistrano, Redis, PHP
+contact: arvin.werk@gmail.com
+github: github.com/arvinwerk

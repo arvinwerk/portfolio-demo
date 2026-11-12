@@ -114,36 +114,61 @@ function assertImageSrc(value: unknown, path: string): string {
   return text;
 }
 
-const PERSONAL_KEYS = [
+const PERSONAL_REQUIRED = [
   "fullName",
   "function",
   "email",
-  "education",
   "developingStartDate",
   "linkedIn",
   "portfolioUrl",
   "location",
   "foreword",
-  "dateOfBirth",
   "github",
   "githubDescription",
 ];
 
+const PERSONAL_OPTIONAL = ["education", "dateOfBirth", "siteImages"];
+
+function assertAllowedKeys(value: UnknownRecord, required: string[], optional: string[], path: string): void {
+  const allowed = new Set([...required, ...optional]);
+  const actual = Object.keys(value);
+  const missing = required.filter((key) => !actual.includes(key));
+  const extra = actual.filter((key) => !allowed.has(key));
+
+  if (missing.length > 0 || extra.length > 0) {
+    throw new ContentError(`${path} verwacht deze velden: ${[...required, ...optional].join(", ")}.`);
+  }
+}
+
+function optionalString(record: UnknownRecord, key: string, path: string): string | null {
+  if (!Object.hasOwn(record, key)) {
+    return null;
+  }
+  return assertString(record[key], path);
+}
+
+function optionalDate(record: UnknownRecord, key: string, path: string): string | null {
+  if (!Object.hasOwn(record, key)) {
+    return null;
+  }
+  return assertDate(record[key], path);
+}
+
 function parsePersonal(value: unknown): PersonalProfile {
   const record = assertRecord(value, "personal");
-  assertExactKeys(record, PERSONAL_KEYS, "personal");
+  assertAllowedKeys(record, PERSONAL_REQUIRED, PERSONAL_OPTIONAL, "personal");
 
   return {
     fullName: assertString(record.fullName, "personal.fullName"),
     function: assertString(record.function, "personal.function"),
     email: assertEmail(record.email, "personal.email"),
-    education: assertString(record.education, "personal.education"),
+    education: optionalString(record, "education", "personal.education"),
     developingStartDate: assertDate(record.developingStartDate, "personal.developingStartDate"),
     linkedIn: assertUrl(record.linkedIn, "personal.linkedIn"),
     portfolioUrl: assertUrl(record.portfolioUrl, "personal.portfolioUrl"),
     location: assertString(record.location, "personal.location"),
     foreword: assertString(record.foreword, "personal.foreword"),
-    dateOfBirth: assertDate(record.dateOfBirth, "personal.dateOfBirth"),
+    dateOfBirth: optionalDate(record, "dateOfBirth", "personal.dateOfBirth"),
     github: assertUrl(record.github, "personal.github"),
     githubDescription: assertString(record.githubDescription, "personal.githubDescription"),
   };
@@ -161,7 +186,7 @@ function parseSkill(value: unknown, index: number): Skill {
     throw new ContentError(`${path}.percentage moet tussen 0 en 100 liggen.`);
   }
   if (typeof record.category !== "string" || !SKILL_CATEGORIES.includes(record.category as Skill["category"])) {
-    throw new ContentError(`${path}.category moet skills, framework of other zijn.`);
+    throw new ContentError(`${path}.category moet skills, framework, other of ai zijn.`);
   }
 
   return {

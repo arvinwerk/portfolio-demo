@@ -23,4 +23,9 @@ describe("renderForeword", () => {
     const result = renderForeword("Ik ben ${age} en ${age}. Jaren: ${yearsAsDeveloper}.", 32, 10);
     expect(result).toBe("Ik ben 32 en 32. Jaren: 10.");
   });
+
+  it("laat een voorwoord zonder leeftijd staan als de geboortedatum ontbreekt", () => {
+    expect(renderForeword("Ik doe dit ${yearsAsDeveloper} jaar.", null, 17)).toBe("Ik doe dit 17 jaar.");
+    expect(() => renderForeword("Ik ben ${age}.", null, 17)).toThrow(/geboortedatum/);
+  });
 });

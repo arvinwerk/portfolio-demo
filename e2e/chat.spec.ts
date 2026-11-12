@@ -1,5 +1,5 @@
 import { expect, type Page, test } from "@playwright/test";
-import { visitorDoors } from "../src/modules/assistant/domain/visitor-door";
+import { givenName, visitorDoors } from "../src/modules/assistant/domain/visitor-door";
 import {
   assistantText,
   mockChat,
@@ -27,6 +27,8 @@ const serverSentences = [
   { status: 413, error: "Het verzoek is te groot." },
 ] as const;
 
+const firstName = givenName(portfolio.personal.fullName);
+
 async function expectNoRequest(page: Page, action: () => Promise<void>) {
   const seen = page
     .waitForRequest((request) => request.url().includes("/api/chat") && request.method() === "POST", { timeout: 400 })
@@ -52,7 +54,7 @@ test.describe("venster", () => {
     await expect(dialog.getByText("Het model antwoordt vanuit het demoprofiel.")).toBeVisible();
     await expect(dialog.getByText("Hoe kom je hier binnen?")).toBeVisible();
     await expect(dialog.getByRole("button", { name: "Ik zoek iemand" })).toBeVisible();
-    await expect(dialog.getByRole("button", { name: "Ik ken Noor" })).toBeVisible();
+    await expect(dialog.getByRole("button", { name: `Ik ken ${firstName}` })).toBeVisible();
     await expect(dialog.getByRole("button", { name: "Ik liep binnen" })).toBeVisible();
     await expect(dialog.getByRole("textbox", { name: "Bericht" })).toHaveCount(0);
 
@@ -140,7 +142,7 @@ test.describe("venster", () => {
 
     await page.getByRole("button", { name: "Chat openen" }).click();
     const dialog = page.getByRole("dialog", { name: "Chat" });
-    await dialog.getByRole("button", { name: "Ik ken Noor" }).click();
+    await dialog.getByRole("button", { name: `Ik ken ${firstName}` }).click();
 
     await expect(dialog.getByText(ACQUAINTANCE_PROMPT, { exact: true })).toBeVisible();
     await expect(dialog.getByText(ACQUAINTANCE_QUESTION, { exact: true })).toBeVisible();
@@ -176,8 +178,7 @@ test.describe("venster", () => {
 
     await expectNoRequest(page, async () => {
       await dialog.getByRole("button", { name: "Ik liep binnen" }).click();
-      await expect(dialog.getByText(/Frontend developer/)).toBeVisible();
-      await expect(dialog.getByText(/verzonnen/)).toBeVisible();
+      await expect(dialog.getByText(strangerPrompt(firstName))).toBeVisible();
     });
   });
 
@@ -188,7 +189,7 @@ test.describe("venster", () => {
     await expectNoRequest(page, async () => {
       await dialog.getByRole("button", { name: "Verstuur" }).click();
     });
-    await expect(dialog.getByText(strangerPrompt("Noor"))).toBeVisible();
+    await expect(dialog.getByText(strangerPrompt(firstName))).toBeVisible();
 
     await field.fill("   ");
     await expectNoRequest(page, async () => {
@@ -222,7 +223,7 @@ test.describe("venster", () => {
     await expect(dialog.getByText("Zet AI_MODEL en AI_API_KEY.", { exact: true })).toBeVisible();
     await expect(dialog.getByText('{"error"')).toHaveCount(0);
     await expect(dialog.getByRole("textbox", { name: "Bericht" })).toHaveValue("");
-    await expect(dialog.getByText(strangerPrompt("Noor"))).toBeVisible();
+    await expect(dialog.getByText(strangerPrompt(firstName))).toBeVisible();
 
     await sendChat(dialog, "En je opleiding?");
     await expect(dialog.getByText("En je opleiding?", { exact: true })).toBeVisible();

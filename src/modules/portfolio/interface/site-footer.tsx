@@ -23,20 +23,17 @@ export function SiteFooter({
             </a>
           </li>
           <li>
-            <a className="text-white no-underline hover:underline" href={linkedIn} target="_blank" rel="noreferrer">
+            <a className="text-white no-underline hover:underline" href={linkedIn} target="_blank" rel="me noreferrer">
               LinkedIn
             </a>
           </li>
           <li>
-            <a className="text-white no-underline hover:underline" href={github} target="_blank" rel="noreferrer">
+            <a className="text-white no-underline hover:underline" href={github} target="_blank" rel="me noreferrer">
               GitHub
             </a>
           </li>
         </ul>
       </div>
-      <p className="border-t border-white/15 px-4 py-4 pr-24 text-center text-sm text-white/75">
-        Demopagina over {name}. Geen echt cv.
-      </p>
     </footer>
   );
 }

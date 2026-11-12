@@ -1,11 +1,12 @@
 import type { Skill, SkillCategory, SkillGroup } from "./model";
 
-const CATEGORY_ORDER: SkillCategory[] = ["skills", "framework", "other"];
+const CATEGORY_ORDER: SkillCategory[] = ["skills", "framework", "other", "ai"];
 
 export const SKILL_CATEGORY_LABELS: Record<SkillCategory, string> = {
-  skills: "Professional",
+  skills: "Talen",
   framework: "Frameworks",
-  other: "Other",
+  other: "Aanpak",
+  ai: "AI",
 };
 
 export function groupSkills(skills: Skill[]): SkillGroup[] {

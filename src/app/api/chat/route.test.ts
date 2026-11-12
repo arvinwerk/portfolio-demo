@@ -89,7 +89,7 @@ describe("POST /api/chat", () => {
   it("streamt het antwoord van het model op basis van het blad", async () => {
     vi.stubEnv("AI_MODEL", "test-model");
     vi.stubEnv("AI_API_KEY", "test-sleutel");
-    const answer = "Angular gebruik ik bij Festival Noordlicht en bij Circuit Meridiaan.";
+    const answer = "Angular gebruik ik bij Van Meijel Automatisering en bij We-Invite.";
     fetchMock.mockImplementation(async () => modelResponse(answer));
 
     const response = await post({
@@ -109,9 +109,11 @@ describe("POST /api/chat", () => {
     }
     const prompt = String(init.body);
     expect(prompt).toContain("Kun je ook Angular programmeren?");
-    expect(prompt).toContain("Leeftijd:");
-    expect(prompt).toContain("Circuit Meridiaan");
-    expect(prompt).toContain("Haven & Co");
+    expect(prompt).toContain("Jaren interfaces: 17");
+    expect(prompt).toContain("Oranjewoud, in de buurt van Heerenveen");
+    expect(prompt).toContain("Van Meijel Automatisering");
+    expect(prompt).not.toContain("Leeftijd:");
+    expect(prompt).not.toContain("Opleiding:");
     expect(prompt).toContain("Niet aanwezig: salaris");
     expect(prompt).not.toContain("test-sleutel");
     expect(prompt).not.toContain("Ja. Angular staat bij de vaardigheden.");
