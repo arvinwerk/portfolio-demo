@@ -37,4 +37,24 @@ describe("reviewBrief", () => {
     expect(brief).not.toContain("src/app/layout.tsx");
     expect(brief).toContain("Content");
   });
+
+  it("neemt een leeg eerder rapport niet mee als inspiratie", () => {
+    const brief = reviewBrief({
+      date: "2026-11-12",
+      lens: "interface",
+      prior: [
+        {
+          date: "2026-11-11",
+          lens: "interface",
+          score: null,
+          suggestions: ["Vandaag geen bruikbaar voorstel."],
+          body: "Geen toelichting.",
+        },
+      ],
+      excerpts: [],
+    });
+
+    expect(brief).toContain("Er zijn nog geen eerdere rapporten.");
+    expect(brief).not.toContain("Vandaag geen bruikbaar voorstel.");
+  });
 });

@@ -79,7 +79,12 @@ export function interpretReview(date: string, lens: ReviewLens, raw: string): Re
 
   for (const line of clean.split("\n")) {
     const trimmed = line.trim();
-    if (trimmed.length === 0 || /^#{1,6}\s+/.test(trimmed) || /^geen score\.?$/i.test(trimmed)) {
+    if (
+      trimmed.length === 0 ||
+      /^#{1,6}\s+/.test(trimmed) ||
+      /^geen score\.?$/i.test(trimmed) ||
+      isPlaceholderBody(trimmed)
+    ) {
       continue;
     }
     const found = readScore(trimmed);
@@ -134,9 +139,10 @@ export function publishedReport(report: ReviewReport): ReviewReport {
   const suggestions: string[] = [];
   for (const suggestion of report.suggestions) {
     const clean = clip(sanitizePublicText(suggestion).replaceAll("\n", " "), maxSuggestionLength);
-    if (clean.length > 0 && !suggestions.includes(clean)) {
-      suggestions.push(clean);
+    if (clean.length === 0 || clean === emptySuggestion || suggestions.includes(clean)) {
+      continue;
     }
+    suggestions.push(clean);
     if (suggestions.length === maxSuggestions) {
       break;
     }
@@ -146,17 +152,32 @@ export function publishedReport(report: ReviewReport): ReviewReport {
     date: report.date,
     lens: report.lens,
     score: reviewScore(report.score),
-    suggestions: suggestions.length > 0 ? suggestions : [emptySuggestion],
-    body: clip(sanitizePublicText(report.body), maxBodyLength),
+    suggestions,
+    body: visibleBody(report.body),
   };
+}
+
+export function reportHasFinding(report: ReviewReport): boolean {
+  const published = publishedReport(report);
+  return published.score !== null || published.suggestions.length > 0 || published.body.length > 0;
 }
 
 export function renderReportMarkdown(report: ReviewReport): string {
   const published = publishedReport(report);
   const items = published.suggestions.map((suggestion) => `- ${suggestion}`).join("\n");
-  const body = published.body.length > 0 ? published.body : "Geen toelichting.";
+  const suggestions = items.length > 0 ? `${items}\n\n` : "";
+  const body = published.body.length > 0 ? `${published.body}\n` : "";
   const score = published.score === null ? "Geen score" : `${published.score}/10`;
-  return `# ${lensTitle[published.lens]}\n\n## Score\n\n${score}\n\n## Suggesties\n\n${items}\n\n## Toelichting\n\n${body}\n`;
+  return `# ${lensTitle[published.lens]}\n\n## Score\n\n${score}\n\n## Suggesties\n\n${suggestions}## Toelichting\n\n${body}`;
+}
+
+function visibleBody(value: string): string {
+  const clean = clip(sanitizePublicText(value), maxBodyLength);
+  return isPlaceholderBody(clean) ? "" : clean;
+}
+
+function isPlaceholderBody(value: string): boolean {
+  return /^geen toelichting\.?$/i.test(value);
 }
 
 function readScore(line: string): { matches: true; score: number | null } | { matches: false } {

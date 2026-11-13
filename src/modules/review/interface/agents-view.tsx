@@ -21,10 +21,10 @@ export function AgentsView({ model, siteName }: { model: AgentsPage; siteName: s
         <h1 className="mt-2 font-display text-4xl font-semibold tracking-tight text-ink">Dagelijkse voorstellen</h1>
         <p className="mt-4 max-w-3xl text-muted">
           Elke dag kijken drie agents naar deze site en naar de code: gebruik, content en vindbaarheid. Ze lezen eerst
-          de oudere rapporten. Hier staan alleen hun voorstellen, zonder sleutels of andere gevoelige gegevens.
+          de oudere rapporten.
         </p>
         {model.days.length === 0 ? (
-          <p className="mt-10 text-ink">Nog geen rapport. Het eerste verschijnt na de dagelijkse run.</p>
+          <p className="mt-10 text-ink">Nog geen voorstel.</p>
         ) : (
           <div className="mt-12 flex flex-col gap-14">
             {model.days.map((day) => (
@@ -49,11 +49,13 @@ export function AgentsView({ model, siteName }: { model: AgentsPage; siteName: s
                           <span className="text-2xl text-muted">/10</span>
                         </p>
                       )}
-                      <ul className="mt-4 flex list-disc flex-col gap-2 pl-5 text-ink">
-                        {report.suggestions.map((suggestion, index) => (
-                          <li key={`${report.lens}-${index}`}>{suggestion}</li>
-                        ))}
-                      </ul>
+                      {report.suggestions.length > 0 ? (
+                        <ul className="mt-4 flex list-disc flex-col gap-2 pl-5 text-ink">
+                          {report.suggestions.map((suggestion, index) => (
+                            <li key={`${report.lens}-${index}`}>{suggestion}</li>
+                          ))}
+                        </ul>
+                      ) : null}
                       {report.paragraphs.length > 0 ? (
                         <div className="mt-4 flex flex-col gap-3 text-sm text-muted">
                           {report.paragraphs.map((paragraph, index) => (

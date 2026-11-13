@@ -43,8 +43,35 @@ De hiërarchie is vlak. Server 136.144.146.87.`,
     expect(report.score).toBe(7);
     expect(report.suggestions).toEqual(["Maak de kop korter"]);
     expect(interpretReview("2026-11-08", "content", "Score: 0").score).toBeNull();
-    expect(interpretReview("2026-11-08", "content", "").suggestions).toEqual([emptySuggestion]);
+    expect(interpretReview("2026-11-08", "content", "").suggestions).toEqual([]);
     expect(interpretReview("2026-11-08", "content", "").score).toBeNull();
+  });
+
+  it("leest een opgeslagen leeg rapport niet als voorstel", () => {
+    const report = interpretReview(
+      "2026-11-12",
+      "interface",
+      `# UI en gebruik
+
+## Score
+
+Geen score
+
+## Suggesties
+
+- ${emptySuggestion}
+
+## Toelichting
+
+Geen toelichting.
+`,
+    );
+
+    expect(report.score).toBeNull();
+    expect(report.suggestions).toEqual([]);
+    expect(report.body).toBe("");
+    expect(renderReportMarkdown(report)).not.toContain(emptySuggestion);
+    expect(renderReportMarkdown(report)).not.toContain("Geen toelichting");
   });
 });
 
